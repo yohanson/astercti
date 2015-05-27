@@ -9,12 +9,12 @@ typedef std::map<std::string, std::string> AmiMessage;
 class IObserver
 {
 public:
-	virtual void handleEvent(const AmiMessage&) const = 0;
+	virtual void handleEvent(const AmiMessage&) = 0;
 };
 
 class IObservable
 {
-	std::list<const IObserver *> _observers;
+	std::list<IObserver *> _observers;
 public:
 	void add(IObserver &observer)
 	{
@@ -24,7 +24,7 @@ public:
 	{
 		_observers.remove(&observer);
 	}
-	void Notify(const AmiMessage &message) const
+	void Notify(const AmiMessage &message)
 	{
 		for (auto iter : _observers)
 		{
@@ -36,8 +36,8 @@ public:
 
 class AmiMessageFilter : public IObserver, public IObservable
 {
-	virtual bool filter(const AmiMessage &message) const = 0;
-	void handleEvent(const AmiMessage& message) const
+	virtual bool filter(const AmiMessage &message) = 0;
+	void handleEvent(const AmiMessage& message)
 	{
 		if (filter(message))
 		{
@@ -54,7 +54,7 @@ public:
 	{
 		m_channel_id = channel;
 	}
-	bool filter(const AmiMessage &message) const
+	bool filter(const AmiMessage &message)
 	{
 	    try {
 	    	if (message.at("ChannelID") == m_channel_id)

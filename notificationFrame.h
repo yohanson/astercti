@@ -9,6 +9,7 @@
 #include <wx/timer.h>
 
 #include "observer.h"
+#include "controller.h"
 
 class notificationFrame: public wxFrame, public IObserver
 {
@@ -20,8 +21,9 @@ class notificationFrame: public wxFrame, public IObserver
 		bool AcceptsFocusFromKeyboard() { return false; }
 		bool AcceptsFocusRecursively() { return false; }
 		void SetText(wxString const&s){SetHtml(s);}
-		void SetHtml(const wxString &s) const;
+		void SetHtml(const wxString &s);
 		void UpdateSize();
+		void SetController(AsteriskController *);
 
 
 		//(*Declarations(notificationFrame)
@@ -44,7 +46,10 @@ class notificationFrame: public wxFrame, public IObserver
 		void OnButton1Click(wxCommandEvent& event);
 		void OnTimer1Trigger(wxTimerEvent& event);
 		//*)
-		void handleEvent(const AmiMessage &message) const;
+		void handleEvent(const AmiMessage &message);
+		std::string m_current_channel;
+		AsteriskController *m_controller;
+		int buttonsHeight;
 };
 
 

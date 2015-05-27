@@ -121,7 +121,11 @@ public:
 		m_socket->Close();
 	}
 	
-//	wxDECLARE_EVENT_TABLE();
+	void HangupChannel(std::string &channel)
+	{
+		std::string action = "\nAction: hangup\nChannel: "+channel+"\n\n";
+		m_socket->Write(action.c_str(), action.length()+1);
+	}
 };
 
 

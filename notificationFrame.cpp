@@ -1,21 +1,22 @@
 #include "notificationFrame.h"
+#include "controller.h"
 #include <wx/event.h>
 #include <wx/dcclient.h>
 
-//(*InternalHeaders(notificationFrame)
+
 #include <wx/settings.h>
 #include <wx/intl.h>
 #include <wx/string.h>
-//*)
+#include <wx/display.h>
+#include <wx/app.h>
 
-//(*IdInit(notificationFrame)
 const long notificationFrame::ID_HTMLWINDOW1 = wxNewId();
 const long notificationFrame::ID_BUTTON1 = wxNewId();
-//*)
 
 
 notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
+	m_controller = NULL;
 	wxBoxSizer* BoxSizerButtons;
 
 	Create(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER, _T("wxID_ANY"));
@@ -33,17 +34,22 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
+	buttonsHeight = BoxSizerButtons->GetSize().GetHeight();
 
 	Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&notificationFrame::OnButton1Click);
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&notificationFrame::OnPaint);
 	//HtmlWindow1->SetBorders(0);
-	Show(true);
+	//Show(true);
 }
 
 notificationFrame::~notificationFrame()
 {
 }
 
+void notificationFrame::SetController(AsteriskController *controller)
+{
+	m_controller = controller;
+}
 
 void notificationFrame::OnPaint(wxPaintEvent& event)
 {
@@ -62,43 +68,56 @@ void notificationFrame::OnPaint(wxPaintEvent& event)
 
 void notificationFrame::OnButton1Click(wxCommandEvent& event)
 {
-/*	HangupThread *thread = new HangupThread(wxGetApp().main_dialog->m_channelid);
-    if ( thread->Create() != wxTHREAD_NO_ERROR )
-    {
-        wxGetApp().main_dialog->Log("Can't create thread!");
-        return;
-    }
-    if ( thread->Run() != wxTHREAD_NO_ERROR )
-    {
-        wxGetApp().main_dialog->Log("Can't start thread!");
-        return;
-    }*/
+	m_controller->HangupChannel(m_current_channel);
 }
 
-void notificationFrame::SetHtml(const wxString &s) const
+void notificationFrame::SetHtml(const wxString &s)
 {
 	wxString bgcolor = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK).GetAsString();
 	HtmlWindow1->SetPage("<body bgcolor='"+bgcolor+"'>"+s+"</body>");
 	//HtmlWindow1->Layout();
-	int height = HtmlWindow1->GetInternalRepresentation()->GetHeight();
+	int height = HtmlWindow1->GetInternalRepresentation()->GetHeight() + buttonsHeight;
 	int width = HtmlWindow1->GetInternalRepresentation()->GetWidth();
 	//HtmlWindow1->Set
 	BoxSizer1->SetItemMinSize(HtmlWindow1, width, height);
-	const_cast<notificationFrame*>(this)->SetInitialSize();
+	SetInitialSize();
+	wxDisplay display;
+    	wxRect rect = display.GetClientArea();
+    	wxSize size = GetSize();
+    	Move(rect.GetBottomRight()-size);
+ 
 }
 
 void notificationFrame::UpdateSize()
 {
 }
 
-void notificationFrame::handleEvent(const AmiMessage &message) const
+void notificationFrame::handleEvent(const AmiMessage &message)
 {
+	bool is_channel_up = false;
+	std::string html = "";
 	try {
-	SetHtml(message.at("ChannelStateDesc"));
+		if (message.at("Event") == "Newstate")
+		{
+			if (message.at("ChannelStateDesc") == "Up"
+			 || message.at("ChannelStateDesc") == "Ring"
+		       	 || message.at("ChannelStateDesc") == "Ringing")
+			{
+				is_channel_up = true;
+				html = "Channel: " + message.at("Channel") + "<br>CallerID: " + message.at("ConnectedLineNum") + " (" + message.at("ConnectedLineName") + ")";
+				m_current_channel = message.at("Channel");
+			}
+		}
+		else if (message.at("Event") == "Hangup")
+		{
+			is_channel_up = false;
+		}
 	}
 	catch (std::out_of_range)
 	{
 	
 	}
+	SetHtml(html);
+	Show(is_channel_up);
 }
 
