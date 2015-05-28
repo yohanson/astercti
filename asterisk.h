@@ -100,6 +100,11 @@ public:
 		m_socket->Write(action.c_str(), action.length()+1);
 	}
 
+	Asterisk(wxString host, int port, wxString username, wxString secret)
+	{
+		Asterisk(host.ToStdString(), port, username.ToStdString(), secret.ToStdString());
+	}
+
 	Asterisk(std::string host, int port, std::string username, std::string secret)
 	{
 		Bind(wxEVT_SOCKET, &Asterisk::OnSocketEvent, this);

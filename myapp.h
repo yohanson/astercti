@@ -8,6 +8,7 @@ class MyApp: public wxApp
 public:
     virtual bool OnInit();
     AsteriskController *m_controller;
+    wxFileConfig *m_config;
 };
 
 #endif

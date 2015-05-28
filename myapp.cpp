@@ -17,13 +17,30 @@
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
+    m_config = NULL;
+    m_config = new wxFileConfig(wxT("astercti"),
+                                wxEmptyString,
+                                wxT("astercti.ini"),
+                                wxEmptyString,
+                                wxCONFIG_USE_SUBDIR);
+    if (!m_config)
+    {
+	std::cerr << "Error opening config file." << std::endl;
+	return false;
+    }
+
+	
     MyFrame *frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
     SetExitOnFrameDelete(true);
     frame->Show( true );
     SetTopWindow(frame);
-    Asterisk *asterisk = new Asterisk("212.20.30.8", 5038, "themaster", "MyS3cretPasswordManager");
+    std::cout << "addr: " << m_config->Read("server/address") << std::endl;
+    Asterisk *asterisk = new Asterisk(m_config->Read("server/address"),
+		5038,
+		m_config->Read("server/username"),
+		m_config->Read("server/password"));
     m_controller = new AsteriskController(asterisk);
-    MyChanFilter *mychanfilter = new MyChanFilter("SIP/it1");
+    MyChanFilter *mychanfilter = new MyChanFilter("dialplan/channel");
     asterisk->add(*mychanfilter);
     mychanfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
