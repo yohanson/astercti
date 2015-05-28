@@ -45,6 +45,7 @@ class notificationFrame: public wxFrame, public IObserver
 		void OnPaint(wxPaintEvent& event);
 		void OnButton1Click(wxCommandEvent& event);
 		void OnTimer1Trigger(wxTimerEvent& event);
+		void OnLinkClicked(wxHtmlLinkEvent& event);
 		//*)
 		void handleEvent(const AmiMessage &message);
 		std::string m_current_channel;

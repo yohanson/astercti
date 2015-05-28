@@ -1,9 +1,10 @@
 CXXFLAGS=-std=c++11 `wx-config --cflags`
 
+all: binary
+
 clean:
 	rm binary *.o
 
-all: binary
 
 binary: myapp.o mainframe.o notificationFrame.o
 	g++ `wx-config --libs` *.o -o binary

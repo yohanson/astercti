@@ -38,8 +38,10 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 
 	Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&notificationFrame::OnButton1Click);
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&notificationFrame::OnPaint);
+	Bind(wxEVT_HTML_LINK_CLICKED, &notificationFrame::OnLinkClicked, this);
 	//HtmlWindow1->SetBorders(0);
 	//Show(true);
+	
 }
 
 notificationFrame::~notificationFrame()
@@ -71,6 +73,11 @@ void notificationFrame::OnButton1Click(wxCommandEvent& event)
 	m_controller->HangupChannel(m_current_channel);
 }
 
+void notificationFrame::OnLinkClicked(wxHtmlLinkEvent& event)
+{
+	wxLaunchDefaultBrowser(event.GetLinkInfo().GetHref());
+}
+
 void notificationFrame::SetHtml(const wxString &s)
 {
 	wxString bgcolor = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK).GetAsString();
@@ -96,6 +103,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 {
 	bool is_channel_up = false;
 	std::string html = "";
+	std::string callerid = "";
 	try {
 		if (message.at("Event") == "Newstate")
 		{
@@ -105,6 +113,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 			{
 				is_channel_up = true;
 				html = "Channel: " + message.at("Channel") + "<br>CallerID: " + message.at("ConnectedLineNum") + " (" + message.at("ConnectedLineName") + ")";
+				callerid = message.at("ConnectedLineNum");
 				m_current_channel = message.at("Channel");
 			}
 		}
@@ -117,7 +126,18 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	{
 	
 	}
-	SetHtml(html);
+	SetHtml(html + "<br><img src='wait.gif'>");
 	Show(is_channel_up);
+	wxArrayString output;
+	wxExecute(wxString("/home/mikhailov/scripts/onring2 3476157"), output);
+	wxString out = "";
+	for (auto iter : output)
+	{
+		std::cout << "String: " << wxString::FromUTF8(iter) << std::endl;
+		out += wxString::FromUTF8(iter);
+	}
+	//wxExecute(wxString("~/scripts/onring " + callerid), output);
+	SetHtml(html+"<br />" + out);
+	std::cout << out << std::endl;
 }
 
