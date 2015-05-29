@@ -52,6 +52,7 @@ class MyChanFilter : public AmiMessageFilter
 public:
 	MyChanFilter(std::string channel)
 	{
+		std::cout << "New filter: " << channel << std::endl;
 		m_channel_id = channel;
 	}
 	bool filter(const AmiMessage &message)

@@ -1,21 +1,16 @@
 CXXFLAGS=-std=c++11 `wx-config --cflags`
+BINARY=astercti
 
-all: binary
+all: $(BINARY)
 
 clean:
-	rm binary *.o
+	rm -f $(BINARY) *.o
 
 
-binary: myapp.o mainframe.o notificationFrame.o
-	g++ `wx-config --libs` *.o -o binary
-
-#*.o:
-#	echo 
-#	#g++ -std=c++11 `wx-config --cflags`
-#	g++ -std=c++11 `wx-config --cflags` -c mainframe.cpp
-#	g++ -std=c++11 `wx-config --cflags` -c notificationFrame.cpp
+$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o
+	g++ `wx-config --libs` *.o -o $(BINARY)
 
 
 win:
-	i686-w64-mingw32-g++ -std=c++11 `wx-config --libs --cflags` wxnet.cpp notificationFrame.cpp -o binary.exe
+	i686-w64-mingw32-g++ -std=c++11 `wx-config --libs --cflags` *.cpp -o $(BINARY).exe
 

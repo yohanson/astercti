@@ -24,7 +24,7 @@ class notificationFrame: public wxFrame, public IObserver
 		void SetHtml(const wxString &s);
 		void UpdateSize();
 		void SetController(AsteriskController *);
-
+		void SetLookupCmd(std::string);
 
 		//(*Declarations(notificationFrame)
 		wxButton* Button1;
@@ -49,6 +49,7 @@ class notificationFrame: public wxFrame, public IObserver
 		//*)
 		void handleEvent(const AmiMessage &message);
 		std::string m_current_channel;
+		std::string m_lookup_cmd;
 		AsteriskController *m_controller;
 		int buttonsHeight;
 };

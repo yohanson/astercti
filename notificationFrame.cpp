@@ -1,17 +1,37 @@
-#include "notificationFrame.h"
-#include "controller.h"
+#include <iostream>
 #include <wx/event.h>
 #include <wx/dcclient.h>
-
-
 #include <wx/settings.h>
 #include <wx/intl.h>
 #include <wx/string.h>
 #include <wx/display.h>
 #include <wx/app.h>
+#include <wx/process.h>
+#include <wx/txtstrm.h>
+
+#include "notificationFrame.h"
+#include "controller.h"
 
 const long notificationFrame::ID_HTMLWINDOW1 = wxNewId();
 const long notificationFrame::ID_BUTTON1 = wxNewId();
+
+void ExecCommand(wxString &cmd, wxArrayString &output)
+{
+	wxProcess p;
+	p.Redirect();
+	wxExecute(cmd, wxEXEC_SYNC, &p);
+
+	wxInputStream *i = p.GetInputStream();
+	if(i)
+	{ 
+		wxTextInputStream t(*i, " \t", wxConvUTF8);
+
+		while(!i->Eof())
+		{
+			output.Add(t.ReadLine());
+		} 
+	}
+}
 
 
 notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
@@ -48,9 +68,13 @@ notificationFrame::~notificationFrame()
 {
 }
 
-void notificationFrame::SetController(AsteriskController *controller)
-{
+void notificationFrame::SetController(AsteriskController *controller) {
 	m_controller = controller;
+}
+
+void notificationFrame::SetLookupCmd(std::string cmd) {
+	std::cout << "Lookup cmd: " << cmd << std::endl;
+	m_lookup_cmd = cmd;
 }
 
 void notificationFrame::OnPaint(wxPaintEvent& event)
@@ -126,18 +150,31 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	{
 	
 	}
-	SetHtml(html + "<br><img src='wait.gif'>");
-	Show(is_channel_up);
-	wxArrayString output;
-	wxExecute(wxString("/home/mikhailov/scripts/onring2 3476157"), output);
-	wxString out = "";
-	for (auto iter : output)
+	if (is_channel_up)
 	{
-		std::cout << "String: " << wxString::FromUTF8(iter) << std::endl;
-		out += wxString::FromUTF8(iter);
+	      	if (!m_lookup_cmd.empty())
+		{
+			SetHtml(html + "<br><img src='wait.gif'>");
+			Show(is_channel_up);
+			wxArrayString output;
+			wxString cmd;
+			cmd.Printf(wxString(m_lookup_cmd), callerid);
+			ExecCommand(cmd, output);
+			wxString out = "";
+			for (auto iter : output)
+			{
+				std::cout << "String: " << iter << std::endl;
+				out += iter;
+			}
+			SetHtml(html+"<br />" + out);
+			std::cout << out << std::endl;
+		}
+		else
+		{
+			SetHtml(html);
+			Show(is_channel_up);
+		}
 	}
-	//wxExecute(wxString("~/scripts/onring " + callerid), output);
-	SetHtml(html+"<br />" + out);
-	std::cout << out << std::endl;
+	Show(is_channel_up);
 }
 

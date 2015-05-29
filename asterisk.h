@@ -41,7 +41,7 @@ private:
 				break;
 
 			case wxSOCKET_CONNECTION:
-				//std::cout << "... socket is now connected." << std::endl;
+				std::cout << "... socket is now connected." << std::endl;
 				break;
 
 			default:
@@ -64,6 +64,7 @@ private:
 		while (end != std::string::npos)
 		{
 			line = raw_messages.substr(start, end-start);
+			//std::cout << line << std::endl;
 			if ( ! line.length() )
 			{
 				//std::cout << "===================================\n" << message << std::endl;
@@ -100,11 +101,6 @@ public:
 		m_socket->Write(action.c_str(), action.length()+1);
 	}
 
-	Asterisk(wxString host, int port, wxString username, wxString secret)
-	{
-		Asterisk(host.ToStdString(), port, username.ToStdString(), secret.ToStdString());
-	}
-
 	Asterisk(std::string host, int port, std::string username, std::string secret)
 	{
 		Bind(wxEVT_SOCKET, &Asterisk::OnSocketEvent, this);
@@ -118,7 +114,6 @@ public:
 		m_socket->Connect(addr);
 		std::string login = "Action: login\nUsername: "+username+"\nSecret: "+secret+"\n\n";
 		m_socket->Write(login.c_str(), login.length()+1);
-		std::cout << "Socket connected." << std::endl;
 	}
 
 	~Asterisk()

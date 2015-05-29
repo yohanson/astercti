@@ -30,6 +30,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     Bind(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose), this);
 
 
+
     CreateStatusBar();
     SetStatusText( "Welcome to wxWidgets!" );
     AmiMessage filter;
@@ -49,6 +50,7 @@ void MyFrame::OnHello(wxCommandEvent& event)
 
 void MyFrame::OnClose(wxCloseEvent& event)
 {
+	m_controller->m_mainFrame = NULL;
 	std::cout << "close" << std::endl;
 	wxWindow::Destroy();
 }

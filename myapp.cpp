@@ -11,8 +11,9 @@
 #include "controller.h"
 #include "asterisk.h"
 #include "notificationFrame.h"
-#include "myapp.h"
 #include "mainframe.h"
+#include "myapp.h"
+#include "taskbaricon.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -29,23 +30,27 @@ bool MyApp::OnInit()
 	return false;
     }
 
-	
+    std::cout << "Filename: " << m_config->GetLocalFileName("astercti.ini", wxCONFIG_USE_SUBDIR) << std::endl;
+
     MyFrame *frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
     SetExitOnFrameDelete(true);
     frame->Show( true );
     SetTopWindow(frame);
     std::cout << "addr: " << m_config->Read("server/address") << std::endl;
-    Asterisk *asterisk = new Asterisk(m_config->Read("server/address"),
+    Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
-		m_config->Read("server/username"),
-		m_config->Read("server/password"));
+		m_config->Read("server/username").ToStdString(),
+		m_config->Read("server/password").ToStdString());
     m_controller = new AsteriskController(asterisk);
-    MyChanFilter *mychanfilter = new MyChanFilter("dialplan/channel");
+    MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     asterisk->add(*mychanfilter);
     mychanfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetController(m_controller);
+    notifyframe->SetLookupCmd(m_config->Read("commands/lookup").ToStdString());
     mychanfilter->add(*notifyframe);
+    MyTaskBarIcon *icon = new MyTaskBarIcon;
+    icon->SetController(m_controller);
     std::cout << "ExitOnFrameDelete: " << GetExitOnFrameDelete() << std::endl;
     return true;
 }
