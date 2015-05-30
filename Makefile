@@ -7,7 +7,7 @@ clean:
 	rm -f $(BINARY) *.o
 
 
-$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o
+$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o
 	g++ `wx-config --libs` *.o -o $(BINARY)
 
 

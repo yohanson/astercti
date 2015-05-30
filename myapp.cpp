@@ -42,15 +42,18 @@ bool MyApp::OnInit()
 		m_config->Read("server/username").ToStdString(),
 		m_config->Read("server/password").ToStdString());
     m_controller = new AsteriskController(asterisk);
+    m_controller->SetMainFrame(frame);
     MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     asterisk->add(*mychanfilter);
     mychanfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
-    notifyframe->SetController(m_controller);
     notifyframe->SetLookupCmd(m_config->Read("commands/lookup").ToStdString());
     mychanfilter->add(*notifyframe);
     MyTaskBarIcon *icon = new MyTaskBarIcon;
-    icon->SetController(m_controller);
+    icon->SetMainFrame(frame);
+    m_controller->add(icon);
+    m_controller->add(frame);
+    //m_controller->add(notifyframe);
     std::cout << "ExitOnFrameDelete: " << GetExitOnFrameDelete() << std::endl;
     return true;
 }

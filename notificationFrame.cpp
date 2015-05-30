@@ -36,7 +36,7 @@ void ExecCommand(wxString &cmd, wxArrayString &output)
 
 notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
-	m_controller = NULL;
+	descr = "notify frame";
 	wxBoxSizer* BoxSizerButtons;
 
 	Create(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER, _T("wxID_ANY"));
@@ -66,10 +66,6 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 
 notificationFrame::~notificationFrame()
 {
-}
-
-void notificationFrame::SetController(AsteriskController *controller) {
-	m_controller = controller;
 }
 
 void notificationFrame::SetLookupCmd(std::string cmd) {

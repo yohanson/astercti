@@ -11,6 +11,7 @@ wxDECLARE_APP(MyApp);
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
+    descr = "mainframe";
     wxMenu *menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
                      "Help string shown in status bar for this menu item");
@@ -36,12 +37,19 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     AmiMessage filter;
     m_channel_id = "SIP/it1";
 }
+
+MyFrame::~MyFrame()
+{
+	std::cout << "mainframe destruct" << std::endl;
+}
+
 void MyFrame::OnExit(wxCommandEvent& event)
 {
     Close( true );
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
+	m_controller->Originate("123");
 }
 void MyFrame::OnHello(wxCommandEvent& event)
 {
@@ -50,7 +58,6 @@ void MyFrame::OnHello(wxCommandEvent& event)
 
 void MyFrame::OnClose(wxCloseEvent& event)
 {
-	m_controller->m_mainFrame = NULL;
 	std::cout << "close" << std::endl;
 	wxWindow::Destroy();
 }

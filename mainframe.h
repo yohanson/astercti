@@ -1,10 +1,11 @@
 #ifndef _MAINFRAME_H_
 #define _MAINFRAME_H_
 
-class MyFrame: public wxFrame, public IObserver
+class MyFrame: public wxFrame, public IObserver, public ControllerUser
 {
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    ~MyFrame();
     void SetController(AsteriskController *ctrl){m_controller = ctrl;}
     void handleEvent(const AmiMessage &message)
     {

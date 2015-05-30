@@ -5,28 +5,41 @@
 
 MyTaskBarIcon::MyTaskBarIcon()
 {
-	//m_parent = parent;
-	//Bind(wxEVT_TASKBAR_RIGHT_DOWN, &MyTaskBarIcon::OnRightDown, this);
+	m_mainFrame = NULL;
+	descr = "taskbar icon";
 	Bind(wxEVT_TASKBAR_LEFT_DCLICK, &MyTaskBarIcon::OnLeftButtonDClick, this);
-	wxIcon icon("/usr/share/pixmaps/astercti.png", wxBITMAP_TYPE_PNG);
+	//wxIcon icon("/usr/share/pixmaps/astercti.png", wxBITMAP_TYPE_PNG);
+	wxIcon icon("/home/yohanson/coding/wx/astercti/debian/astercti/usr/share/pixmaps/astercti.png", wxBITMAP_TYPE_PNG);
 	SetIcon(icon);
+}
+
+void MyTaskBarIcon::SetMainFrame(wxWindow *frame)
+{
+	m_mainFrame = frame;
 }
 
 void MyTaskBarIcon::OnExit(wxCommandEvent& event)
 {
-	m_parent->Close();
+	//if (m_controller)
+	//	m_controller->Shutdown();
+	//	m_controller = NULL;
+	if (m_mainFrame)
+		m_mainFrame->Close();
+	wxTaskBarIcon::Destroy();
 }
 
 void MyTaskBarIcon::OnLeftButtonDClick(wxTaskBarIconEvent&)
 {
 	std::cout << "taskbar left dclick" << std::endl;
-	if (!m_controller) return;
-	if (m_controller->m_mainFrame && m_controller->m_mainFrame->IsShown())
-		m_controller->m_mainFrame->Show(false);
-	else
+	if (m_mainFrame)
 	{
-		m_controller->m_mainFrame->Show(true);
-		m_controller->m_mainFrame->Raise();
+		if (m_mainFrame->IsShown())
+			m_mainFrame->Show(false);
+		else
+		{
+			m_mainFrame->Show(true);
+			m_mainFrame->Raise();
+		}
 	}
 }
 
