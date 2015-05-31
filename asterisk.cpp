@@ -95,7 +95,7 @@ Asterisk::Asterisk(std::string host, int port, std::string username, std::string
 	addr.Service(port);
 	m_socket->Connect(addr);
 	std::string login = "Action: login\nUsername: "+username+"\nSecret: "+secret+"\n\n";
-	m_socket->Write(login.c_str(), login.length()+1);
+	m_socket->Write(login.c_str(), login.length());
 }
 
 Asterisk::~Asterisk()
@@ -106,22 +106,28 @@ Asterisk::~Asterisk()
 void Asterisk::Originate(std::string mychan, std::string context, std::string exten, int priority)
 {	
 	std::ostringstream actionstream;
+	char id[32];
+	time_t tmp_time = time(0);
+	strftime(id, 32, "%H%M%S", localtime(&tmp_time));
 	actionstream <<
-		   "\nAction: originate"
+		   "Action: originate"
 		<< "\nChannel: " << mychan
 		<< "\nContext: " << context
 		<< "\nExten: " << exten
 		<< "\nPriority: " << priority
+		<< "\nAsync: yes"
+		<< "\nCallerID: " << exten
+		<< "\nActionID: " << mychan << "-" << id
 		<< "\n\n";
 	std::string action = actionstream.str();
-	std::cout << "Going to originate with this: " << action << std::endl;
-	m_socket->Write(action.c_str(), action.length()+1);
+	std::cout << "Going to originate with this: '" << action << "'" << std::endl;
+	m_socket->Write(action.c_str(), action.length());
 }
 
 
 void Asterisk::HangupChannel(std::string &channel)
 {
-	std::string action = "\nAction: hangup\nChannel: "+channel+"\n\n";
-	m_socket->Write(action.c_str(), action.length()+1);
+	std::string action = "Action: hangup\nChannel: "+channel+"\n\n";
+	m_socket->Write(action.c_str(), action.length());
 }
 

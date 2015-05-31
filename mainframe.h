@@ -6,7 +6,6 @@ class MyFrame: public wxFrame, public IObserver, public ControllerUser
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     ~MyFrame();
-    void SetController(AsteriskController *ctrl){m_controller = ctrl;}
     void handleEvent(const AmiMessage &message)
     {
 	std::string status;
@@ -24,7 +23,6 @@ private:
     void OnClose(wxCloseEvent& event);
     wxTextCtrl *StatusText;
     std::string m_channel_id;
-    AsteriskController *m_controller;
 };
 
 enum

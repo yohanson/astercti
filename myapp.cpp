@@ -53,7 +53,7 @@ bool MyApp::OnInit()
     icon->SetMainFrame(frame);
     m_controller->add(icon);
     m_controller->add(frame);
-    //m_controller->add(notifyframe);
+    m_controller->add(notifyframe);
     std::cout << "ExitOnFrameDelete: " << GetExitOnFrameDelete() << std::endl;
     return true;
 }

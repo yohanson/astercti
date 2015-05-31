@@ -1,4 +1,4 @@
-CXXFLAGS=-std=c++11 `wx-config --cflags`
+CXXFLAGS=-std=c++11 -ggdb `wx-config --cflags`
 BINARY=astercti
 
 all: $(BINARY)

@@ -55,7 +55,7 @@ ControllerUser::~ControllerUser(){
 }
 
 void ControllerUser::SetController(AsteriskController *c){
-	std::cout << "set controller" << std::endl;
+	std::cout << "set controller for " << descr << std::endl;
 	m_controller = c; 
 };
 
