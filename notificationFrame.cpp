@@ -59,8 +59,6 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&notificationFrame::OnButton1Click);
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&notificationFrame::OnPaint);
 	Bind(wxEVT_HTML_LINK_CLICKED, &notificationFrame::OnLinkClicked, this);
-	//HtmlWindow1->SetBorders(0);
-	//Show(true);
 	
 }
 
@@ -76,7 +74,6 @@ void notificationFrame::SetLookupCmd(std::string cmd) {
 void notificationFrame::OnPaint(wxPaintEvent& event)
 {
 	wxPaintDC dc(this);
-	//DoPrepareDC(dc);
 	wxColor fg,bg,middle;
 	fg = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOTEXT);
 	bg = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK);
@@ -102,12 +99,11 @@ void notificationFrame::SetHtml(const wxString &s)
 {
 	wxString bgcolor = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK).GetAsString();
 	HtmlWindow1->SetPage("<body bgcolor='"+bgcolor+"'>"+s+"</body>");
-	//HtmlWindow1->Layout();
 	int height = HtmlWindow1->GetInternalRepresentation()->GetHeight();
 	int width = HtmlWindow1->GetInternalRepresentation()->GetWidth();
-	//HtmlWindow1->Set
 	BoxSizer1->SetItemMinSize(HtmlWindow1, width, height);
-	SetInitialSize();
+	HtmlWindow1->Fit();
+	Fit();
 	wxDisplay display;
     	wxRect rect = display.GetClientArea();
     	wxSize size = GetSize();

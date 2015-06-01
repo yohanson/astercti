@@ -1,5 +1,3 @@
-// wxWidgets "Hello world" Program
-// For compilers that support precompilation, includes "wx/wx.h".
 #ifdef WX_PRECOMP
 	#include <wx/wxprec.h>
 #else
@@ -32,7 +30,7 @@ bool MyApp::OnInit()
 
     std::cout << "Filename: " << m_config->GetLocalFileName("astercti.ini", wxCONFIG_USE_SUBDIR) << std::endl;
 
-    MyFrame *frame = new MyFrame( "Hello World", wxPoint(50, 50), wxSize(450, 340) );
+    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(450, 340) );
     SetExitOnFrameDelete(true);
     frame->Show( true );
     SetTopWindow(frame);

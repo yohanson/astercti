@@ -16,6 +16,7 @@ private:
     void OnAbout(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void OnDialPressEnter(wxCommandEvent &);
+    void OnListResize(wxSizeEvent&);
     wxTextCtrl *StatusText;
     wxListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
