@@ -8,8 +8,10 @@ class MyTaskBarIcon : public wxTaskBarIcon, public ControllerUser
 private:
     wxWindow *m_mainFrame;
 public:
-    MyTaskBarIcon();
+    MyTaskBarIcon(wxString);
+    MyTaskBarIcon(wxIcon);
 
+    void Init();
     void SetMainFrame(wxWindow *);
     void OnLeftButtonDClick(wxTaskBarIconEvent&);
     void OnExit(wxCommandEvent&);

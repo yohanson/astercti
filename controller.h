@@ -10,10 +10,13 @@ class AsteriskController
 private:
 	Asterisk *m_asterisk;
 	std::list<ControllerUser *> m_clients;
+	std::string m_mychannel;
+	std::string m_myexten;
+	std::string m_context;
 
 public:
 	wxWindow *m_mainFrame;
-	AsteriskController(Asterisk *asterisk);
+	AsteriskController(Asterisk *asterisk, std::string context, std::string mychannel, std::string exten);
 	~AsteriskController();
 	void ImGonnaDie(ControllerUser *almostdead);
 	void add(ControllerUser *client);
@@ -21,6 +24,7 @@ public:
 	void SetMainFrame(wxWindow *frame);
 	void HangupChannel(std::string &channel);
 	void Originate(std::string exten);
+	std::string GetMyExten() const;
 };
 
 class ControllerUser

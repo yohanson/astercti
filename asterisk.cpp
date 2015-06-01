@@ -103,7 +103,7 @@ Asterisk::~Asterisk()
 	m_socket->Close();
 }
 
-void Asterisk::Originate(std::string mychan, std::string context, std::string exten, int priority)
+void Asterisk::Originate(std::string mychan, std::string context, std::string exten, std::string myexten, int priority)
 {	
 	std::ostringstream actionstream;
 	char id[32];
@@ -116,7 +116,7 @@ void Asterisk::Originate(std::string mychan, std::string context, std::string ex
 		<< "\nExten: " << exten
 		<< "\nPriority: " << priority
 		<< "\nAsync: yes"
-		<< "\nCallerID: " << exten
+		<< "\nCallerID: \"" << exten << "\" <" << myexten << ">"
 		<< "\nActionID: " << mychan << "-" << id
 		<< "\n\n";
 	std::string action = actionstream.str();

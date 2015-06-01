@@ -28,7 +28,7 @@ public:
 	void add(IObserver& observer);
 	Asterisk(std::string host, int port, std::string username, std::string secret);
 	~Asterisk();
-	void Originate(std::string mychan, std::string context, std::string exten, int priority = 1);
+	void Originate(std::string mychan, std::string context, std::string exten, std::string myexten = "", int priority = 1);
 	void HangupChannel(std::string &channel);
 };
 

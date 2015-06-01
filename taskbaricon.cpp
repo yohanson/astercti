@@ -3,14 +3,24 @@
 #include "controller.h"
 #include "taskbaricon.h"
 
-MyTaskBarIcon::MyTaskBarIcon()
+MyTaskBarIcon::MyTaskBarIcon(wxString iconfile)
+{
+	Init();
+	wxIcon icon(iconfile, wxBITMAP_TYPE_PNG);
+	SetIcon(icon);
+}
+
+MyTaskBarIcon::MyTaskBarIcon(wxIcon icon)
+{
+	Init();
+	SetIcon(icon);
+}
+
+void MyTaskBarIcon::Init()
 {
 	m_mainFrame = NULL;
 	descr = "taskbar icon";
 	Bind(wxEVT_TASKBAR_LEFT_DCLICK, &MyTaskBarIcon::OnLeftButtonDClick, this);
-	//wxIcon icon("/usr/share/pixmaps/astercti.png", wxBITMAP_TYPE_PNG);
-	wxIcon icon("/home/yohanson/coding/wx/astercti/debian/astercti/usr/share/pixmaps/astercti.png", wxBITMAP_TYPE_PNG);
-	SetIcon(icon);
 }
 
 void MyTaskBarIcon::SetMainFrame(wxWindow *frame)

@@ -48,8 +48,8 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	HtmlWindow1->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK));
 	BoxSizer1->Add(HtmlWindow1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizerButtons = new wxBoxSizer(wxHORIZONTAL);
-	Button1 = new wxButton(this, ID_BUTTON1, _("No"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT, wxDefaultValidator, _T("ID_BUTTON1"));
-	BoxSizerButtons->Add(Button1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
+	Button1 = new wxButton(this, ID_BUTTON1, wxT("Нет"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT, wxDefaultValidator, _T("ID_BUTTON1"));
+	BoxSizerButtons->Add(Button1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizer1->Add(BoxSizerButtons, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
@@ -103,7 +103,7 @@ void notificationFrame::SetHtml(const wxString &s)
 	wxString bgcolor = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK).GetAsString();
 	HtmlWindow1->SetPage("<body bgcolor='"+bgcolor+"'>"+s+"</body>");
 	//HtmlWindow1->Layout();
-	int height = HtmlWindow1->GetInternalRepresentation()->GetHeight() + buttonsHeight;
+	int height = HtmlWindow1->GetInternalRepresentation()->GetHeight();
 	int width = HtmlWindow1->GetInternalRepresentation()->GetWidth();
 	//HtmlWindow1->Set
 	BoxSizer1->SetItemMinSize(HtmlWindow1, width, height);
@@ -111,7 +111,7 @@ void notificationFrame::SetHtml(const wxString &s)
 	wxDisplay display;
     	wxRect rect = display.GetClientArea();
     	wxSize size = GetSize();
-    	Move(rect.GetBottomRight()-size);
+    	Move(rect.GetBottomRight()-size-wxSize(0,4));
  
 }
 
@@ -122,7 +122,7 @@ void notificationFrame::UpdateSize()
 void notificationFrame::handleEvent(const AmiMessage &message)
 {
 	bool is_channel_up = false;
-	std::string html = "";
+	wxString html = "";
 	std::string callerid = "";
 	try {
 		if (message.at("Event") == "Newstate")
@@ -132,8 +132,16 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 		       	 || message.at("ChannelStateDesc") == "Ringing")
 			{
 				is_channel_up = true;
-				html = "Channel: " + message.at("Channel") + "<br>CallerID: " + message.at("ConnectedLineNum") + " (" + message.at("ConnectedLineName") + ")";
 				callerid = message.at("ConnectedLineNum");
+				if (callerid == m_controller->GetMyExten() && message.at("ChannelStateDesc") == "Ringing")
+				{
+					html = wxT("Снимите трубку для звонка на номер <b>") + message.at("ConnectedLineName") + "</b>";
+					SetHtml(html);
+				}
+				else
+				{
+					html = "Channel: " + message.at("Channel") + "<br>CallerID: " + message.at("ConnectedLineNum") + " (" + message.at("ConnectedLineName") + ")";
+				}
 				m_current_channel = message.at("Channel");
 			}
 		}
@@ -146,12 +154,12 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	{
 	
 	}
-	if (is_channel_up)
+	if (is_channel_up && !callerid.empty() && callerid != "<unknown>")
 	{
 	      	if (!m_lookup_cmd.empty())
 		{
 			SetHtml(html + "<br><img src='wait.gif'>");
-			Show(is_channel_up);
+			Show();
 			wxArrayString output;
 			wxString cmd;
 			cmd.Printf(wxString(m_lookup_cmd), callerid);
@@ -168,9 +176,11 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 		else
 		{
 			SetHtml(html);
-			Show(is_channel_up);
 		}
+		Show();
 	}
-	Show(is_channel_up);
+	else {
+		Hide();
+	}
 }
 

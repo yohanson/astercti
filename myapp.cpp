@@ -41,7 +41,13 @@ bool MyApp::OnInit()
 		5038,
 		m_config->Read("server/username").ToStdString(),
 		m_config->Read("server/password").ToStdString());
-    m_controller = new AsteriskController(asterisk);
+    m_controller = new AsteriskController(
+		    asterisk,
+		    m_config->Read("dialplan/context").ToStdString(),
+		    m_config->Read("dialplan/channel").ToStdString(),
+		    m_config->Read("dialplan/exten").ToStdString()
+
+	);
     m_controller->SetMainFrame(frame);
     MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     asterisk->add(*mychanfilter);
@@ -49,7 +55,10 @@ bool MyApp::OnInit()
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetLookupCmd(m_config->Read("commands/lookup").ToStdString());
     mychanfilter->add(*notifyframe);
-    MyTaskBarIcon *icon = new MyTaskBarIcon;
+    wxString iconfile = m_config->Read("gui/icon");
+    wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
+    frame->SetIcon(iconimage);
+    MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage);
     icon->SetMainFrame(frame);
     m_controller->add(icon);
     m_controller->add(frame);
