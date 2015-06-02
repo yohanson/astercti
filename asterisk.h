@@ -32,5 +32,17 @@ public:
 	void HangupChannel(std::string &channel);
 };
 
-
+class Call
+{
+private:
+	wxString m_number;
+	wxString m_name;
+	wxString m_description;
+	wxDateTime m_time;
+	int m_duration;
+public:
+	enum {CALL_IN, CALL_OUT} m_direction;
+	enum {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
+	
+};
 #endif

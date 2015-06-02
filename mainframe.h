@@ -17,9 +17,15 @@ private:
     void OnClose(wxCloseEvent& event);
     void OnDialPressEnter(wxCommandEvent &);
     void OnListResize(wxSizeEvent&);
+    void OnListItemSelect(wxListEvent&);
     wxTextCtrl *StatusText;
     wxListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
+};
+
+class CallListItem : public wxListItem, public Call
+{
+
 };
 
 enum

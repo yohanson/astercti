@@ -40,7 +40,7 @@ install: release
 	cp -r astercti.png		$(DESTDIR)/usr/share/pixmaps/astercti.png
 
 archive:
-	rm ../astercti_0.0.2.orig.tar.gz
+	rm -f ../astercti_0.0.2.orig.tar.gz
 	tar zcf ../astercti_0.0.2.orig.tar.gz ../astercti
 
 deb: archive

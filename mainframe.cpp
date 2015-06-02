@@ -51,7 +51,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER);
+    m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     m_callList->InsertColumn(0, "");
     RightSizer->Add(DialSizer, 0, wxEXPAND);
@@ -65,6 +65,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     m_DialNumber->Bind(wxEVT_TEXT_ENTER, &MyFrame::OnDialPressEnter, this);
     DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
     m_callList->Bind(wxEVT_SIZE, &MyFrame::OnListResize, this);
+    m_callList->Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::OnListItemSelect, this);
 
     CreateStatusBar();
     SetStatusText( "Welcome to wxWidgets!" );
@@ -109,6 +110,11 @@ void MyFrame::OnListResize(wxSizeEvent &event)
 	m_callList->SetColumnWidth(0, size.x);
 
 	event.Skip();
+}
+
+void MyFrame::OnListItemSelect(wxListEvent &event)
+{
+	m_DialNumber->SetValue(event.GetText());
 }
 
 void MyFrame::handleEvent(const AmiMessage &message)
