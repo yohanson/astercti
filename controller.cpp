@@ -50,6 +50,10 @@ std::string AsteriskController::GetMyExten() const
 {
 	return m_myexten;
 };
+std::string AsteriskController::GetMyChannel() const
+{
+	return m_mychannel;
+};
 // ControllerUser
 
 ControllerUser::ControllerUser(){

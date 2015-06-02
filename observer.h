@@ -16,59 +16,24 @@ class IObservable
 {
 	std::list<IObserver *> _observers;
 public:
-	void add(IObserver &observer)
-	{
-		_observers.push_back(&observer);
-	}
-	void remove(IObserver &observer)
-	{
-		_observers.remove(&observer);
-	}
-	void Notify(const AmiMessage &message)
-	{
-		for (auto iter : _observers)
-		{
-			iter->handleEvent(message);
-		}
-	}
-
+	void add(IObserver &observer);
+	void remove(IObserver &observer);
+	void Notify(const AmiMessage &message);
 };
 
 class AmiMessageFilter : public IObserver, public IObservable
 {
 	virtual bool filter(const AmiMessage &message) = 0;
-	void handleEvent(const AmiMessage& message)
-	{
-		if (filter(message))
-		{
-			Notify(message);
-		}
-	}
+	void handleEvent(const AmiMessage& message);
 };
 
 class MyChanFilter : public AmiMessageFilter
 {
 	std::string m_channel_id;
 public:
-	MyChanFilter(std::string channel)
-	{
-		std::cout << "New filter: " << channel << std::endl;
-		m_channel_id = channel;
-	}
-	bool filter(const AmiMessage &message)
-	{
-	    try {
-	    	if (message.at("ChannelID") == m_channel_id)
-			if (message.at("Event") == "Newstate" || message.at("Event") == "Hangup" || message.at("Event") == "Cdr")
-				return true;
-	    }
-	    catch (std::out_of_range)
-	    {
-	    	return false;
-	    }
-	    return false;
-	}
-
+	MyChanFilter(std::string channel);
+	bool filter(const AmiMessage &message);
+	//void virtual OnCdr(const AmiMessage &message) = 0;
 };
 
 #endif

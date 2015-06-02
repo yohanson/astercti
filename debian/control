@@ -1,0 +1,16 @@
+Source: astercti
+Section: net
+Priority: optional
+Maintainer: Mikhailov M.A. <yohanson@ngs.ru>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Vcs-Git: git://github.com/yohanson/astercti.git
+Vcs-Browser: http://github.com/yohanson/astercti.git
+
+Package: astercti
+Architecture: amd64
+Depends: ${misc:Depends} ${shlibs:Depends}
+#Depends: libboost-signals-dev, ${shlibs:Depends}, ${misc:Depends}
+Description: Computer-Telephone Integration app for Asterisk
+ Written in wxWidgets and C++. Supports ring notification,
+ originating calls from GUI, list of calls. Uses AMI to work.

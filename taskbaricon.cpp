@@ -40,7 +40,6 @@ void MyTaskBarIcon::OnExit(wxCommandEvent& event)
 
 void MyTaskBarIcon::OnLeftButtonDClick(wxTaskBarIconEvent&)
 {
-	std::cout << "taskbar left dclick" << std::endl;
 	if (m_mainFrame)
 	{
 		if (m_mainFrame->IsShown())

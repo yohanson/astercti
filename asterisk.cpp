@@ -73,6 +73,10 @@ void Asterisk::OnInputAvailable()
 			{
 				am["ChannelID"] = value.substr(0, value.find_last_of('-'));
 			}
+			else if (key == "DestinationChannel")
+			{
+				am["DestinationChannelID"] = value.substr(0, value.find_last_of('-'));
+			}
 		}
 		start = end + delim.length();
 		end = raw_messages.find(delim, start);
@@ -120,7 +124,6 @@ void Asterisk::Originate(std::string mychan, std::string context, std::string ex
 		<< "\nActionID: " << mychan << "-" << id
 		<< "\n\n";
 	std::string action = actionstream.str();
-	std::cout << "Going to originate with this: '" << action << "'" << std::endl;
 	m_socket->Write(action.c_str(), action.length());
 }
 

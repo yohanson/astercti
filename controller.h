@@ -25,6 +25,7 @@ public:
 	void HangupChannel(std::string &channel);
 	void Originate(std::string exten);
 	std::string GetMyExten() const;
+	std::string GetMyChannel() const;
 };
 
 class ControllerUser

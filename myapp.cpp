@@ -22,13 +22,16 @@ bool MyApp::OnInit()
                                 wxT("astercti.ini"),
                                 wxEmptyString,
                                 wxCONFIG_USE_SUBDIR);
-    if (!m_config)
+    wxFileName configfile = m_config->GetLocalFile("astercti.ini", wxCONFIG_USE_SUBDIR);
+    if (!configfile.IsFileReadable())
     {
-	std::cerr << "Error opening config file." << std::endl;
+	std::cerr << "Error opening config file." << std::endl
+	          << "Sample config is at /usr/share/astercti/astercti.ini" << std::endl
+	          << "Copy it to " << configfile.GetFullPath() << " and edit." << std::endl;
 	return false;
     }
 
-    std::cout << "Filename: " << m_config->GetLocalFileName("astercti.ini", wxCONFIG_USE_SUBDIR) << std::endl;
+    std::cout << "Filename: " << configfile.GetFullPath() << std::endl;
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(450, 340) );
     SetExitOnFrameDelete(true);

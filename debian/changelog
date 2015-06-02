@@ -1,0 +1,16 @@
+astercti (0.0.2-2) UNRELEASED; urgency=medium
+
+  * Make notification frame disappear on pickup.
+
+ -- Mikhailov M.A. <yohanson@ngs.ru>  Tue, 02 Jun 2015 17:25:39 +0600
+
+astercti (0.0.2-1) unstable; urgency=low
+
+  * Rewrite from scratch without astxx and boost, pure wxWidgets.
+
+ -- Mikhailov M.A. <yohanson@ngs.ru>  Wed, 02 Jun 2015 14:51:23 +0600
+astercti (0.0.1-1) unstable; urgency=low
+
+  * Initial release with astxx.
+
+ -- Mikhailov M.A. <yohanson@ngs.ru>  Wed, 25 Mar 2015 19:13:23 +0600

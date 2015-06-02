@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <wx/wx.h>
 #include <wx/app.h>
 #include <wx/listctrl.h>
@@ -31,9 +32,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     SetMenuBar( menuBar );
 
     wxImageList *imagelist = new wxImageList(24, 24, true);
-    imagelist->Add(wxBitmap(wxImage("incoming_answered.png")));
-    imagelist->Add(wxBitmap(wxImage("incoming_missed.png")));
-    imagelist->Add(wxBitmap(wxImage("outbound_answered.png")));
+    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/incoming_answered.png")));
+    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/incoming_unanswered.png")));
+    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/outbound_answered.png")));
+    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/outbound_unanswered.png")));
 
     wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
     TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
@@ -45,19 +47,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     RightPanel->SetSizer(RightSizer);
     wxBoxSizer *DialSizer = new wxBoxSizer(wxHORIZONTAL);
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    wxBitmapButton *DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage(_T("dial.png"))), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
+    wxBitmapButton *DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage("/usr/share/astercti/dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
-    StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE, wxDefaultValidator, _T("ID_TEXTCTRLNUMBER"));
+    StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER);
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     m_callList->InsertColumn(0, "");
-    wxListItem item;
-    item.SetId(0);
-    item.SetColumn(0);
-    item.SetText("911 abrakadabraabrakadabra");
-    item.SetImage(1);
-    m_callList->InsertItem(item);
     RightSizer->Add(DialSizer, 0, wxEXPAND);
     RightSizer->Add(StatusText, 1, wxEXPAND);
     TopMostVerticalSplitter->SplitVertically(m_callList, RightPanel);
@@ -88,7 +84,7 @@ void MyFrame::OnExit(wxCommandEvent& event)
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-
+	wxLogMessage("https://github.com/yohanson/astercti");
 }
 void MyFrame::OnHello(wxCommandEvent& event)
 {
@@ -103,7 +99,6 @@ void MyFrame::OnClose(wxCloseEvent& event)
 
 void MyFrame::OnDialPressEnter(wxCommandEvent &event)
 {
-	std::cout << "enter!" << std::endl;
 	if (!m_DialNumber->GetValue().IsEmpty())
 		m_controller->Originate(m_DialNumber->GetValue().ToStdString());
 }
@@ -135,14 +130,36 @@ void MyFrame::handleEvent(const AmiMessage &message)
 				callerid = message.at("ConnectedLineNum");
 			}
 		}
-		else if (message.at("Event") == "Hangup")
+/*		else if (message.at("Event") == "Hangup")
 		{
 			if (message.at("ConnectedLineNum") != "<unknown>")
 			{
-				wxListItem *item = new wxListItem;
-				item->SetId(m_callList->GetItemCount());
-				item->SetText(message.at("ConnectedLineNum"));
-				m_callList->InsertItem(*item);
+			}
+		}*/
+		else if (message.at("Event") == "Cdr")
+		{
+			if (!message.at("DestinationChannel").empty())
+			{
+				if (message.at("ChannelID") == m_controller->GetMyChannel()) // outbound call
+				{
+					wxListItem *item = new wxListItem;
+					item->SetId(m_callList->GetItemCount());
+					item->SetText(message.at("Destination"));
+					if (message.at("Disposition") == "ANSWERED")
+						item->SetImage(2);
+					else item->SetImage(3);
+					m_callList->InsertItem(*item);
+				}
+				if (message.at("DestinationChannelID") == m_controller->GetMyChannel()) // incoming call
+				{
+					wxListItem *item = new wxListItem;
+					item->SetId(m_callList->GetItemCount());
+					item->SetText(message.at("Source"));
+					if (message.at("Disposition") == "ANSWERED")
+						item->SetImage(0);
+					else item->SetImage(1);
+					m_callList->InsertItem(*item);
+				}
 			}
 		}
 	}

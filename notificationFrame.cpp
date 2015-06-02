@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 #include <wx/event.h>
 #include <wx/dcclient.h>
 #include <wx/settings.h>
@@ -8,6 +9,7 @@
 #include <wx/app.h>
 #include <wx/process.h>
 #include <wx/txtstrm.h>
+#include <wx/intl.h>
 
 #include "notificationFrame.h"
 #include "controller.h"
@@ -39,16 +41,16 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	descr = "notify frame";
 	wxBoxSizer* BoxSizerButtons;
 
-	Create(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER, _T("wxID_ANY"));
+	Create(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER);
 	SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOTEXT));
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK));
 	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
-	HtmlWindow1 = new wxHtmlWindow(this, ID_HTMLWINDOW1, wxDefaultPosition, wxSize(400,30), wxHW_SCROLLBAR_NEVER|wxHW_NO_SELECTION, _T("ID_HTMLWINDOW1"));
+	HtmlWindow1 = new wxHtmlWindow(this, ID_HTMLWINDOW1, wxDefaultPosition, wxSize(400,30), wxHW_SCROLLBAR_NEVER|wxHW_NO_SELECTION);
 	HtmlWindow1->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOTEXT));
 	HtmlWindow1->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK));
 	BoxSizer1->Add(HtmlWindow1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizerButtons = new wxBoxSizer(wxHORIZONTAL);
-	Button1 = new wxButton(this, ID_BUTTON1, wxT("Нет"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT, wxDefaultValidator, _T("ID_BUTTON1"));
+	Button1 = new wxButton(this, ID_BUTTON1, _("No"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	BoxSizerButtons->Add(Button1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizer1->Add(BoxSizerButtons, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
 	SetSizer(BoxSizer1);
@@ -123,15 +125,14 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	try {
 		if (message.at("Event") == "Newstate")
 		{
-			if (message.at("ChannelStateDesc") == "Up"
-			 || message.at("ChannelStateDesc") == "Ring"
+			if (message.at("ChannelStateDesc") == "Ring"
 		       	 || message.at("ChannelStateDesc") == "Ringing")
 			{
 				is_channel_up = true;
 				callerid = message.at("ConnectedLineNum");
 				if (callerid == m_controller->GetMyExten() && message.at("ChannelStateDesc") == "Ringing")
 				{
-					html = wxT("Снимите трубку для звонка на номер <b>") + message.at("ConnectedLineName") + "</b>";
+					html = _("Pickup the handset to dial") + " <b>" + message.at("ConnectedLineName") + "</b>";
 					SetHtml(html);
 				}
 				else
@@ -154,7 +155,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	{
 	      	if (!m_lookup_cmd.empty())
 		{
-			SetHtml(html + "<br><img src='wait.gif'>");
+			SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 			Show();
 			wxArrayString output;
 			wxString cmd;
@@ -163,11 +164,10 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 			wxString out = "";
 			for (auto iter : output)
 			{
-				std::cout << "String: " << iter << std::endl;
 				out += iter;
 			}
 			SetHtml(html+"<br />" + out);
-			std::cout << out << std::endl;
+			//std::cout << out << std::endl;
 		}
 		else
 		{
