@@ -40,13 +40,14 @@ class notificationFrame: public wxFrame, public IObserver, public ControllerUser
 
 	private:
 
-		//(*Handlers(notificationFrame)
 		void OnPaint(wxPaintEvent& event);
 		void OnButton1Click(wxCommandEvent& event);
 		void OnTimer1Trigger(wxTimerEvent& event);
 		void OnLinkClicked(wxHtmlLinkEvent& event);
-		//*)
+		void OnHideButtonClick(wxCommandEvent& event);
+		void OnHideTimer(wxTimerEvent& event);
 		void handleEvent(const AmiMessage &message);
+		wxTimer *m_hidetimer;
 		std::string m_current_channel;
 		std::string m_lookup_cmd;
 		int buttonsHeight;

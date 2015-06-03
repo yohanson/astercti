@@ -1,6 +1,7 @@
 #ifndef _CONTROLLER_H_
 #define _CONTROLLER_H_
 
+#include <wx/fileconf.h>
 #include "asterisk.h"
 
 class ControllerUser;
@@ -13,10 +14,12 @@ private:
 	std::string m_mychannel;
 	std::string m_myexten;
 	std::string m_context;
+	wxFileConfig *m_config;
 
 public:
 	wxWindow *m_mainFrame;
 	AsteriskController(Asterisk *asterisk, std::string context, std::string mychannel, std::string exten);
+	AsteriskController(Asterisk *asterisk, wxFileConfig *config);
 	~AsteriskController();
 	void ImGonnaDie(ControllerUser *almostdead);
 	void add(ControllerUser *client);
@@ -26,6 +29,8 @@ public:
 	void Originate(std::string exten);
 	std::string GetMyExten() const;
 	std::string GetMyChannel() const;
+	std::string Cfg(std::string);
+	long CfgInt(std::string);
 };
 
 class ControllerUser

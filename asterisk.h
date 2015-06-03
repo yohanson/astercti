@@ -34,7 +34,7 @@ public:
 
 class Call
 {
-private:
+protected:
 	wxString m_number;
 	wxString m_name;
 	wxString m_description;

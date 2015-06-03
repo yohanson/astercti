@@ -5,10 +5,20 @@
 AsteriskController::AsteriskController(Asterisk *asterisk, std::string context, std::string mychannel, std::string exten)
 {
 	m_mainFrame = NULL;
+	m_config = NULL;
 	m_asterisk = asterisk;
 	m_context = context;
 	m_mychannel = mychannel;
 	m_myexten = exten;
+}
+AsteriskController::AsteriskController(Asterisk *asterisk, wxFileConfig *config)
+{
+	m_config = config;
+	m_asterisk = asterisk;
+	m_context = Cfg("dialplan/context");
+	m_mychannel = Cfg("dialplan/channel");
+	m_myexten = Cfg("dialplan/exten");
+
 }
 AsteriskController::~AsteriskController()
 {
@@ -54,6 +64,22 @@ std::string AsteriskController::GetMyChannel() const
 {
 	return m_mychannel;
 };
+std::string AsteriskController::Cfg(std::string s)
+{
+	if (!m_config)
+		return "";
+	return m_config->Read(s).ToStdString();
+};
+long AsteriskController::CfgInt(std::string s)
+{
+	if (!m_config)
+	       return 0;
+	long val;
+	m_config->Read(s, &val);
+	return val;
+};
+
+
 // ControllerUser
 
 ControllerUser::ControllerUser(){

@@ -57,15 +57,20 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 	buttonsHeight = BoxSizerButtons->GetSize().GetHeight();
+	wxButton *hidebutton = new wxButton(HtmlWindow1, wxID_ANY, wxT("×"), wxPoint(380,0), wxSize(20,20), wxBORDER_NONE);
+	m_hidetimer = new wxTimer(this);
 
 	Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&notificationFrame::OnButton1Click);
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&notificationFrame::OnPaint);
 	Bind(wxEVT_HTML_LINK_CLICKED, &notificationFrame::OnLinkClicked, this);
+	hidebutton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &notificationFrame::OnHideButtonClick, this);
+	Bind(wxEVT_TIMER, &notificationFrame::OnHideTimer, this);
 	
 }
 
 notificationFrame::~notificationFrame()
 {
+	delete m_hidetimer;
 }
 
 void notificationFrame::SetLookupCmd(std::string cmd) {
@@ -90,6 +95,16 @@ void notificationFrame::OnPaint(wxPaintEvent& event)
 void notificationFrame::OnButton1Click(wxCommandEvent& event)
 {
 	m_controller->HangupChannel(m_current_channel);
+}
+
+void notificationFrame::OnHideButtonClick(wxCommandEvent& event)
+{
+	Hide();
+}
+
+void notificationFrame::OnHideTimer(wxTimerEvent &event)
+{
+	Hide();
 }
 
 void notificationFrame::OnLinkClicked(wxHtmlLinkEvent& event)
@@ -120,15 +135,29 @@ void notificationFrame::UpdateSize()
 void notificationFrame::handleEvent(const AmiMessage &message)
 {
 	bool is_channel_up = false;
-	wxString html = "";
+	bool is_channel_ringing = false;
+	wxString html;
 	std::string callerid = "";
 	try {
-		if (message.at("Event") == "Newstate")
+		if (message.at("Event") == "Newstate" && message.at("ChannelID") == m_controller->GetMyChannel())
 		{
-			if (message.at("ChannelStateDesc") == "Ring"
+			if (message.at("ChannelStateDesc") == "Up")
+			{
+				is_channel_up = true;
+				callerid = message.at("ConnectedLineNum");
+				long timer = m_controller->CfgInt("gui/pickup_notify_hide_timeout");
+				if (!timer){
+				       Hide();
+				       return;
+				}
+				else if (timer != -1)
+					m_hidetimer->StartOnce(timer);
+			}
+			else if (message.at("ChannelStateDesc") == "Ring"
 		       	 || message.at("ChannelStateDesc") == "Ringing")
 			{
 				is_channel_up = true;
+				is_channel_ringing = true;
 				callerid = message.at("ConnectedLineNum");
 				if (callerid == m_controller->GetMyExten() && message.at("ChannelStateDesc") == "Ringing")
 				{
@@ -151,9 +180,9 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	{
 	
 	}
-	if (is_channel_up && !callerid.empty() && callerid != "<unknown>")
+	if (is_channel_up)
 	{
-	      	if (!m_lookup_cmd.empty())
+	       	if (is_channel_ringing && !callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty())
 		{
 			SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 			Show();
@@ -169,7 +198,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 			SetHtml(html+"<br />" + out);
 			//std::cout << out << std::endl;
 		}
-		else
+		else if (!html.empty())
 		{
 			SetHtml(html);
 		}

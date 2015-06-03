@@ -42,13 +42,7 @@ bool MyApp::OnInit()
 		5038,
 		m_config->Read("server/username").ToStdString(),
 		m_config->Read("server/password").ToStdString());
-    m_controller = new AsteriskController(
-		    asterisk,
-		    m_config->Read("dialplan/context").ToStdString(),
-		    m_config->Read("dialplan/channel").ToStdString(),
-		    m_config->Read("dialplan/exten").ToStdString()
-
-	);
+    m_controller = new AsteriskController(asterisk, m_config);
     m_controller->SetMainFrame(frame);
     MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     asterisk->add(*mychanfilter);
@@ -64,7 +58,6 @@ bool MyApp::OnInit()
     m_controller->add(icon);
     m_controller->add(frame);
     m_controller->add(notifyframe);
-    std::cout << "ExitOnFrameDelete: " << GetExitOnFrameDelete() << std::endl;
     return true;
 }
 
