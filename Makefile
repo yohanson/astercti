@@ -1,4 +1,4 @@
-CXXFLAGS=-std=c++11 `wx-config --cflags`
+CXXFLAGS=-std=c++11 `wx-config --cflags` `pkg-config --cflags jsoncpp`
 BINARY=astercti
 DBGDIR=debug
 RELDIR=release
@@ -20,7 +20,7 @@ clean:
 
 
 $(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o
-	$(CXX) `wx-config --libs` *.o -o $(BINARY)
+	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
 
 debug: CXXFLAGS += -DDEBUG -g
 debug: $(BINARY)

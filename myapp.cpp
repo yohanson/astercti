@@ -5,6 +5,7 @@
 #endif
 
 #include <wx/string.h>
+#include <locale>
 
 #include "controller.h"
 #include "asterisk.h"
@@ -16,6 +17,13 @@
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
+    if (!setlocale(LC_CTYPE, ""))
+    {
+    	fprintf(stderr, "Can't set the specified locale! "
+	                "Check LANG, LC_CTYPE, LC_ALL.\n");
+	return 1;
+    }
+	
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
                                 wxEmptyString,

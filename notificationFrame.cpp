@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdexcept>
+#include <regex>
 #include <wx/event.h>
 #include <wx/dcclient.h>
 #include <wx/settings.h>
@@ -12,6 +13,8 @@
 #include <wx/intl.h>
 #include <wx/protocol/http.h>
 #include <wx/sstream.h>
+#include <json/value.h>
+#include <json/reader.h>
 
 #include "notificationFrame.h"
 #include "controller.h"
@@ -37,6 +40,16 @@ void ExecCommand(wxString &cmd, wxArrayString &output)
 	}
 }
 
+void FindAndReplace(std::string &tmpl, std::string varname, std::string value)
+{
+	size_t start_pos = 0;
+	size_t found_pos;
+	while ((found_pos = tmpl.find(varname, start_pos)) != std::string::npos)
+	{
+		start_pos = found_pos + 1;
+		tmpl.replace(found_pos, varname.length(), value);
+	}
+}
 
 notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
@@ -168,7 +181,10 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 				}
 				else
 				{
-					html = "Channel: " + message.at("Channel") + "<br>CallerID: " + message.at("ConnectedLineNum") + " (" + message.at("ConnectedLineName") + ")";
+					html = "<h4>" + message.at("ConnectedLineNum");
+				       	if (message.at("ConnectedLineName") != "")
+						html << " (" << message.at("ConnectedLineName") << ")";
+					html << "</h4>";
 				}
 				m_current_channel = message.at("Channel");
 			}
@@ -184,7 +200,15 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	}
 	if (is_channel_up)
 	{
-	       	if (is_channel_ringing && !callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty())
+		bool regex_matches = false;
+		if (!m_lookup_cmd.empty())
+		{
+			std::string regex = m_controller->Cfg("commands/lookup_numbers_regex");
+			regex_matches = std::regex_match(callerid, std::regex(regex));
+			std::cerr << "Regex: '" << regex << "' matches: " << regex_matches << std::endl;
+
+		}
+	       	if (is_channel_ringing && !callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty() && regex_matches)
 		{
 			SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 			Show();
@@ -206,44 +230,49 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 wxString notificationFrame::Lookup(std::string callerid)
 {
 	wxString out;
-	if (m_lookup_cmd.substr(0,4) == "http")
+	wxArrayString output;
+	wxString cmd;
+	cmd.Printf(wxString(m_lookup_cmd), callerid);
+	std::cerr << "Executing: " << cmd << std::endl;
+	ExecCommand(cmd, output);
+	for (auto iter : output)
 	{
-		std::cout << "http cmd" << std::endl;
-		wxHTTP get;
-		//get.SetHeader(_T("Content-type"), _T("text/html; charset=utf-8"));
-		get.SetTimeout(5); // 5 seconds of timeout instead of 10 minutes ...
-
-		while (!get.Connect(_T("infin.risp.ru")))
-			    wxSleep(1);
-
-		wxApp::IsMainLoopRunning();
-
-		wxInputStream *httpStream = get.GetInputStream(_T("/cgi-bin/inner/searchbynumber.cgi?Str=9139424977"));
-
-		if (get.GetError() == wxPROTO_NOERR)
-		{
-			wxStringOutputStream out_stream(&out);
-			httpStream->Read(out_stream);
-			std::cout << "Lookup got: " << out << std::endl;
-		}
-		else
-		{
-			std::cout << _("Unable to connect!") << endl;
-		}
-
-		wxDELETE(httpStream);
-		get.Close();
+		out += iter;
 	}
-	else
+
+	Json::Value root;
+	Json::Reader reader;
+	std::string outstring = std::string(out.mb_str());
+	if (!reader.parse(outstring, root, false))
 	{
-		wxArrayString output;
-		wxString cmd;
-		cmd.Printf(wxString(m_lookup_cmd), callerid);
-		ExecCommand(cmd, output);
-		for (auto iter : output)
-		{
-			out += iter;
-		}
+		std::cerr << "Failed to parse JSON: " << std::endl
+		       << reader.getFormattedErrorMessages() <<std::endl;
 	}
-	return out;
+	const Json::Value clients = root["clients"];
+	wxString html;
+	std::string url_template = m_controller->Cfg("commands/client_url");
+	for ( int i = 0; i < clients.size() && i < 3; ++i )
+	{
+		std::string url = url_template;
+		Json::Value::Members client_attrs = clients[i].getMemberNames();
+		for (unsigned int attr_index = 0; attr_index < client_attrs.size(); ++attr_index)
+		{
+			std::string template_name = "${" + client_attrs[attr_index] + "}";
+			FindAndReplace(url, template_name, clients[i][client_attrs[attr_index]].asString());
+		}
+		html += "<a href='"+ url +"'>"  + clients[i]["id"].asString() + ": " +clients[i]["name"].asString() + "</a><br />";
+	}
+	if (clients.size() > 3)
+	{
+		html += "...<br/>";
+	}
+	if (clients.size() > 1)
+	{
+		wxString url_tpl = m_controller->Cfg("commands/search_url");
+		wxString url;
+		url.Printf(url_tpl, callerid);
+		html << "<hr size=1 noshade /><a href='" << url << "'>" << _("See all found") << " (" << clients.size() << ")</a>";
+	}
+
+	return html;
 }
