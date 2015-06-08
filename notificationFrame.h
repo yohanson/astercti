@@ -24,6 +24,7 @@ class notificationFrame: public wxFrame, public IObserver, public ControllerUser
 		void SetHtml(const wxString &s);
 		void UpdateSize();
 		void SetLookupCmd(std::string);
+		wxString Lookup(std::string);
 
 		//(*Declarations(notificationFrame)
 		wxButton* Button1;

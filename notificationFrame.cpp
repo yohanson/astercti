@@ -10,6 +10,8 @@
 #include <wx/process.h>
 #include <wx/txtstrm.h>
 #include <wx/intl.h>
+#include <wx/protocol/http.h>
+#include <wx/sstream.h>
 
 #include "notificationFrame.h"
 #include "controller.h"
@@ -186,15 +188,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 		{
 			SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 			Show();
-			wxArrayString output;
-			wxString cmd;
-			cmd.Printf(wxString(m_lookup_cmd), callerid);
-			ExecCommand(cmd, output);
-			wxString out = "";
-			for (auto iter : output)
-			{
-				out += iter;
-			}
+			wxString out = Lookup(callerid);
 			SetHtml(html+"<br />" + out);
 			//std::cout << out << std::endl;
 		}
@@ -209,3 +203,47 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	}
 }
 
+wxString notificationFrame::Lookup(std::string callerid)
+{
+	wxString out;
+	if (m_lookup_cmd.substr(0,4) == "http")
+	{
+		std::cout << "http cmd" << std::endl;
+		wxHTTP get;
+		//get.SetHeader(_T("Content-type"), _T("text/html; charset=utf-8"));
+		get.SetTimeout(5); // 5 seconds of timeout instead of 10 minutes ...
+
+		while (!get.Connect(_T("infin.risp.ru")))
+			    wxSleep(1);
+
+		wxApp::IsMainLoopRunning();
+
+		wxInputStream *httpStream = get.GetInputStream(_T("/cgi-bin/inner/searchbynumber.cgi?Str=9139424977"));
+
+		if (get.GetError() == wxPROTO_NOERR)
+		{
+			wxStringOutputStream out_stream(&out);
+			httpStream->Read(out_stream);
+			std::cout << "Lookup got: " << out << std::endl;
+		}
+		else
+		{
+			std::cout << _("Unable to connect!") << endl;
+		}
+
+		wxDELETE(httpStream);
+		get.Close();
+	}
+	else
+	{
+		wxArrayString output;
+		wxString cmd;
+		cmd.Printf(wxString(m_lookup_cmd), callerid);
+		ExecCommand(cmd, output);
+		for (auto iter : output)
+		{
+			out += iter;
+		}
+	}
+	return out;
+}
