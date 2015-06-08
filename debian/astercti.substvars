@@ -1,2 +1,0 @@
-shlibs:Depends=libc6 (>= 2.14), libgcc1 (>= 1:4.1.1), libstdc++6 (>= 4.9), libwxbase3.0-0 (>= 3.0.2), libwxgtk3.0-0 (>= 3.0.2)
-misc:Depends=

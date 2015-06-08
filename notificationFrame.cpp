@@ -38,6 +38,15 @@ void ExecCommand(wxString &cmd, wxArrayString &output)
 			output.Add(t.ReadLine());
 		} 
 	}
+	if (p.IsErrorAvailable())
+	{
+		wxInputStream *e = p.GetErrorStream();
+		while (!e->Eof())
+		{
+			wxTextInputStream t(*e, " \t", wxConvUTF8);
+			std::cerr << t.ReadLine() << std::endl;
+		}
+	}
 }
 
 void FindAndReplace(std::string &tmpl, std::string varname, std::string value)
@@ -89,7 +98,6 @@ notificationFrame::~notificationFrame()
 }
 
 void notificationFrame::SetLookupCmd(std::string cmd) {
-	std::cout << "Lookup cmd: " << cmd << std::endl;
 	m_lookup_cmd = cmd;
 }
 
@@ -181,10 +189,11 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 				}
 				else
 				{
-					html = "<h4>☎ " + message.at("ConnectedLineNum");
+					html = "";
+					html << wxT("<h5>☎ ") + message.at("ConnectedLineNum");
 				       	if (message.at("ConnectedLineName") != "")
 						html << " (" << message.at("ConnectedLineName") << ")";
-					html << "</h4>";
+					html << "</h5>";
 				}
 				m_current_channel = message.at("Channel");
 			}
@@ -200,15 +209,30 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	}
 	if (is_channel_up)
 	{
-		bool regex_matches = false;
+		bool number_matches = false;
 		if (!m_lookup_cmd.empty())
 		{
-			std::string regex = m_controller->Cfg("lookup/numbers_match_regex");
-			regex_matches = std::regex_match(callerid, std::regex(regex));
-			std::cerr << "Regex: '" << regex << "' matches: " << regex_matches << std::endl;
+			std::string regex = m_controller->Cfg("lookup/number_match_regex");
+			if (!regex.empty())
+			{
+				try {
+					number_matches = std::regex_match(callerid, std::regex(regex));
+					std::cerr << "Regex: '" << regex << "' matches: " << number_matches << std::endl;
+				} catch (std::regex_error)
+				{
+					std::cerr << "Regex only implemented in stdc++ 4.9 or later." << std::endl
+						<< "Try to use number_min_length option in astercti.ini" << std::endl;
+				}
+			}
+			else
+			{
+				int number_length = m_controller->CfgInt("lookup/number_min_length");
+				if (number_length && callerid.length() >= number_length)
+					number_matches = true;
+			}
 
 		}
-	       	if (is_channel_ringing && !callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty() && regex_matches)
+	       	if (is_channel_ringing && !callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty() && number_matches)
 		{
 			SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 			Show();
@@ -233,7 +257,6 @@ wxString notificationFrame::Lookup(std::string callerid)
 	wxArrayString output;
 	wxString cmd;
 	cmd.Printf(wxString(m_lookup_cmd), callerid);
-	std::cerr << "Executing: " << cmd << std::endl;
 	ExecCommand(cmd, output);
 	for (auto iter : output)
 	{
@@ -246,7 +269,9 @@ wxString notificationFrame::Lookup(std::string callerid)
 	if (!reader.parse(outstring, root, false))
 	{
 		std::cerr << "Failed to parse JSON: " << std::endl
-		       << reader.getFormattedErrorMessages() <<std::endl;
+		       << reader.getFormattedErrorMessages() <<std::endl
+		       << "----" << std::endl
+		       << out << std::endl;
 	}
 	const Json::Value clients = root["clients"];
 	wxString html;
@@ -257,8 +282,9 @@ wxString notificationFrame::Lookup(std::string callerid)
 		Json::Value::Members client_attrs = clients[i].getMemberNames();
 		for (unsigned int attr_index = 0; attr_index < client_attrs.size(); ++attr_index)
 		{
-			std::string template_name = "${" + client_attrs[attr_index] + "}";
-			FindAndReplace(url, template_name, clients[i][client_attrs[attr_index]].asString());
+			std::string variable_name = client_attrs[attr_index];
+			std::string template_name = "${" + variable_name + "}";
+			FindAndReplace(url, template_name, clients[i][variable_name].asString());
 		}
 		html += "<a href='"+ url +"'>"  + clients[i]["id"].asString() + ": " +clients[i]["name"].asString() + "</a><br />";
 	}

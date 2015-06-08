@@ -39,12 +39,9 @@ install: release
 	cp -r astercti.ini		$(DESTDIR)/usr/share/astercti/astercti.ini
 	cp -r astercti.png		$(DESTDIR)/usr/share/pixmaps/astercti.png
 
-archive:
-	rm -f ../astercti_0.0.2.orig.tar.gz
-	tar zcf ../astercti_0.0.2.orig.tar.gz ../astercti
 
-deb: archive
-	debuild -i -us -uc -b
+deb:
+	debuild --no-tgz-check -i -us -uc -b
 
 
 win:
