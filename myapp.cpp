@@ -56,7 +56,7 @@ bool MyApp::OnInit()
     asterisk->add(*mychanfilter);
     mychanfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
-    notifyframe->SetLookupCmd(m_config->Read("commands/lookup").ToStdString());
+    notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
     mychanfilter->add(*notifyframe);
     wxString iconfile = m_config->Read("gui/icon");
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);

@@ -181,7 +181,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 				}
 				else
 				{
-					html = "<h4>" + message.at("ConnectedLineNum");
+					html = "<h4>☎ " + message.at("ConnectedLineNum");
 				       	if (message.at("ConnectedLineName") != "")
 						html << " (" << message.at("ConnectedLineName") << ")";
 					html << "</h4>";
@@ -203,7 +203,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 		bool regex_matches = false;
 		if (!m_lookup_cmd.empty())
 		{
-			std::string regex = m_controller->Cfg("commands/lookup_numbers_regex");
+			std::string regex = m_controller->Cfg("lookup/numbers_match_regex");
 			regex_matches = std::regex_match(callerid, std::regex(regex));
 			std::cerr << "Regex: '" << regex << "' matches: " << regex_matches << std::endl;
 
@@ -250,7 +250,7 @@ wxString notificationFrame::Lookup(std::string callerid)
 	}
 	const Json::Value clients = root["clients"];
 	wxString html;
-	std::string url_template = m_controller->Cfg("commands/client_url");
+	std::string url_template = m_controller->Cfg("lookup/client_url");
 	for ( int i = 0; i < clients.size() && i < 3; ++i )
 	{
 		std::string url = url_template;
@@ -268,7 +268,7 @@ wxString notificationFrame::Lookup(std::string callerid)
 	}
 	if (clients.size() > 1)
 	{
-		wxString url_tpl = m_controller->Cfg("commands/search_url");
+		wxString url_tpl = m_controller->Cfg("lookup/search_url");
 		wxString url;
 		url.Printf(url_tpl, callerid);
 		html << "<hr size=1 noshade /><a href='" << url << "'>" << _("See all found") << " (" << clients.size() << ")</a>";
