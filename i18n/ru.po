@@ -1,0 +1,33 @@
+# Russian translation for AsterCTI
+# Copyright (C) 2015 Michael A. Mikhailov
+# This file is distributed under the same license as the astercti package.
+# Michael A. Mikhailov <yohanson@ngs.ru> 2015
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-10 01:08+0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: notificationFrame.cpp:77
+msgid "No"
+msgstr "Нет"
+
+#: notificationFrame.cpp:187
+msgid "Pickup the handset to dial"
+msgstr "Снимите трубку для звонка на"
+
+#: notificationFrame.cpp:300
+msgid "See all found"
+msgstr "Все найденные"
+
+#: notificationFrame.cpp:304
+msgid "Unknown number."
+msgstr "Неизвестный номер."

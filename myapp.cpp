@@ -23,6 +23,8 @@ bool MyApp::OnInit()
 	                "Check LANG, LC_CTYPE, LC_ALL.\n");
 	return 1;
     }
+    wxLocale locale;
+    locale.Init();
 	
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
