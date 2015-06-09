@@ -299,6 +299,10 @@ wxString notificationFrame::Lookup(std::string callerid)
 		url.Printf(url_tpl, callerid);
 		html << "<hr size=1 noshade /><a href='" << url << "'>" << _("See all found") << " (" << clients.size() << ")</a>";
 	}
+	else if (clients.size() == 0)
+	{
+		html << _("Unknown number.");
+	}
 
 	return html;
 }
