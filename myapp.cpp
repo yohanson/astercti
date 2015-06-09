@@ -6,6 +6,7 @@
 
 #include <wx/string.h>
 #include <locale>
+#include <wx/intl.h>
 
 #include "controller.h"
 #include "asterisk.h"
@@ -23,8 +24,8 @@ bool MyApp::OnInit()
 	                "Check LANG, LC_CTYPE, LC_ALL.\n");
 	return 1;
     }
-    wxLocale locale;
-    locale.Init();
+    m_locale.Init();
+    m_locale.AddCatalog("astercti");
 	
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),

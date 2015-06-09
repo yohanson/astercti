@@ -26,9 +26,9 @@ debug: CXXFLAGS += -DDEBUG -g
 debug: $(BINARY)
 
 release: CXXFLAGS += -s -DNDEBUG -O2
-release: $(BINARY) ru.mo
+release: $(BINARY) i18n/ru.mo
 
-ru.mo:
+i18n/ru.mo:
 	msgfmt i18n/ru.po -o i18n/ru.mo
 
 install: release

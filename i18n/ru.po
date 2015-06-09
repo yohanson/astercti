@@ -16,6 +16,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: mainframe.cpp:71
+msgid "Welcome to wxWidgets!"
+msgstr "Превед, Медвед!"
+
 #: notificationFrame.cpp:77
 msgid "No"
 msgstr "Нет"
