@@ -1,3 +1,4 @@
 *.o
 astercti
 *.log
+i18n/*.mo

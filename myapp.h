@@ -10,6 +10,7 @@ public:
     virtual bool OnInit();
     AsteriskController *m_controller;
     wxFileConfig *m_config;
+    wxLocale m_locale;
 };
 
 #endif
