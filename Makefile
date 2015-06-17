@@ -26,7 +26,10 @@ debug: CXXFLAGS += -DDEBUG -g
 debug: $(BINARY)
 
 release: CXXFLAGS += -s -DNDEBUG -O2
-release: $(BINARY)
+release: $(BINARY) i18n/ru.mo
+
+i18n/ru.mo:
+	msgfmt i18n/ru.po -o i18n/ru.mo
 
 install: release
 	cp -r $(BINARY)			$(DESTDIR)/usr/bin/astercti
@@ -38,6 +41,7 @@ install: release
 	cp -r wait.gif			$(DESTDIR)/usr/share/astercti/wait.gif
 	cp -r astercti.ini		$(DESTDIR)/usr/share/astercti/astercti.ini
 	cp -r astercti.png		$(DESTDIR)/usr/share/pixmaps/astercti.png
+	cp -r i18n/ru.mo		$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/asterisk.mo
 
 
 deb:
@@ -46,4 +50,13 @@ deb:
 
 win:
 	i686-w64-mingw32-g++ -std=c++11 `wx-config --libs --cflags` *.cpp -o $(BINARY).exe
+
+bump: debianbump versionhbump
+
+debianbump:
+	dch -i -m -U
+
+versionhbump: VERSION=$(shell cat debian/changelog | head -n1 | grep -o '[0-9\.]*-' | grep -o '[0-9\.]*')
+versionhbump:
+	sed -i 's/^#define VERSION .*$$/#define VERSION "$(VERSION)"/' version.h
 

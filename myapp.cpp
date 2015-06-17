@@ -6,6 +6,7 @@
 
 #include <wx/string.h>
 #include <locale>
+#include <wx/intl.h>
 
 #include "controller.h"
 #include "asterisk.h"
@@ -23,6 +24,8 @@ bool MyApp::OnInit()
 	                "Check LANG, LC_CTYPE, LC_ALL.\n");
 	return 1;
     }
+    m_locale.Init();
+    m_locale.AddCatalog("astercti");
 	
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
@@ -58,7 +61,7 @@ bool MyApp::OnInit()
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
     mychanfilter->add(*notifyframe);
-    wxString iconfile = m_config->Read("gui/icon");
+    wxString iconfile = "/usr/share/pixmaps/astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
     MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage);
