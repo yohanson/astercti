@@ -10,6 +10,7 @@
 #include "asterisk.h"
 #include "myapp.h"
 #include "mainframe.h"
+#include "version.h"
 
 wxDECLARE_APP(MyApp);
 
@@ -85,7 +86,7 @@ void MyFrame::OnExit(wxCommandEvent& event)
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-	wxLogMessage("https://github.com/yohanson/astercti");
+	wxLogMessage("AsterCTI v"  VERSION  "\nhttps://github.com/yohanson/astercti");
 }
 void MyFrame::OnHello(wxCommandEvent& event)
 {
