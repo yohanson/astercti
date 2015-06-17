@@ -234,7 +234,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	       	if (is_channel_ringing && !callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty() && number_matches)
 		{
 			SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
-			Show();
+			ShowWithoutActivating();
 			wxString out = Lookup(callerid);
 			SetHtml(html+"<br />" + out);
 			//std::cout << out << std::endl;
@@ -243,7 +243,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 		{
 			SetHtml(html);
 		}
-		Show();
+		ShowWithoutActivating();
 	}
 	else {
 		Hide();
