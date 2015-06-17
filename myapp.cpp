@@ -61,7 +61,7 @@ bool MyApp::OnInit()
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
     mychanfilter->add(*notifyframe);
-    wxString iconfile = m_config->Read("gui/icon");
+    wxString iconfile = "/usr/share/pixmaps/astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
     MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage);

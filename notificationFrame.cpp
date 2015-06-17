@@ -176,8 +176,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 				else if (timer != -1)
 					m_hidetimer->StartOnce(timer);
 			}
-			else if (message.at("ChannelStateDesc") == "Ring"
-		       	 || message.at("ChannelStateDesc") == "Ringing")
+			else if (message.at("ChannelStateDesc") == "Ringing")
 			{
 				is_channel_up = true;
 				is_channel_ringing = true;
@@ -275,7 +274,7 @@ wxString notificationFrame::Lookup(std::string callerid)
 	}
 	const Json::Value clients = root["clients"];
 	wxString html;
-	std::string url_template = m_controller->Cfg("lookup/client_url");
+	std::string url_template = m_controller->Cfg("templates/client_url");
 	for ( int i = 0; i < clients.size() && i < 3; ++i )
 	{
 		std::string url = url_template;
@@ -284,9 +283,22 @@ wxString notificationFrame::Lookup(std::string callerid)
 		{
 			std::string variable_name = client_attrs[attr_index];
 			std::string template_name = "${" + variable_name + "}";
-			FindAndReplace(url, template_name, clients[i][variable_name].asString());
+			if (clients[i][variable_name].isConvertibleTo(Json::ValueType::stringValue))
+				FindAndReplace(url, template_name, clients[i][variable_name].asString());
 		}
-		html += "<a href='"+ url +"'>"  + clients[i]["id"].asString() + ": " +clients[i]["name"].asString() + "</a><br />";
+		html += "<a href='"+ url +"'>" +clients[i]["name"].asString() + "</a><br />";
+		if (clients[i]["services"].size())
+		{
+			html += "<ul>";
+			for (int srv = 0; srv < clients[i]["services"].size(); ++srv)
+			{
+				html += "<li>" + clients[i]["services"][srv].asString() + "</li>";
+			}
+			html += "</ul>";
+		}
+		html += "<br />";
+		if (i+1 < clients.size())
+			html += "<br />";
 	}
 	if (clients.size() > 3)
 	{
