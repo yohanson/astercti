@@ -209,7 +209,7 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	if (is_channel_up)
 	{
 		bool number_matches = false;
-		if (!m_lookup_cmd.empty())
+		if (!m_lookup_cmd.empty() && callerid != m_controller->GetMyExten())
 		{
 			std::string regex = m_controller->Cfg("lookup/number_match_regex");
 			if (!regex.empty())

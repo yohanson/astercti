@@ -2,3 +2,5 @@
 astercti
 *.log
 i18n/*.mo
+debian/astercti.substvars
+debian/files
