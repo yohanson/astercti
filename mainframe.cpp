@@ -161,7 +161,7 @@ void MyFrame::handleEvent(const AmiMessage &message)
 				{
 					wxListItem *item = new wxListItem;
 					item->SetId(m_callList->GetItemCount());
-					item->SetText(message.at("Source"));
+					item->SetText(message.at("Source") + " (" + message.at("CallerID") + ")");
 					if (message.at("Disposition") == "ANSWERED")
 						item->SetImage(0);
 					else item->SetImage(1);
