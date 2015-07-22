@@ -2,12 +2,19 @@ CXXFLAGS=-std=c++11 `wx-config --cflags` `pkg-config --cflags jsoncpp`
 BINARY=astercti
 DBGDIR=debug
 RELDIR=release
+WINDBGDIR=debug_win
+WINRELDIR=release_win
+WINPATH=/usr/local/libwxmsw3.0/bin
 
 DEBUG_OBJ=$(DBGDIR)/myapp.o $(DBGDIR)/mainframe.o $(DBGDIR)/notificationFrame.o \
 	  $(DBGDIR)/taskbaricon.o $(DBGDIR)/controller.o $(DBGDIR)/asterisk.o $(DBGDIR)/observer.o
 
 RELEASE_OBJ=$(RELDIR)/myapp.o $(RELDIR)/mainframe.o $(RELDIR)/notificationFrame.o \
 	  $(RELDIR)/taskbaricon.o $(RELDIR)/controller.o $(RELDIR)/asterisk.o $(RELDIR)/observer.o
+
+WINRELEASE_OBJ=$(WINRELDIR)/myapp.o $(WINRELDIR)/mainframe.o $(WINRELDIR)/notificationFrame.o \
+	  $(WINRELDIR)/taskbaricon.o $(WINRELDIR)/controller.o $(WINRELDIR)/asterisk.o $(WINRELDIR)/observer.o $(WINRELDIR)/jsoncpp.o
+
 
 
 OUTDIR=$(RELDIR)
@@ -47,9 +54,17 @@ install: release
 deb:
 	debuild --no-tgz-check -i -us -uc -b
 
+$(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
+$(WINRELDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
+$(WINRELDIR)/%.o: %.cpp
+	echo $(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-win:
-	i686-w64-mingw32-g++ -std=c++11 `wx-config --libs --cflags` *.cpp -o $(BINARY).exe
+win: CXX=i686-w64-mingw32-g++
+win: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+win: $(WINRELEASE_OBJ)
+	echo $(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
+	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
 
 bump: debianbump versionhbump
 

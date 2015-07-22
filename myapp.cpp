@@ -18,6 +18,7 @@
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
+    std::cout << "hello" << std::endl;
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -72,3 +73,7 @@ bool MyApp::OnInit()
     return true;
 }
 
+MyApp::~MyApp()
+{
+	std::cout << "bye" << std::endl;
+}
