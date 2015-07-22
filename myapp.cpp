@@ -8,6 +8,7 @@
 #include <locale>
 #include <wx/intl.h>
 
+#include "chan_events.h"
 #include "controller.h"
 #include "asterisk.h"
 #include "notificationFrame.h"
@@ -62,6 +63,9 @@ bool MyApp::OnInit()
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
     mychanfilter->add(*notifyframe);
+    EventGenerator *events = new EventGenerator;
+    events->add(*frame);
+    mychanfilter->add(*events);
     wxString iconfile = "/usr/share/pixmaps/astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);

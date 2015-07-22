@@ -14,26 +14,33 @@
 	std::string m_peerChannel;
 };*/
 
+class EventListener;
+
 // Takes AmiMessage, calls corresponding method of listeners
-class EventGenerator : IObserver
+class EventGenerator : public IObserver
 {
 	std::list<EventListener *> _listeners;
-	void handleEvent(const AmiMessage &message);
+	void handleEvent(const AmiMessage &);
 public:
 	void add(EventListener &);
 	void remove(EventListener &);
-	void Notify();
+	void NotifyOnRing(const AmiMessage &);
+	void NotifyOnOriginate(const AmiMessage &);
+	void NotifyOnDial(const AmiMessage &);
+	void NotifyOnUp(const AmiMessage &);
+	void NotifyOnHangup(const AmiMessage &);
+	void NotifyOnCdr(const AmiMessage &);
 };
 
 class EventListener
 {
-protected:
-	void OnRing();
-	void OnOriginate();
-	void OnDial();
-	void OnUp();
-	void OnHangup();
-	void OnCdr();
+public:
+	virtual void OnRing(const AmiMessage &);
+	virtual void OnOriginate(const AmiMessage &);
+	virtual void OnDial(const AmiMessage &);
+	virtual void OnUp(const AmiMessage &);
+	virtual void OnHangup(const AmiMessage &);
+	virtual void OnCdr(const AmiMessage &);
 
 };
 

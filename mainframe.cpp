@@ -176,3 +176,34 @@ void MyFrame::handleEvent(const AmiMessage &message)
 	}
 }
 
+void MyFrame::OnOriginate(const AmiMessage &m)
+{
+	StatusText->AppendText("\n#####\nWe are originating!\n#####\n\n");
+}
+
+void MyFrame::OnRing(const AmiMessage &m)
+{
+	StatusText->AppendText("\n#####\nIncoming call!\n#####\n\n");
+}
+
+void MyFrame::OnHangup(const AmiMessage &m)
+{
+	StatusText->AppendText("\n#####\nHung up!\n#####\n\n");
+}
+
+void MyFrame::OnCdr(const AmiMessage &m)
+{
+	StatusText->AppendText("\n#####\nCdr data arrived!\n#####\n\n");
+}
+
+void MyFrame::OnDial(const AmiMessage &m)
+{
+	StatusText->AppendText("\n#####\nWe are dialing out!\n#####\n\n");
+}
+
+void MyFrame::OnUp(const AmiMessage &m)
+{
+	StatusText->AppendText("\n#####\nAlready talking.\n#####\n\n");
+}
+
+

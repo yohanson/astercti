@@ -1,26 +1,88 @@
 #include "chan_events.h"
 
-void EventGenerator::add(EventListener &);
-void EventGenerator::remove(EventListener &);
-void EventGenerator::Notify();
-
-void EventGenerator::handleEvent(const AmiMessage &m)
+void EventGenerator::add(EventListener &listener)
 {
-	if (m["Event"] == "Newstate")
-	{
-		switch (atoi(m["ChannelState"]))
-		{
-		case AST_STATE_RINGING:
-			
-			break;
-		}
+	_listeners.push_back(&listener);
+}
+
+void EventGenerator::remove(EventListener &listener)
+{
+	_listeners.remove(&listener);
+}
+
+//void EventGenerator::Notify();
+void EventGenerator::NotifyOnRing(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnRing(message);
 	}
 }
 
-void EventListener::OnRing();
-void EventListener::OnOriginate();
-void EventListener::OnDial();
-void EventListener::OnUp();
-void EventListener::OnHangup();
-void EventListener::OnCdr();
+void EventGenerator::NotifyOnOriginate(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnOriginate(message);
+	}
+}
+
+void EventGenerator::NotifyOnDial(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnDial(message);
+	}
+}
+
+void EventGenerator::NotifyOnUp(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnUp(message);
+	}
+}
+
+void EventGenerator::NotifyOnHangup(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnHangup(message);
+	}
+}
+
+void EventGenerator::NotifyOnCdr(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnCdr(message);
+	}
+}
+
+void EventGenerator::handleEvent(const AmiMessage &m)
+{
+	if (m.at("Event") == "Newstate")
+	{
+		switch (std::stoi(m.at("ChannelState")))
+		{
+		case AST_STATE_RINGING:
+			if (m.at("ConnectedLineNum") == "511")
+				NotifyOnOriginate(m);
+			else
+				NotifyOnRing(m);
+			break;
+
+		case AST_STATE_RING:
+			NotifyOnDial(m);
+			break;
+
+		case AST_STATE_UP:
+			NotifyOnUp(m);
+			break;
+		}
+	}
+	else if (m.at("Event") == "Hangup")
+	{
+		NotifyOnHangup(m);
+	}
+	else if (m.at("Event") == "Cdr")
+	{
+		NotifyOnCdr(m);
+	}
+}
+
+void EventListener::OnRing(const AmiMessage &){};
+void EventListener::OnOriginate(const AmiMessage &){};
+void EventListener::OnDial(const AmiMessage &){};
+void EventListener::OnUp(const AmiMessage &){};
+void EventListener::OnHangup(const AmiMessage &){};
+void EventListener::OnCdr(const AmiMessage &){};
 

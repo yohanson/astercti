@@ -83,19 +83,6 @@ void Asterisk::OnInputAvailable()
 	}
 }
 
-void Asterisk::ProcessAmiMessage(AmiMessage &am)
-{
-	if (am["Event"] == "Newstate")
-	{
-		switch (atoi(am["ChannelState"]))
-		{
-			case AST_STATE_RINGING:
-				// incoming call
-				break;
-		}
-	}
-}
-
 void Asterisk::add(IObserver& observer)
 {
 	_observers.push_back(&observer);
