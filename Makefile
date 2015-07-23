@@ -30,7 +30,7 @@ $(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o as
 	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
 
 debug: CXXFLAGS += -DDEBUG -g
-debug: $(DEBUG_OBJ)
+debug: $(BINARY)
 
 release: CXXFLAGS += -s -DNDEBUG -O2
 release: $(BINARY) i18n/ru.mo

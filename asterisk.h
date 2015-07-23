@@ -11,7 +11,6 @@
 enum {ID_SOCKET = 100500};
 #define RECV_BUFF 8192
 
-typedef std::map<std::string, std::string> AmiMessage;
 
 enum ast_channel_state {
     AST_STATE_DOWN,         /*!< Channel is down and available */
@@ -48,15 +47,19 @@ public:
 
 class Call
 {
-protected:
+public:
 	wxString m_number;
 	wxString m_name;
 	wxString m_description;
+	long m_unique_id;
 	wxDateTime m_time;
 	int m_duration;
-public:
 	enum {CALL_IN, CALL_OUT} m_direction;
 	enum {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
+	void SetNumber(wxString s){m_number = s;};
+	wxString GetNumber(){return m_number;};
+	long GetUniqueID(){return m_unique_id;};
+	void SetUniqueID(long id){m_unique_id = id;};
 	
 };
 #endif

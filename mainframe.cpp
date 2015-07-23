@@ -115,7 +115,8 @@ void MyFrame::OnListResize(wxSizeEvent &event)
 
 void MyFrame::OnListItemSelect(wxListEvent &event)
 {
-	m_DialNumber->SetValue(event.GetText());
+	Call *call = reinterpret_cast<Call *>(event.GetData());
+	m_DialNumber->SetValue(call->GetNumber());
 }
 
 void MyFrame::handleEvent(const AmiMessage &message)
@@ -123,8 +124,10 @@ void MyFrame::handleEvent(const AmiMessage &message)
 	std::string status;
 	for (auto iter : message)
 	{	
+		std::cout << iter.first << ": " << iter.second << std::endl;
 		status += iter.first + ": " + iter.second + "\n";
 	}
+	std::cout << std::endl;
 	StatusText->AppendText(status+"\n");
 }
 
@@ -136,6 +139,39 @@ void MyFrame::OnOriginate(const AmiMessage &m)
 void MyFrame::OnRing(const AmiMessage &m)
 {
 	StatusText->AppendText("\n#####\nIncoming call!\n#####\n\n");
+	wxListItem *item = new wxListItem;
+	item->SetId(m_callList->GetItemCount());
+	item->SetText(m.at("ConnectedLineNum"));
+	Call *call = new Call;
+	call->SetNumber(m.at("ConnectedLineNum"));
+	call->SetUniqueID(std::stoi(m.at("Uniqueid")));
+	item->SetData(call);
+	m_callList->InsertItem(*item);
+}
+
+void MyFrame::OnUp(const AmiMessage &m)
+{
+	try {
+		StatusText->AppendText("\n#####\nAlready talking\n#####\n\n");
+		wxListItem *item = NULL;
+		long lastItem = 0;
+		bool isNewCall = true;
+		if (m_callList->GetItemCount())
+		{
+			lastItem = m_callList->GetItemCount()-1;
+			Call *prevcall = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
+			if (prevcall->GetUniqueID() == std::stoi(m.at("Uniqueid"))) // updating existing call
+			{
+				isNewCall = false;
+				if (m.at("DestinationChannelID") == m_controller->GetMyChannel()) // incoming call
+					m_callList->SetItemImage(lastItem, 0);
+			}
+		}
+	}
+	catch (std::out_of_range)
+	{
+		std::cerr << "error: out of range" << std::endl;
+	}
 }
 
 void MyFrame::OnHangup(const AmiMessage &m)
@@ -153,6 +189,10 @@ void MyFrame::OnCdr(const AmiMessage &m)
 			wxListItem *item = new wxListItem;
 			item->SetId(m_callList->GetItemCount());
 			item->SetText(m.at("Destination"));
+			Call *call = new Call;
+			call->SetNumber(m.at("Destination"));
+			call->SetUniqueID(std::stoi(m.at("Uniqueid")));
+			item->SetData(call);
 			if (m.at("Disposition") == "ANSWERED")
 				item->SetImage(2);
 			else item->SetImage(3);
@@ -160,21 +200,44 @@ void MyFrame::OnCdr(const AmiMessage &m)
 		}
 		if (m.at("DestinationChannelID") == m_controller->GetMyChannel()) // incoming call
 		{
-			wxListItem *item = new wxListItem;
-			item->SetId(m_callList->GetItemCount());
-			std::string cid = m.at("CallerID");
-			size_t first = cid.find_first_of("\"");
-			size_t last = cid.find_last_of("\"");
-			if (first != std::string::npos && last != std::string::npos && first != last)
+
+			wxListItem *item = NULL;
+			long lastItem = 0;
+			bool isNewCall = true;
+			if (m_callList->GetItemCount())
 			{
-				cid = cid.substr(first+1, last-1);
-				item->SetText(m.at("Source") + " (" + cid + ")");
+				lastItem = m_callList->GetItemCount()-1;
+				Call *prevcall = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
+				if (prevcall->GetUniqueID() == std::stoi(m.at("UniqueID"))) // updating existing call
+				{
+					isNewCall = false;
+					if (m.at("Disposition") == "ANSWERED")
+						m_callList->SetItemImage(lastItem, 0);
+					else m_callList->SetItemImage(lastItem, 1);
+				}
 			}
-			else item->SetText(m.at("Source"));
-			if (m.at("Disposition") == "ANSWERED")
-				item->SetImage(0);
-			else item->SetImage(1);
-			m_callList->InsertItem(*item);
+			if (isNewCall)
+			{
+				item = new wxListItem;
+				item->SetId(m_callList->GetItemCount());
+				Call *call = new Call;
+				call->SetNumber(m.at("Source"));
+				call->SetUniqueID(std::stoi(m.at("UniqueID")));
+				item->SetData(call);
+				std::string cid = m.at("CallerID");
+				size_t first = cid.find_first_of("\"");
+				size_t last = cid.find_last_of("\"");
+				if (first != std::string::npos && last != std::string::npos && first != last)
+				{
+					cid = cid.substr(first+1, last-1);
+					item->SetText(m.at("Source") + " (" + cid + ")");
+				}
+				else item->SetText(m.at("Source"));
+				if (m.at("Disposition") == "ANSWERED")
+					item->SetImage(0);
+				else item->SetImage(1);
+				m_callList->InsertItem(*item);
+			}
 		}
 	}
 }
@@ -182,11 +245,6 @@ void MyFrame::OnCdr(const AmiMessage &m)
 void MyFrame::OnDial(const AmiMessage &m)
 {
 	StatusText->AppendText("\n#####\nWe are dialing out!\n#####\n\n");
-}
-
-void MyFrame::OnUp(const AmiMessage &m)
-{
-	StatusText->AppendText("\n#####\nAlready talking.\n#####\n\n");
 }
 
 
