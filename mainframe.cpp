@@ -156,32 +156,38 @@ void MyFrame::OnRing(const AmiMessage &m)
 	call->SetNumber(m["ConnectedLineNum"]);
 	call->SetUniqueID(std::stoi(m["Uniqueid"]));
 	call->SetTime(wxDateTime::Now());
+	call->SetDirection(Call::CALL_IN);
 	item->SetData(call);
 	m_callList->InsertItem(*item);
 }
 
 void MyFrame::OnUp(const AmiMessage &m)
 {
-	try {
-		StatusText->AppendText("\n#####\nAlready talking\n#####\n\n");
-		wxListItem *item = NULL;
-		long lastItem = 0;
-		bool isNewCall = true;
-		if (m_callList->GetItemCount())
+	StatusText->AppendText("\n#####\nAlready talking\n#####\n\n");
+	wxListItem *item = NULL;
+	long lastItem = 0;
+	bool isNewCall = true;
+	if (m_callList->GetItemCount())
+	{
+		lastItem = m_callList->GetItemCount()-1;
+		Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
+		if (call->GetUniqueID() == std::stoi(m["Uniqueid"])) // updating existing call
 		{
-			lastItem = m_callList->GetItemCount()-1;
-			Call *prevcall = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
-			if (prevcall->GetUniqueID() == std::stoi(m["Uniqueid"])) // updating existing call
+			isNewCall = false;
+			if (call->GetDirection() == Call::CALL_IN)
+				m_callList->SetItemImage(lastItem, 0);
+			else // outbound call
 			{
-				isNewCall = false;
-				if (m["DestinationChannelID"] == m_controller->GetMyChannel()) // incoming call
-					m_callList->SetItemImage(lastItem, 0);
+				if (m["ConnectedLineName"] != "")
+				{
+					m_callList->SetItemText(lastItem, m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
+					call->SetName(m["ConnectedLineName"]);
+				}
+				else m_callList->SetItemText(lastItem, m["ConnectedLineNum"]);
+				call->SetNumber(m["ConnectedLineNum"]);
+				m_callList->SetItemImage(lastItem, 2);
 			}
 		}
-	}
-	catch (std::out_of_range)
-	{
-		std::cerr << "error: out of range" << std::endl;
 	}
 }
 
@@ -195,62 +201,36 @@ void MyFrame::OnCdr(const AmiMessage &m)
 	StatusText->AppendText("\n#####\nCdr data arrived!\n#####\n\n");
 	if (!m["DestinationChannel"].empty())
 	{
-		if (m["ChannelID"] == m_controller->GetMyChannel()) // outbound call
+		wxListItem *item = NULL;
+		long lastItem = 0;
+		bool isNewCall = true;
+		if (m_callList->GetItemCount())
 		{
-			wxListItem *item = new wxListItem;
-			item->SetId(m_callList->GetItemCount());
-			item->SetText(m["Destination"]);
-			Call *call = new Call;
-			call->SetNumber(m["Destination"]);
-			call->SetUniqueID(std::stoi(m["Uniqueid"]));
-			call->SetDuration(std::stoi(m["BillableSeconds"]));
-			item->SetData(call);
-			if (m["Disposition"] == "ANSWERED")
-				item->SetImage(2);
-			else item->SetImage(3);
-			m_callList->InsertItem(*item);
-		}
-		if (m["DestinationChannelID"] == m_controller->GetMyChannel()) // incoming call
-		{
-
-			wxListItem *item = NULL;
-			long lastItem = 0;
-			bool isNewCall = true;
-			if (m_callList->GetItemCount())
+			lastItem = m_callList->GetItemCount()-1;
+			Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
+			if (call->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
 			{
-				lastItem = m_callList->GetItemCount()-1;
-				Call *prevcall = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
-				if (prevcall->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
+				isNewCall = false;
+				call->SetDuration(stoi(m["BillableSeconds"]));
+				if (call->GetDirection() == Call::CALL_OUT)
 				{
-					isNewCall = false;
-					prevcall->SetDuration(stoi(m["BillableSeconds"]));
-					if (m["Disposition"] == "ANSWERED")
-						m_callList->SetItemImage(lastItem, 0);
-					else m_callList->SetItemImage(lastItem, 1);
+					StatusText->AppendText("It's Call::CALL_OUT\n");
+					call->SetNumber(m["Destination"]);
+					if (!call->GetName().empty())
+						m_callList->SetItemText(lastItem, call->GetNumber() + " (" + call->GetName() + ")");
+					else
+						m_callList->SetItemText(lastItem, call->GetNumber());
 				}
-			}
-			if (isNewCall)
-			{
-				item = new wxListItem;
-				item->SetId(m_callList->GetItemCount());
-				Call *call = new Call;
-				call->SetNumber(m["Source"]);
-				call->SetUniqueID(std::stoi(m["UniqueID"]));
-				call->SetDuration(std::stoi(m["BillableSeconds"]));
-				item->SetData(call);
-				std::string cid = m["CallerID"];
-				size_t first = cid.find_first_of("\"");
-				size_t last = cid.find_last_of("\"");
-				if (first != std::string::npos && last != std::string::npos && first != last)
-				{
-					cid = cid.substr(first+1, last-1);
-					item->SetText(m["Source"] + " (" + cid + ")");
-				}
-				else item->SetText(m["Source"]);
 				if (m["Disposition"] == "ANSWERED")
-					item->SetImage(0);
-				else item->SetImage(1);
-				m_callList->InsertItem(*item);
+					if (call->GetDirection() == Call::CALL_IN)
+						m_callList->SetItemImage(lastItem, 0);
+					else
+						m_callList->SetItemImage(lastItem, 2);
+				else // missed
+					if (call->GetDirection() == Call::CALL_IN)
+						m_callList->SetItemImage(lastItem, 1);
+					else
+						m_callList->SetItemImage(lastItem, 3);
 			}
 		}
 	}
@@ -259,6 +239,21 @@ void MyFrame::OnCdr(const AmiMessage &m)
 void MyFrame::OnDial(const AmiMessage &m)
 {
 	StatusText->AppendText("\n#####\nWe are dialing out!\n#####\n\n");
+	wxListItem *item = new wxListItem;
+	item->SetId(m_callList->GetItemCount());
+	Call *call = new Call;
+	if (m["ConnectedLineName"] != "")
+	{
+		item->SetText(m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
+		call->SetName(m["ConnectedLineName"]);
+	}
+	else item->SetText(m["ConnectedLineNum"]);
+	call->SetNumber(m["ConnectedLineNum"]);
+	call->SetUniqueID(std::stoi(m["Uniqueid"]));
+	call->SetTime(wxDateTime::Now());
+	call->SetDirection(Call::CALL_OUT);
+	item->SetData(call);
+	m_callList->InsertItem(*item);
 }
 
 

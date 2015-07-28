@@ -155,99 +155,76 @@ void notificationFrame::UpdateSize()
 {
 }
 
-void notificationFrame::handleEvent(const AmiMessage &message)
+void notificationFrame::OnUp(const AmiMessage &message)
 {
-	bool is_channel_up = false;
-	bool is_channel_ringing = false;
-	wxString html;
-	std::string callerid = "";
-	try {
-		if (message["Event"] == "Newstate" && message["ChannelID"] == m_controller->GetMyChannel())
-		{
-			if (message["ChannelStateDesc"] == "Up")
-			{
-				is_channel_up = true;
-				callerid = message["ConnectedLineNum"];
-				long timer = m_controller->CfgInt("gui/pickup_notify_hide_timeout");
-				if (!timer){
-				       Hide();
-				       return;
-				}
-				else if (timer != -1)
-					m_hidetimer->StartOnce(timer);
-			}
-			else if (message["ChannelStateDesc"] == "Ringing")
-			{
-				is_channel_up = true;
-				is_channel_ringing = true;
-				callerid = message["ConnectedLineNum"];
-				if (callerid == m_controller->GetMyExten() && message["ChannelStateDesc"] == "Ringing")
-				{
-					html = _("Pickup the handset to dial") + " <b>" + message["ConnectedLineName"] + "</b>";
-					SetHtml(html);
-				}
-				else
-				{
-					html = "";
-					html << wxT("<h5>☎ ") + message["ConnectedLineNum"];
-				       	if (message["ConnectedLineName"] != "")
-						html << " (" << message["ConnectedLineName"] << ")";
-					html << "</h5>";
-				}
-				m_current_channel = message["Channel"];
-			}
-		}
-		else if (message["Event"] == "Hangup")
-		{
-			is_channel_up = false;
-		}
+	long timer = m_controller->CfgInt("gui/pickup_notify_hide_timeout");
+	if (!timer){
+	       Hide();
+	       return;
 	}
-	catch (std::out_of_range)
-	{
-	
-	}
-	if (is_channel_up)
-	{
-		bool number_matches = false;
-		if (!m_lookup_cmd.empty() && callerid != m_controller->GetMyExten())
-		{
-			std::string regex = m_controller->Cfg("lookup/number_match_regex");
-			if (!regex.empty())
-			{
-				try {
-					number_matches = std::regex_match(callerid, std::regex(regex));
-					std::cerr << "Regex: '" << regex << "' matches: " << number_matches << std::endl;
-				} catch (std::regex_error)
-				{
-					std::cerr << "Regex only implemented in stdc++ 4.9 or later." << std::endl
-						<< "Try to use number_min_length option in astercti.ini" << std::endl;
-				}
-			}
-			else
-			{
-				int number_length = m_controller->CfgInt("lookup/number_min_length");
-				if (number_length && callerid.length() >= number_length)
-					number_matches = true;
-			}
+	else if (timer != -1)
+		m_hidetimer->StartOnce(timer);
+}
 
-		}
-	       	if (is_channel_ringing && !callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty() && number_matches)
+void notificationFrame::OnRing(const AmiMessage &message)
+{
+	std::string callerid = message["ConnectedLineNum"];
+	wxString html = "";
+	html << wxT("<h5>☎ ") + message["ConnectedLineNum"];
+	if (message["ConnectedLineName"] != "")
+		html << " (" << message["ConnectedLineName"] << ")";
+	html << "</h5>";
+	m_current_channel = message["Channel"];
+
+	bool number_matches = false;
+	if (!m_lookup_cmd.empty() && callerid != m_controller->GetMyExten())
+	{
+		std::string regex = m_controller->Cfg("lookup/number_match_regex");
+		if (!regex.empty())
 		{
-			SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
-			ShowWithoutActivating();
-			wxString out = Lookup(callerid);
-			SetHtml(html+"<br />" + out);
-			//std::cout << out << std::endl;
+			try {
+				number_matches = std::regex_match(callerid, std::regex(regex));
+				std::cerr << "Regex: '" << regex << "' matches: " << number_matches << std::endl;
+			} catch (std::regex_error)
+			{
+				std::cerr << "Regex only implemented in stdc++ 4.9 or later." << std::endl
+					<< "Try to use number_min_length option in astercti.ini" << std::endl;
+			}
 		}
-		else if (!html.empty())
+		else
 		{
-			SetHtml(html);
+			int number_length = m_controller->CfgInt("lookup/number_min_length");
+			if (number_length && callerid.length() >= number_length)
+				number_matches = true;
 		}
+
+	}
+	if (!callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty() && number_matches)
+	{
+		SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 		ShowWithoutActivating();
+		wxString out = Lookup(callerid);
+		SetHtml(html+"<br />" + out);
+		//std::cout << out << std::endl;
 	}
-	else {
-		Hide();
+	else if (!html.empty())
+	{
+		SetHtml(html);
 	}
+	ShowWithoutActivating();
+
+}
+
+void notificationFrame::OnHangup(const AmiMessage &message)
+{
+	Hide();
+}
+
+void notificationFrame::OnOriginate(const AmiMessage &message)
+{
+	wxString html = _("Pickup the handset to dial") + " <b>" + message["ConnectedLineName"] + "</b>";
+	SetHtml(html);
+	ShowWithoutActivating();
 }
 
 wxString notificationFrame::Lookup(std::string callerid)

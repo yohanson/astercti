@@ -35,6 +35,12 @@ debug: $(BINARY)
 release: CXXFLAGS += -s -DNDEBUG -O2
 release: $(BINARY) i18n/ru.mo
 
+
+# template:
+#%.en.po : %.pot
+#	-[ -e $@ ] && msgmerge --width=110 --update $@ $<
+#	[ -e $@ ] || cp $< $@
+
 i18n/ru.mo:
 	msgfmt i18n/ru.po -o i18n/ru.mo
 

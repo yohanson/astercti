@@ -33,8 +33,6 @@ public:
 	std::string &operator[](const char *key){return map[key];};
 	const std::string operator[](std::string &key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
 	const std::string operator[](const char *key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
-	const std::string at(const std::string &key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
-	AmiMessageMap getMap() const {return map;};
 	void clear(){map.clear();};
 
 	typedef AmiMessageMap::iterator iterator;

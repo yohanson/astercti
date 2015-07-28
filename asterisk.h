@@ -48,14 +48,15 @@ public:
 class Call
 {
 public:
+	Call(){m_duration=0; m_unique_id=0;};
 	wxString m_number;
 	wxString m_name;
 	wxString m_description;
 	long m_unique_id;
 	wxDateTime m_time;
 	long m_duration;
-	enum {CALL_IN, CALL_OUT} m_direction;
-	enum {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
+	enum Direction {CALL_IN, CALL_OUT} m_direction;
+	enum Disposition {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
 	void		SetNumber(wxString s){m_number = s;};
 	wxString	GetNumber(){return m_number;};
 	void		SetName(wxString s){m_name = s;};
@@ -66,6 +67,7 @@ public:
 	wxDateTime	GetTime(){return m_time;};
 	void		SetDuration(int d){m_duration = d;};
 	int		GetDuration(){return m_duration;};
-
+	void		SetDirection(Direction d){m_direction = d;};
+	Direction	GetDirection(){return m_direction;};
 };
 #endif

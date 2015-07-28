@@ -10,7 +10,6 @@ void EventGenerator::remove(EventListener &listener)
 	_listeners.remove(&listener);
 }
 
-//void EventGenerator::Notify();
 void EventGenerator::NotifyOnRing(const AmiMessage &message) {
 	for (auto iter : _listeners) {
 		iter->OnRing(message);
@@ -47,6 +46,17 @@ void EventGenerator::NotifyOnCdr(const AmiMessage &message) {
 	}
 }
 
+void EventGenerator::NotifyOnLookupStart(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnLookupStart(message);
+	}
+}
+
+void EventGenerator::NotifyOnLookupFinish(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnLookupFinish(message);
+	}
+}
 void EventGenerator::handleEvent(const AmiMessage &m)
 {
 	if (m["Event"] == "Newstate")
@@ -85,4 +95,6 @@ void EventListener::OnDial(const AmiMessage &){};
 void EventListener::OnUp(const AmiMessage &){};
 void EventListener::OnHangup(const AmiMessage &){};
 void EventListener::OnCdr(const AmiMessage &){};
+void EventListener::OnLookupStart(const AmiMessage &){};
+void EventListener::OnLookupFinish(const AmiMessage &){};
 

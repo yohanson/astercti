@@ -30,6 +30,8 @@ public:
 	void NotifyOnUp(const AmiMessage &);
 	void NotifyOnHangup(const AmiMessage &);
 	void NotifyOnCdr(const AmiMessage &);
+	void NotifyOnLookupStart(const AmiMessage &);
+	void NotifyOnLookupFinish(const AmiMessage &);
 };
 
 class EventListener
@@ -41,6 +43,8 @@ public:
 	virtual void OnUp(const AmiMessage &);
 	virtual void OnHangup(const AmiMessage &);
 	virtual void OnCdr(const AmiMessage &);
+	virtual void OnLookupStart(const AmiMessage &);
+	virtual void OnLookupFinish(const AmiMessage &);
 
 };
 
