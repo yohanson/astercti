@@ -3,8 +3,7 @@
 
 #include <map>
 #include <list>
-
-typedef std::map<std::string, std::string> AmiMessage;
+#include "amimessage.h"
 
 class IObserver
 {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-10 01:08+0600\n"
+"POT-Creation-Date: 2015-07-28 19:21+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -16,22 +16,38 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: mainframe.cpp:71
+#: mainframe.cpp:74
 msgid "Welcome to wxWidgets!"
 msgstr "Превед, Медвед!"
+
+#: mainframe.cpp:123
+msgid "Number: "
+msgstr "Номер: "
+
+#: mainframe.cpp:123
+msgid "Name: "
+msgstr "Имя: "
+
+#: mainframe.cpp:124
+msgid "Time: "
+msgstr "Время: "
+
+#: mainframe.cpp:125
+msgid "Duration: "
+msgstr "Длительность: "
 
 #: notificationFrame.cpp:77
 msgid "No"
 msgstr "Нет"
 
-#: notificationFrame.cpp:187
+#: notificationFrame.cpp:225
 msgid "Pickup the handset to dial"
 msgstr "Снимите трубку для звонка на"
 
-#: notificationFrame.cpp:300
+#: notificationFrame.cpp:289
 msgid "See all found"
 msgstr "Все найденные"
 
-#: notificationFrame.cpp:304
+#: notificationFrame.cpp:293
 msgid "Unknown number."
 msgstr "Неизвестный номер."

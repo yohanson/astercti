@@ -8,6 +8,7 @@
 #include <locale>
 #include <wx/intl.h>
 
+#include "chan_events.h"
 #include "controller.h"
 #include "asterisk.h"
 #include "notificationFrame.h"
@@ -18,7 +19,7 @@
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
-    std::cout << "hello" << std::endl;
+    std::cout << "app init" << std::endl;
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -45,7 +46,7 @@ bool MyApp::OnInit()
 
     std::cout << "Filename: " << configfile.GetFullPath() << std::endl;
 
-    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(450, 340) );
+    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
     SetExitOnFrameDelete(true);
     frame->Show( true );
     SetTopWindow(frame);
@@ -61,7 +62,10 @@ bool MyApp::OnInit()
     mychanfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
-    mychanfilter->add(*notifyframe);
+    EventGenerator *events = new EventGenerator;
+    events->add(*frame);
+    events->add(*notifyframe);
+    mychanfilter->add(*events);
     wxString iconfile = "/usr/share/pixmaps/astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
@@ -75,5 +79,5 @@ bool MyApp::OnInit()
 
 MyApp::~MyApp()
 {
-	std::cout << "bye" << std::endl;
+	std::cout << "app destruct" << std::endl;
 }
