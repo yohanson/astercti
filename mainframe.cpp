@@ -52,10 +52,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+    m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, _("\n\n\n\n"));
     m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     m_callList->InsertColumn(0, "");
     RightSizer->Add(DialSizer, 0, wxEXPAND);
+    RightSizer->Add(m_CallInfo, 0, wxEXPAND);
     RightSizer->Add(StatusText, 1, wxEXPAND);
     TopMostVerticalSplitter->SplitVertically(m_callList, RightPanel);
 
@@ -117,6 +119,11 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 {
 	Call *call = reinterpret_cast<Call *>(event.GetData());
 	m_DialNumber->SetValue(call->GetNumber());
+	wxString label;
+	label << _("Number: ") << call->GetNumber() << '\n' << _("Name: ")
+	       << call->GetName() << '\n' << _("Time: ") << call->GetTime().FormatISOCombined(' ')
+	       << '\n' << _("Duration: ") << call->GetDuration();
+	m_CallInfo->SetLabel(label);
 }
 
 void MyFrame::handleEvent(const AmiMessage &message)
@@ -124,10 +131,8 @@ void MyFrame::handleEvent(const AmiMessage &message)
 	std::string status;
 	for (auto iter : message)
 	{	
-		std::cout << iter.first << ": " << iter.second << std::endl;
 		status += iter.first + ": " + iter.second + "\n";
 	}
-	std::cout << std::endl;
 	StatusText->AppendText(status+"\n");
 }
 
@@ -141,10 +146,16 @@ void MyFrame::OnRing(const AmiMessage &m)
 	StatusText->AppendText("\n#####\nIncoming call!\n#####\n\n");
 	wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
-	item->SetText(m.at("ConnectedLineNum"));
 	Call *call = new Call;
-	call->SetNumber(m.at("ConnectedLineNum"));
-	call->SetUniqueID(std::stoi(m.at("Uniqueid")));
+	if (m["ConnectedLineName"] != "")
+	{
+		item->SetText(m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
+		call->SetName(m["ConnectedLineName"]);
+	}
+	else item->SetText(m["ConnectedLineNum"]);
+	call->SetNumber(m["ConnectedLineNum"]);
+	call->SetUniqueID(std::stoi(m["Uniqueid"]));
+	call->SetTime(wxDateTime::Now());
 	item->SetData(call);
 	m_callList->InsertItem(*item);
 }
@@ -160,10 +171,10 @@ void MyFrame::OnUp(const AmiMessage &m)
 		{
 			lastItem = m_callList->GetItemCount()-1;
 			Call *prevcall = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
-			if (prevcall->GetUniqueID() == std::stoi(m.at("Uniqueid"))) // updating existing call
+			if (prevcall->GetUniqueID() == std::stoi(m["Uniqueid"])) // updating existing call
 			{
 				isNewCall = false;
-				if (m.at("DestinationChannelID") == m_controller->GetMyChannel()) // incoming call
+				if (m["DestinationChannelID"] == m_controller->GetMyChannel()) // incoming call
 					m_callList->SetItemImage(lastItem, 0);
 			}
 		}
@@ -182,23 +193,24 @@ void MyFrame::OnHangup(const AmiMessage &m)
 void MyFrame::OnCdr(const AmiMessage &m)
 {
 	StatusText->AppendText("\n#####\nCdr data arrived!\n#####\n\n");
-	if (!m.at("DestinationChannel").empty())
+	if (!m["DestinationChannel"].empty())
 	{
-		if (m.at("ChannelID") == m_controller->GetMyChannel()) // outbound call
+		if (m["ChannelID"] == m_controller->GetMyChannel()) // outbound call
 		{
 			wxListItem *item = new wxListItem;
 			item->SetId(m_callList->GetItemCount());
-			item->SetText(m.at("Destination"));
+			item->SetText(m["Destination"]);
 			Call *call = new Call;
-			call->SetNumber(m.at("Destination"));
-			call->SetUniqueID(std::stoi(m.at("Uniqueid")));
+			call->SetNumber(m["Destination"]);
+			call->SetUniqueID(std::stoi(m["Uniqueid"]));
+			call->SetDuration(std::stoi(m["BillableSeconds"]));
 			item->SetData(call);
-			if (m.at("Disposition") == "ANSWERED")
+			if (m["Disposition"] == "ANSWERED")
 				item->SetImage(2);
 			else item->SetImage(3);
 			m_callList->InsertItem(*item);
 		}
-		if (m.at("DestinationChannelID") == m_controller->GetMyChannel()) // incoming call
+		if (m["DestinationChannelID"] == m_controller->GetMyChannel()) // incoming call
 		{
 
 			wxListItem *item = NULL;
@@ -208,10 +220,11 @@ void MyFrame::OnCdr(const AmiMessage &m)
 			{
 				lastItem = m_callList->GetItemCount()-1;
 				Call *prevcall = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
-				if (prevcall->GetUniqueID() == std::stoi(m.at("UniqueID"))) // updating existing call
+				if (prevcall->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
 				{
 					isNewCall = false;
-					if (m.at("Disposition") == "ANSWERED")
+					prevcall->SetDuration(stoi(m["BillableSeconds"]));
+					if (m["Disposition"] == "ANSWERED")
 						m_callList->SetItemImage(lastItem, 0);
 					else m_callList->SetItemImage(lastItem, 1);
 				}
@@ -221,19 +234,20 @@ void MyFrame::OnCdr(const AmiMessage &m)
 				item = new wxListItem;
 				item->SetId(m_callList->GetItemCount());
 				Call *call = new Call;
-				call->SetNumber(m.at("Source"));
-				call->SetUniqueID(std::stoi(m.at("UniqueID")));
+				call->SetNumber(m["Source"]);
+				call->SetUniqueID(std::stoi(m["UniqueID"]));
+				call->SetDuration(std::stoi(m["BillableSeconds"]));
 				item->SetData(call);
-				std::string cid = m.at("CallerID");
+				std::string cid = m["CallerID"];
 				size_t first = cid.find_first_of("\"");
 				size_t last = cid.find_last_of("\"");
 				if (first != std::string::npos && last != std::string::npos && first != last)
 				{
 					cid = cid.substr(first+1, last-1);
-					item->SetText(m.at("Source") + " (" + cid + ")");
+					item->SetText(m["Source"] + " (" + cid + ")");
 				}
-				else item->SetText(m.at("Source"));
-				if (m.at("Disposition") == "ANSWERED")
+				else item->SetText(m["Source"]);
+				if (m["Disposition"] == "ANSWERED")
 					item->SetImage(0);
 				else item->SetImage(1);
 				m_callList->InsertItem(*item);

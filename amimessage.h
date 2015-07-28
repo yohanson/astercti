@@ -1,6 +1,8 @@
 #ifndef _AMIMESSAGE_H_
 #define _AMIMESSAGE_H_
 
+#include <map>
+
 /************************************************************************/
 /* Comparator for case-insensitive comparison in STL assos. containers  */
 /************************************************************************/
@@ -21,6 +23,26 @@ struct ci_less : std::binary_function<std::string, std::string, bool>
   }
 };
 
-typedef std::map<std::string, std::string, ci_less> AmiMessage;
+typedef std::map<std::string, std::string, ci_less> AmiMessageMap;
+class AmiMessage
+{
+private:
+	AmiMessageMap map;
+public:
+	std::string &operator[](std::string &key){return map[key];};
+	std::string &operator[](const char *key){return map[key];};
+	const std::string operator[](std::string &key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
+	const std::string operator[](const char *key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
+	const std::string at(const std::string &key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
+	AmiMessageMap getMap() const {return map;};
+	void clear(){map.clear();};
+
+	typedef AmiMessageMap::iterator iterator;
+	typedef AmiMessageMap::const_iterator const_iterator;
+	iterator begin() { return map.begin(); }
+	const_iterator begin() const { return map.begin(); }
+	iterator end() { return map.end(); }
+	const_iterator end() const { return map.end(); }
+};
 
 #endif

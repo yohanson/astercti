@@ -162,12 +162,12 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 	wxString html;
 	std::string callerid = "";
 	try {
-		if (message.at("Event") == "Newstate" && message.at("ChannelID") == m_controller->GetMyChannel())
+		if (message["Event"] == "Newstate" && message["ChannelID"] == m_controller->GetMyChannel())
 		{
-			if (message.at("ChannelStateDesc") == "Up")
+			if (message["ChannelStateDesc"] == "Up")
 			{
 				is_channel_up = true;
-				callerid = message.at("ConnectedLineNum");
+				callerid = message["ConnectedLineNum"];
 				long timer = m_controller->CfgInt("gui/pickup_notify_hide_timeout");
 				if (!timer){
 				       Hide();
@@ -176,28 +176,28 @@ void notificationFrame::handleEvent(const AmiMessage &message)
 				else if (timer != -1)
 					m_hidetimer->StartOnce(timer);
 			}
-			else if (message.at("ChannelStateDesc") == "Ringing")
+			else if (message["ChannelStateDesc"] == "Ringing")
 			{
 				is_channel_up = true;
 				is_channel_ringing = true;
-				callerid = message.at("ConnectedLineNum");
-				if (callerid == m_controller->GetMyExten() && message.at("ChannelStateDesc") == "Ringing")
+				callerid = message["ConnectedLineNum"];
+				if (callerid == m_controller->GetMyExten() && message["ChannelStateDesc"] == "Ringing")
 				{
-					html = _("Pickup the handset to dial") + " <b>" + message.at("ConnectedLineName") + "</b>";
+					html = _("Pickup the handset to dial") + " <b>" + message["ConnectedLineName"] + "</b>";
 					SetHtml(html);
 				}
 				else
 				{
 					html = "";
-					html << wxT("<h5>☎ ") + message.at("ConnectedLineNum");
-				       	if (message.at("ConnectedLineName") != "")
-						html << " (" << message.at("ConnectedLineName") << ")";
+					html << wxT("<h5>☎ ") + message["ConnectedLineNum"];
+				       	if (message["ConnectedLineName"] != "")
+						html << " (" << message["ConnectedLineName"] << ")";
 					html << "</h5>";
 				}
-				m_current_channel = message.at("Channel");
+				m_current_channel = message["Channel"];
 			}
 		}
-		else if (message.at("Event") == "Hangup")
+		else if (message["Event"] == "Hangup")
 		{
 			is_channel_up = false;
 		}

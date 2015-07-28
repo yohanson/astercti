@@ -28,6 +28,7 @@ private:
     wxTextCtrl *StatusText;
     wxListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
+    wxStaticText *m_CallInfo;
 };
 
 class CallListItem : public wxListItem, public Call

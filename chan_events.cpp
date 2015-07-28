@@ -49,12 +49,12 @@ void EventGenerator::NotifyOnCdr(const AmiMessage &message) {
 
 void EventGenerator::handleEvent(const AmiMessage &m)
 {
-	if (m.at("Event") == "Newstate")
+	if (m["Event"] == "Newstate")
 	{
-		switch (std::stoi(m.at("ChannelState")))
+		switch (std::stoi(m["ChannelState"]))
 		{
 		case AST_STATE_RINGING:
-			if (m.at("ConnectedLineNum") == "511")
+			if (m["ConnectedLineNum"] == "511")
 				NotifyOnOriginate(m);
 			else
 				NotifyOnRing(m);
@@ -69,11 +69,11 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 			break;
 		}
 	}
-	else if (m.at("Event") == "Hangup")
+	else if (m["Event"] == "Hangup")
 	{
 		NotifyOnHangup(m);
 	}
-	else if (m.at("Event") == "Cdr")
+	else if (m["Event"] == "Cdr")
 	{
 		NotifyOnCdr(m);
 	}

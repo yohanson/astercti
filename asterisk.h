@@ -53,13 +53,19 @@ public:
 	wxString m_description;
 	long m_unique_id;
 	wxDateTime m_time;
-	int m_duration;
+	long m_duration;
 	enum {CALL_IN, CALL_OUT} m_direction;
 	enum {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
-	void SetNumber(wxString s){m_number = s;};
-	wxString GetNumber(){return m_number;};
-	long GetUniqueID(){return m_unique_id;};
-	void SetUniqueID(long id){m_unique_id = id;};
-	
+	void		SetNumber(wxString s){m_number = s;};
+	wxString	GetNumber(){return m_number;};
+	void		SetName(wxString s){m_name = s;};
+	wxString	GetName(){return m_name;};
+	long		GetUniqueID(){return m_unique_id;};
+	void		SetUniqueID(long id){m_unique_id = id;};
+	void		SetTime(wxDateTime t){m_time = t;};
+	wxDateTime	GetTime(){return m_time;};
+	void		SetDuration(int d){m_duration = d;};
+	int		GetDuration(){return m_duration;};
+
 };
 #endif
