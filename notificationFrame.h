@@ -9,9 +9,10 @@
 #include <wx/timer.h>
 
 #include "observer.h"
+#include "chan_events.h"
 #include "controller.h"
 
-class notificationFrame: public wxFrame, public IObserver, public ControllerUser
+class notificationFrame: public wxFrame, public ControllerUser, public EventListener
 {
 	public:
 
@@ -31,6 +32,15 @@ class notificationFrame: public wxFrame, public IObserver, public ControllerUser
 		wxHtmlWindow* HtmlWindow1;
 		wxBoxSizer* BoxSizer1;
 		//*)
+		
+		void OnOriginate(const AmiMessage &);
+		void OnRing(const AmiMessage &);
+		void OnHangup(const AmiMessage &);
+		//void OnCdr(const AmiMessage &);
+		void OnDial(const AmiMessage &);
+		void OnUp(const AmiMessage &);
+
+
 
 	protected:
 
@@ -47,7 +57,6 @@ class notificationFrame: public wxFrame, public IObserver, public ControllerUser
 		void OnLinkClicked(wxHtmlLinkEvent& event);
 		void OnHideButtonClick(wxCommandEvent& event);
 		void OnHideTimer(wxTimerEvent& event);
-		void handleEvent(const AmiMessage &message);
 		wxTimer *m_hidetimer;
 		std::string m_current_channel;
 		std::string m_lookup_cmd;

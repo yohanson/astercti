@@ -40,23 +40,20 @@ MyChanFilter::MyChanFilter(std::string channel)
 
 bool MyChanFilter::filter(const AmiMessage &message)
 {
-    try {
-	if (message.at("Event") == "Cdr")
+	if (message["Event"].empty())
+	       return false;
+
+	if (message["Event"] == "Cdr")
 	{
-		if (message.at("ChannelID") == m_channel_id
-		 || message.at("DestinationChannelID") == m_channel_id)
+		if (message["ChannelID"] == m_channel_id
+		 || message["DestinationChannelID"] == m_channel_id)
 			return true;
 	}
-	else if (message.at("Event") == "Newstate" || message.at("Event") == "Hangup")
+	else if (message["Event"] == "Newstate" || message["Event"] == "Hangup")
 	{
-		if (message.at("ChannelID") == m_channel_id)
+		if (message["ChannelID"] == m_channel_id)
 			return true;
 	}
-    }
-    catch (std::out_of_range)
-    {
-	return false;
-    }
     return false;
 }
 

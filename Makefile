@@ -2,12 +2,21 @@ CXXFLAGS=-std=c++11 `wx-config --cflags` `pkg-config --cflags jsoncpp`
 BINARY=astercti
 DBGDIR=debug
 RELDIR=release
+WINDBGDIR=debug_win
+WINRELDIR=release_win
+WINPATH=/usr/local/libwxmsw3.0/bin
 
 DEBUG_OBJ=$(DBGDIR)/myapp.o $(DBGDIR)/mainframe.o $(DBGDIR)/notificationFrame.o \
-	  $(DBGDIR)/taskbaricon.o $(DBGDIR)/controller.o $(DBGDIR)/asterisk.o $(DBGDIR)/observer.o
+	  $(DBGDIR)/taskbaricon.o $(DBGDIR)/controller.o $(DBGDIR)/asterisk.o \
+	  $(DBGDIR)/observer.o $(DBGDIR)/chan_events.o
 
 RELEASE_OBJ=$(RELDIR)/myapp.o $(RELDIR)/mainframe.o $(RELDIR)/notificationFrame.o \
-	  $(RELDIR)/taskbaricon.o $(RELDIR)/controller.o $(RELDIR)/asterisk.o $(RELDIR)/observer.o
+	  $(RELDIR)/taskbaricon.o $(RELDIR)/controller.o $(RELDIR)/asterisk.o \
+	  $(RELDIR)/observer.o $(RELDIR)/chan_events.o
+
+WINRELEASE_OBJ=$(WINRELDIR)/myapp.o $(WINRELDIR)/mainframe.o $(WINRELDIR)/notificationFrame.o \
+	  $(WINRELDIR)/taskbaricon.o $(WINRELDIR)/controller.o $(WINRELDIR)/asterisk.o $(WINRELDIR)/observer.o $(WINRELDIR)/jsoncpp.o
+
 
 
 OUTDIR=$(RELDIR)
@@ -17,9 +26,7 @@ all: release
 clean:
 	rm -f $(BINARY) *.o
 
-
-
-$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o
+$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o chan_events.o
 	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
 
 debug: CXXFLAGS += -DDEBUG -g
@@ -27,6 +34,12 @@ debug: $(BINARY)
 
 release: CXXFLAGS += -s -DNDEBUG -O2
 release: $(BINARY) i18n/ru.mo
+
+
+# template:
+#%.en.po : %.pot
+#	-[ -e $@ ] && msgmerge --width=110 --update $@ $<
+#	[ -e $@ ] || cp $< $@
 
 i18n/ru.mo:
 	msgfmt i18n/ru.po -o i18n/ru.mo
@@ -47,9 +60,17 @@ install: release
 deb:
 	debuild --no-tgz-check -i -us -uc -b
 
+$(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
+$(WINRELDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
+$(WINRELDIR)/%.o: %.cpp
+	echo $(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-win:
-	i686-w64-mingw32-g++ -std=c++11 `wx-config --libs --cflags` *.cpp -o $(BINARY).exe
+win: CXX=i686-w64-mingw32-g++
+win: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+win: $(WINRELEASE_OBJ)
+	echo $(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
+	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
 
 bump: debianbump versionhbump
 

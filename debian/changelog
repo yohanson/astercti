@@ -1,3 +1,10 @@
+astercti (0.0.5-1) unstable; urgency=medium
+
+  * More usable main window.
+  * Make use of events, internals a bit cleaner now.
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 28 Jul 2015 19:50:03 +0600
+
 astercti (0.0.4-1) unstable; urgency=medium
 
   * Show services in lookup. Still barely-usable alpha.

@@ -11,7 +11,20 @@
 enum {ID_SOCKET = 100500};
 #define RECV_BUFF 8192
 
-typedef std::map<std::string, std::string> AmiMessage;
+
+enum ast_channel_state {
+    AST_STATE_DOWN,         /*!< Channel is down and available */
+    AST_STATE_RESERVED,     /*!< Channel is down, but reserved */
+    AST_STATE_OFFHOOK,      /*!< Channel is off hook */
+    AST_STATE_DIALING,      /*!< Digits (or equivalent) have been dialed */
+    AST_STATE_RING,         /*!< Line is ringing */
+    AST_STATE_RINGING,      /*!< Remote end is ringing */
+    AST_STATE_UP,        /*!< Line is up */
+    AST_STATE_BUSY,         /*!< Line is busy */
+    AST_STATE_DIALING_OFFHOOK, /*!< Digits (or equivalent) have been dialed while offhook */
+    AST_STATE_PRERING,      /*!< Channel has detected an incoming call and is waiting for ring */
+    AST_STATE_MUTE = (1 << 16),   /*!< Do not transmit voice data */
+};
 
 class Asterisk : public wxEvtHandler
 {
@@ -34,15 +47,27 @@ public:
 
 class Call
 {
-protected:
+public:
+	Call(){m_duration=0; m_unique_id=0;};
 	wxString m_number;
 	wxString m_name;
 	wxString m_description;
+	long m_unique_id;
 	wxDateTime m_time;
-	int m_duration;
-public:
-	enum {CALL_IN, CALL_OUT} m_direction;
-	enum {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
-	
+	long m_duration;
+	enum Direction {CALL_IN, CALL_OUT} m_direction;
+	enum Disposition {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
+	void		SetNumber(wxString s){m_number = s;};
+	wxString	GetNumber(){return m_number;};
+	void		SetName(wxString s){m_name = s;};
+	wxString	GetName(){return m_name;};
+	long		GetUniqueID(){return m_unique_id;};
+	void		SetUniqueID(long id){m_unique_id = id;};
+	void		SetTime(wxDateTime t){m_time = t;};
+	wxDateTime	GetTime(){return m_time;};
+	void		SetDuration(int d){m_duration = d;};
+	int		GetDuration(){return m_duration;};
+	void		SetDirection(Direction d){m_direction = d;};
+	Direction	GetDirection(){return m_direction;};
 };
 #endif
