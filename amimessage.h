@@ -2,6 +2,7 @@
 #define _AMIMESSAGE_H_
 
 #include <map>
+#include <stdexcept>
 
 /************************************************************************/
 /* Comparator for case-insensitive comparison in STL assos. containers  */
