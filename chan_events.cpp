@@ -64,7 +64,7 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 		switch (std::stoi(m["ChannelState"]))
 		{
 		case AST_STATE_RINGING:
-			if (m["ConnectedLineNum"] == "511")
+			if (m["ConnectedLineNum"] == m_controller->Cfg("dialplan/exten"))
 				NotifyOnOriginate(m);
 			else
 				NotifyOnRing(m);

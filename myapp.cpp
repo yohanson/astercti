@@ -74,6 +74,7 @@ bool MyApp::OnInit()
     m_controller->add(icon);
     m_controller->add(frame);
     m_controller->add(notifyframe);
+    m_controller->add(events);
     return true;
 }
 
