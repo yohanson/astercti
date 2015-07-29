@@ -3,6 +3,7 @@
 
 #include "asterisk.h"
 #include "observer.h"
+#include "controller.h"
 
 /*class ChannelEvent
 {
@@ -17,7 +18,7 @@
 class EventListener;
 
 // Takes AmiMessage, calls corresponding method of listeners
-class EventGenerator : public IObserver
+class EventGenerator : public IObserver, public ControllerUser
 {
 	std::list<EventListener *> _listeners;
 	void handleEvent(const AmiMessage &);
@@ -36,6 +37,8 @@ public:
 
 class EventListener
 {
+protected:
+	ast_channel_state m_last_channel_state;
 public:
 	virtual void OnRing(const AmiMessage &);
 	virtual void OnOriginate(const AmiMessage &);
