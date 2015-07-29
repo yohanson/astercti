@@ -220,8 +220,14 @@ void notificationFrame::OnHangup(const AmiMessage &message)
 	Hide();
 }
 
+void notificationFrame::OnDial(const AmiMessage &message)
+{
+	m_current_channel = message["Channel"];
+}
+
 void notificationFrame::OnOriginate(const AmiMessage &message)
 {
+	m_current_channel = message["Channel"];
 	wxString html = _("Pickup the handset to dial") + " <b>" + message["ConnectedLineName"] + "</b>";
 	SetHtml(html);
 	ShowWithoutActivating();

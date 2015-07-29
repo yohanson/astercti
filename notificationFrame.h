@@ -37,7 +37,7 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		void OnRing(const AmiMessage &);
 		void OnHangup(const AmiMessage &);
 		//void OnCdr(const AmiMessage &);
-		//void OnDial(const AmiMessage &);
+		void OnDial(const AmiMessage &);
 		void OnUp(const AmiMessage &);
 
 
