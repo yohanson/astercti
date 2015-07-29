@@ -138,12 +138,24 @@ void MyFrame::handleEvent(const AmiMessage &message)
 
 void MyFrame::OnOriginate(const AmiMessage &m)
 {
-	StatusText->AppendText("\n#####\nWe are originating!\n#####\n\n");
+	StatusText->AppendText("##### We are originating! #####\n\n");
+	wxListItem *item = new wxListItem;
+	item->SetId(m_callList->GetItemCount());
+	Call *call = new Call;
+	call->SetNumber(m["ConnectedLineName"]); // yes, it's right
+	item->SetText(m["ConnectedLineName"]);
+	call->SetUniqueID(std::stoi(m["Uniqueid"]));
+	call->SetTime(wxDateTime::Now());
+	call->SetDirection(Call::CALL_OUT);
+	item->SetData(call);
+	item->SetImage(2);
+	m_callList->InsertItem(*item);
+	m_last_channel_state = AST_STATE_RINGING;
 }
 
 void MyFrame::OnRing(const AmiMessage &m)
 {
-	StatusText->AppendText("\n#####\nIncoming call!\n#####\n\n");
+	StatusText->AppendText("##### Incoming call! #####\n\n");
 	wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
@@ -159,6 +171,7 @@ void MyFrame::OnRing(const AmiMessage &m)
 	call->SetDirection(Call::CALL_IN);
 	item->SetData(call);
 	m_callList->InsertItem(*item);
+	m_last_channel_state = AST_STATE_RINGING;
 }
 
 void MyFrame::OnUp(const AmiMessage &m)
@@ -166,51 +179,65 @@ void MyFrame::OnUp(const AmiMessage &m)
 	StatusText->AppendText("\n#####\nAlready talking\n#####\n\n");
 	wxListItem *item = NULL;
 	long lastItem = 0;
-	bool isNewCall = true;
 	if (m_callList->GetItemCount())
 	{
 		lastItem = m_callList->GetItemCount()-1;
 		Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 		if (call->GetUniqueID() == std::stoi(m["Uniqueid"])) // updating existing call
 		{
-			isNewCall = false;
 			if (call->GetDirection() == Call::CALL_IN)
 				m_callList->SetItemImage(lastItem, 0);
 			else // outbound call
 			{
-				if (m["ConnectedLineName"] != "")
+				if (m["ConnectedLineNum"] != m["CallerIDNum"])
 				{
-					m_callList->SetItemText(lastItem, m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
-					call->SetName(m["ConnectedLineName"]);
+					if (m["ConnectedLineName"] != "")
+					{
+						m_callList->SetItemText(lastItem, m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
+						call->SetName(m["ConnectedLineName"]);
+					}
+					else m_callList->SetItemText(lastItem, m["ConnectedLineNum"]);
+					call->SetNumber(m["ConnectedLineNum"]);
 				}
-				else m_callList->SetItemText(lastItem, m["ConnectedLineNum"]);
-				call->SetNumber(m["ConnectedLineNum"]);
 				m_callList->SetItemImage(lastItem, 2);
 			}
 		}
 	}
+	m_last_channel_state = AST_STATE_UP;
 }
 
 void MyFrame::OnHangup(const AmiMessage &m)
 {
-	StatusText->AppendText("\n#####\nHung up!\n#####\n\n");
+	StatusText->AppendText("##### Hung up! #####\n\n");
+	if (m_callList->GetItemCount())
+	{
+		int lastItem = m_callList->GetItemCount()-1;
+		Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
+		if (call->GetUniqueID() == std::stoi(m["UniqueID"]))
+		{
+			if (m["ConnectedLineNum"] == m["CallerIDNum"])
+			{
+				delete call;
+				m_callList->DeleteItem(lastItem);
+			}
+		}
+	}
+	m_last_channel_state = AST_STATE_DOWN;
 }
 
 void MyFrame::OnCdr(const AmiMessage &m)
 {
-	StatusText->AppendText("\n#####\nCdr data arrived!\n#####\n\n");
+	StatusText->AppendText("##### Cdr data arrived! #####\n\n");
+	long lastItem = 0;
 	if (!m["DestinationChannel"].empty())
 	{
 		wxListItem *item = NULL;
-		long lastItem = 0;
-		bool isNewCall = true;
 		if (m_callList->GetItemCount())
 		{
 			lastItem = m_callList->GetItemCount()-1;
 			Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 			if (call->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
 			{
-				isNewCall = false;
 				call->SetDuration(stoi(m["BillableSeconds"]));
 				if (call->GetDirection() == Call::CALL_OUT)
 				{
@@ -221,24 +248,47 @@ void MyFrame::OnCdr(const AmiMessage &m)
 					else
 						m_callList->SetItemText(lastItem, call->GetNumber());
 				}
+				else StatusText->AppendText("It's NOT Call::CALL_OUT. (?)\n");
+				if (call->GetDirection() == Call::CALL_IN)
+					StatusText->AppendText("It's Call::CALL_IN\n");
+
 				if (m["Disposition"] == "ANSWERED")
 					if (call->GetDirection() == Call::CALL_IN)
 						m_callList->SetItemImage(lastItem, 0);
 					else
 						m_callList->SetItemImage(lastItem, 2);
 				else // missed
+				{
+					call->SetDuration(0);
 					if (call->GetDirection() == Call::CALL_IN)
 						m_callList->SetItemImage(lastItem, 1);
 					else
 						m_callList->SetItemImage(lastItem, 3);
+				}
 			}
+			else StatusText->AppendText("UniqueID " + m["UniqueID"] + " not found.\n");
 		}
 	}
+	else // not a real channel
+	{
+		if (m_callList->GetItemCount())
+		{
+			lastItem = m_callList->GetItemCount()-1;
+			Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
+			if (call->GetUniqueID() == std::stoi(m["UniqueID"]))
+			{
+				delete call;
+				m_callList->DeleteItem(lastItem);
+			}
+		}
+
+	}
+
 }
 
 void MyFrame::OnDial(const AmiMessage &m)
 {
-	StatusText->AppendText("\n#####\nWe are dialing out!\n#####\n\n");
+	StatusText->AppendText("##### We are dialing out! #####\n\n");
 	wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
@@ -253,7 +303,9 @@ void MyFrame::OnDial(const AmiMessage &m)
 	call->SetTime(wxDateTime::Now());
 	call->SetDirection(Call::CALL_OUT);
 	item->SetData(call);
+	item->SetImage(2);
 	m_callList->InsertItem(*item);
+	m_last_channel_state = AST_STATE_RING;
 }
 
 
