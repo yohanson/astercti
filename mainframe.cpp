@@ -215,7 +215,7 @@ void MyFrame::OnHangup(const AmiMessage &m)
 		Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 		if (call->GetUniqueID() == std::stoi(m["UniqueID"]))
 		{
-			if (m["ConnectedLineNum"] == m["CallerIDNum"])
+			if (m["ConnectedLineNum"] == m["CallerIDNum"] && m_last_channel_state == AST_STATE_RINGING)
 			{
 				delete call;
 				m_callList->DeleteItem(lastItem);
