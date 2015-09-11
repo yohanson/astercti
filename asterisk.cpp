@@ -10,6 +10,22 @@
 
 void Asterisk::Notify(AmiMessage &message)
 {
+	if (message["Response"] != "")
+	{
+		if (message["Ping"] == "Pong")
+		{
+			m_pingTimer->Stop();
+			std::cout << "Pong" << std::endl;
+			m_ping_timer_active = false;
+			m_pingTimer->StartOnce(5000);
+		}
+		else
+		for (auto iter : message)
+		{
+			std::cout << iter.first << ": " << iter.second << std::endl;
+		}
+	}
+	//else
 	for (auto iter : _observers)
 	{
 		iter->handleEvent(message);
@@ -25,8 +41,12 @@ void Asterisk::OnSocketEvent(wxSocketEvent &event)
 			OnInputAvailable();
 			break;
 
+		case wxSOCKET_OUTPUT:
+			//std::cout << "Output available to the socket." << std::endl;
+			break;
+
 		case wxSOCKET_LOST:
-			//std::cout << "Socket connection was unexpectedly lost." << std::endl;
+			std::cout << "Socket connection was unexpectedly lost." << std::endl;
 			break;
 
 		case wxSOCKET_CONNECTION:
@@ -34,7 +54,7 @@ void Asterisk::OnSocketEvent(wxSocketEvent &event)
 			break;
 
 		default:
-			//std::cout << "Unknown socket event!!!" << std::endl;
+			std::cout << "Unknown socket event! (" << event.GetSocketEvent() << ")" << std::endl;
 			break;
 	}
 }
@@ -87,19 +107,50 @@ void Asterisk::add(IObserver& observer)
 {
 	_observers.push_back(&observer);
 }
+
+void Asterisk::AmiPing()
+{
+	m_ping_timer_active = true;
+	m_pingTimer->StartOnce(5000);
+	std::cout << "Ping";
+	std::string action = "Action: ping\n\n";
+	m_socket->Write(action.c_str(), action.length());
+}
+
+void Asterisk::OnPingTimeout(wxTimerEvent& event)
+{
+	if (m_ping_timer_active)
+	{
+		std::cerr << "Connection lost" << std::endl;
+	}
+	AmiPing();
+}
+
+void Asterisk::AmiConnect()
+{
+	wxIPV4address addr;
+	addr.Hostname(m_ami_host);
+	addr.Service(m_ami_port);
+	m_socket->Connect(addr);
+	std::string login = "Action: login\nUsername: "+m_ami_username+"\nSecret: "+m_ami_secret+"\n\n";
+	m_socket->Write(login.c_str(), login.length());
+	AmiPing();
+}
+
 Asterisk::Asterisk(std::string host, int port, std::string username, std::string secret)
 {
+	m_ami_host = host;
+	m_ami_port = port;
+	m_ami_username = username;
+	m_ami_secret = secret;
 	Bind(wxEVT_SOCKET, &Asterisk::OnSocketEvent, this);
 	m_socket = new wxSocketClient;
 	m_socket->SetEventHandler(*this);
 	m_socket->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_OUTPUT_FLAG | wxSOCKET_CONNECTION_FLAG | wxSOCKET_LOST_FLAG);
 	m_socket->Notify(true);
-	wxIPV4address addr;
-	addr.Hostname(host);
-	addr.Service(port);
-	m_socket->Connect(addr);
-	std::string login = "Action: login\nUsername: "+username+"\nSecret: "+secret+"\n\n";
-	m_socket->Write(login.c_str(), login.length());
+	m_pingTimer = new wxTimer(this);
+	Bind(wxEVT_TIMER, &Asterisk::OnPingTimeout, this);
+	AmiConnect();
 }
 
 Asterisk::~Asterisk()
