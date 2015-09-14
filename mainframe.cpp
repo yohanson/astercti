@@ -109,8 +109,12 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
 
 void MyFrame::OnListResize(wxSizeEvent &event)
 {
-	wxSize size = event.GetSize();
-	m_callList->SetColumnWidth(0, size.x);
+	wxSize csize = m_callList->GetClientSize();
+	wxSize vsize = m_callList->GetVirtualSize();
+	int width = csize.x;
+	if (vsize.y > csize.y)
+		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+	m_callList->SetColumnWidth(0, width);
 
 	event.Skip();
 }
