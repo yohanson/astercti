@@ -120,9 +120,14 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 	Call *call = reinterpret_cast<Call *>(event.GetData());
 	m_DialNumber->SetValue(call->GetNumber());
 	wxString label;
+	wxDateTime duration((time_t)call->GetDuration());
+	wxString timeformat;
+	if (call->GetDuration() >= 3600)
+		timeformat = "%-H:%M:%S";
+	else timeformat = "%-M:%S";
 	label << _("Number: ") << call->GetNumber() << '\n' << _("Name: ")
 	       << call->GetName() << '\n' << _("Time: ") << call->GetTime().FormatISOCombined(' ')
-	       << '\n' << _("Duration: ") << call->GetDuration();
+	       << '\n' << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
 	m_CallInfo->SetLabel(label);
 }
 
