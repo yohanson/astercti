@@ -1,7 +1,7 @@
 #ifndef _MAINFRAME_H_
 #define _MAINFRAME_H_
 
-#include "chan_events.h"
+#include "events.h"
 #include <wx/listctrl.h>
 
 class MyFrame: public wxFrame, public IObserver, public ControllerUser, public EventListener
@@ -16,6 +16,7 @@ public:
     void OnCdr(const AmiMessage &);
     void OnDial(const AmiMessage &);
     void OnUp(const AmiMessage &);
+    void OnInternalMessage(const AmiMessage &);
 
 private:
     void OnHello(wxCommandEvent& event);

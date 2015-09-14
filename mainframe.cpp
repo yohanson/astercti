@@ -128,6 +128,7 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 
 void MyFrame::handleEvent(const AmiMessage &message)
 {
+	if (message.has("InternalMessage")) return;
 	std::string status;
 	for (auto iter : message)
 	{	
@@ -308,4 +309,16 @@ void MyFrame::OnDial(const AmiMessage &m)
 	m_last_channel_state = AST_STATE_RING;
 }
 
+
+void MyFrame::OnInternalMessage(const AmiMessage &m)
+{
+	if (m["InternalMessage"] == "ConnectionLost")
+	{
+		SetStatusText(_("Connection Lost"));
+	}
+	else if (m["InternalMessage"] == "Connected")
+	{
+		SetStatusText(_("Connected"));
+	}
+}
 

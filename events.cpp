@@ -1,4 +1,4 @@
-#include "chan_events.h"
+#include "events.h"
 
 void EventGenerator::add(EventListener &listener)
 {
@@ -57,6 +57,11 @@ void EventGenerator::NotifyOnLookupFinish(const AmiMessage &message) {
 		iter->OnLookupFinish(message);
 	}
 }
+void EventGenerator::NotifyOnInternalMessage(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnInternalMessage(message);
+	}
+}
 void EventGenerator::handleEvent(const AmiMessage &m)
 {
 	if (m["Event"] == "Newstate")
@@ -87,6 +92,10 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 	{
 		NotifyOnCdr(m);
 	}
+	else if (m.has("InternalMessage"))
+	{
+		NotifyOnInternalMessage(m);
+	}
 }
 
 void EventListener::OnRing(const AmiMessage &){};
@@ -97,4 +106,5 @@ void EventListener::OnHangup(const AmiMessage &){};
 void EventListener::OnCdr(const AmiMessage &){};
 void EventListener::OnLookupStart(const AmiMessage &){};
 void EventListener::OnLookupFinish(const AmiMessage &){};
+void EventListener::OnInternalMessage(const AmiMessage &){};
 

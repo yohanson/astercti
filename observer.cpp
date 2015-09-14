@@ -57,4 +57,10 @@ bool MyChanFilter::filter(const AmiMessage &message)
     return false;
 }
 
+bool InternalMessageFilter::filter(const AmiMessage &message)
+{
+	if (message["InternalMessage"] != "")
+		return true;
+	return false;
+}
 

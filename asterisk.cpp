@@ -10,15 +10,18 @@
 
 void Asterisk::Notify(AmiMessage &message)
 {
-	if (message["Response"] != "")
+	if (message.has("Response"))
 	{
 		if (message["Ping"] == "Pong")
 		{
 			m_pingTimer->Stop();
-			std::cout << "Pong" << std::endl;
+			std::cout << wxDateTime::Now().FormatISOCombined() << " Pong" << std::endl;
 			m_ping_timer_active = false;
 			m_pingTimer->StartOnce(5000);
-		}
+			AmiMessage m;
+			m["InternalMessage"] = "Connected";
+			Notify(m);
+	}
 		else
 		for (auto iter : message)
 		{
@@ -69,7 +72,7 @@ void Asterisk::OnInputAvailable()
 	std::string line, key, value;
 	size_t start = 0, colon;
 	size_t end = raw_messages.find(delim);
-	AmiMessage am;
+	static AmiMessage am;
 	while (end != std::string::npos)
 	{
 		line = raw_messages.substr(start, end-start);
@@ -112,7 +115,7 @@ void Asterisk::AmiPing()
 {
 	m_ping_timer_active = true;
 	m_pingTimer->StartOnce(5000);
-	std::cout << "Ping";
+	std::cout << wxDateTime::Now().FormatISOCombined() << " Ping" << std::endl;
 	std::string action = "Action: ping\n\n";
 	m_socket->Write(action.c_str(), action.length());
 }
@@ -121,7 +124,10 @@ void Asterisk::OnPingTimeout(wxTimerEvent& event)
 {
 	if (m_ping_timer_active)
 	{
-		std::cerr << "Connection lost" << std::endl;
+		std::cerr << wxDateTime::Now().FormatISOCombined() << " Connection lost" << std::endl;
+		AmiMessage m;
+		m["InternalMessage"] = "ConnectionLost";
+		Notify(m);
 	}
 	AmiPing();
 }
