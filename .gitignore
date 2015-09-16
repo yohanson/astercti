@@ -5,3 +5,4 @@ astercti
 i18n/*.mo
 debian/astercti.substvars
 debian/files
+gitversion.cpp

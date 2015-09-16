@@ -88,7 +88,12 @@ void MyFrame::OnExit(wxCommandEvent& event)
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-	wxLogMessage("AsterCTI v"  VERSION  "\nhttps://github.com/yohanson/astercti");
+	wxString version_message;
+       version_message << "AsterCTI v"  VERSION  "\n"
+		"Git commit: " << gitcommit << " " << gitcommitdate << "\n"
+		"Built: " << builddate << "\n"
+		"https://github.com/yohanson/astercti";
+	wxLogMessage(version_message);
 }
 void MyFrame::OnHello(wxCommandEvent& event)
 {

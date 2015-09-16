@@ -25,8 +25,9 @@ all: release
 
 clean:
 	rm -f $(BINARY) *.o
+	rm -f gitversion.cpp
 
-$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o chan_events.o
+$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o chan_events.o gitversion.o
 	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
 
 debug: CXXFLAGS += -DDEBUG -g
@@ -59,6 +60,12 @@ install: release
 
 deb:
 	debuild --no-tgz-check -i -us -uc -b
+
+.PHONY: gitversion.cpp
+gitversion.cpp:
+	echo "const char *gitcommit = \"$(shell git rev-parse --short HEAD)\";" > $@
+	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso)\";" >> $@
+	echo "const char *builddate = \"$(shell date --rfc-3339=date)\";" >> $@
 
 $(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include

@@ -42,4 +42,8 @@ enum
     ID_TextCtlNumber
 };
 
+extern const char *gitcommit;
+extern const char *gitcommitdate;
+extern const char *builddate;
+
 #endif
