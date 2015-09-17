@@ -8,11 +8,11 @@ WINPATH=/usr/local/libwxmsw3.0/bin
 
 DEBUG_OBJ=$(DBGDIR)/myapp.o $(DBGDIR)/mainframe.o $(DBGDIR)/notificationFrame.o \
 	  $(DBGDIR)/taskbaricon.o $(DBGDIR)/controller.o $(DBGDIR)/asterisk.o \
-	  $(DBGDIR)/observer.o $(DBGDIR)/chan_events.o
+	  $(DBGDIR)/observer.o $(DBGDIR)/events.o
 
 RELEASE_OBJ=$(RELDIR)/myapp.o $(RELDIR)/mainframe.o $(RELDIR)/notificationFrame.o \
 	  $(RELDIR)/taskbaricon.o $(RELDIR)/controller.o $(RELDIR)/asterisk.o \
-	  $(RELDIR)/observer.o $(RELDIR)/chan_events.o
+	  $(RELDIR)/observer.o $(RELDIR)/events.o
 
 WINRELEASE_OBJ=$(WINRELDIR)/myapp.o $(WINRELDIR)/mainframe.o $(WINRELDIR)/notificationFrame.o \
 	  $(WINRELDIR)/taskbaricon.o $(WINRELDIR)/controller.o $(WINRELDIR)/asterisk.o $(WINRELDIR)/observer.o $(WINRELDIR)/jsoncpp.o
@@ -25,8 +25,9 @@ all: release
 
 clean:
 	rm -f $(BINARY) *.o
+	rm -f gitversion.cpp
 
-$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o chan_events.o
+$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o events.o gitversion.o
 	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
 
 debug: CXXFLAGS += -DDEBUG -g
@@ -59,6 +60,12 @@ install: release
 
 deb:
 	debuild --no-tgz-check -i -us -uc -b
+
+.PHONY: gitversion.cpp
+gitversion.cpp:
+	echo "const char *gitcommit = \"$(shell git rev-parse --short HEAD)\";" > $@
+	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso)\";" >> $@
+	echo "const char *builddate = \"$(shell date --rfc-3339=date)\";" >> $@
 
 $(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include

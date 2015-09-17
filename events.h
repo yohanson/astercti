@@ -33,6 +33,7 @@ public:
 	void NotifyOnCdr(const AmiMessage &);
 	void NotifyOnLookupStart(const AmiMessage &);
 	void NotifyOnLookupFinish(const AmiMessage &);
+	void NotifyOnInternalMessage(const AmiMessage &);
 };
 
 class EventListener
@@ -48,6 +49,7 @@ public:
 	virtual void OnCdr(const AmiMessage &);
 	virtual void OnLookupStart(const AmiMessage &);
 	virtual void OnLookupFinish(const AmiMessage &);
+	virtual void OnInternalMessage(const AmiMessage &);
 
 };
 

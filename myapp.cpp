@@ -8,7 +8,7 @@
 #include <locale>
 #include <wx/intl.h>
 
-#include "chan_events.h"
+#include "events.h"
 #include "controller.h"
 #include "asterisk.h"
 #include "notificationFrame.h"
@@ -58,14 +58,18 @@ bool MyApp::OnInit()
     m_controller = new AsteriskController(asterisk, m_config);
     m_controller->SetMainFrame(frame);
     MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
+    InternalMessageFilter *intmsgfilter = new InternalMessageFilter();
     asterisk->add(*mychanfilter);
+    asterisk->add(*intmsgfilter);
     mychanfilter->add(*frame);
+    intmsgfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
     EventGenerator *events = new EventGenerator;
     events->add(*frame);
     events->add(*notifyframe);
     mychanfilter->add(*events);
+    intmsgfilter->add(*events);
     wxString iconfile = "/usr/share/pixmaps/astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);

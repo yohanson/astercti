@@ -88,7 +88,12 @@ void MyFrame::OnExit(wxCommandEvent& event)
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-	wxLogMessage("AsterCTI v"  VERSION  "\nhttps://github.com/yohanson/astercti");
+	wxString version_message;
+       version_message << "AsterCTI v"  VERSION  "\n"
+		"Git commit: " << gitcommit << " " << gitcommitdate << "\n"
+		"Built: " << builddate << "\n"
+		"https://github.com/yohanson/astercti";
+	wxLogMessage(version_message);
 }
 void MyFrame::OnHello(wxCommandEvent& event)
 {
@@ -109,8 +114,12 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
 
 void MyFrame::OnListResize(wxSizeEvent &event)
 {
-	wxSize size = event.GetSize();
-	m_callList->SetColumnWidth(0, size.x);
+	wxSize csize = m_callList->GetClientSize();
+	wxSize vsize = m_callList->GetVirtualSize();
+	int width = csize.x;
+	if (vsize.y > csize.y)
+		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+	m_callList->SetColumnWidth(0, width);
 
 	event.Skip();
 }
@@ -120,14 +129,20 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 	Call *call = reinterpret_cast<Call *>(event.GetData());
 	m_DialNumber->SetValue(call->GetNumber());
 	wxString label;
+	wxDateTime duration((time_t)call->GetDuration());
+	wxString timeformat;
+	if (call->GetDuration() >= 3600)
+		timeformat = "%-H:%M:%S";
+	else timeformat = "%-M:%S";
 	label << _("Number: ") << call->GetNumber() << '\n' << _("Name: ")
 	       << call->GetName() << '\n' << _("Time: ") << call->GetTime().FormatISOCombined(' ')
-	       << '\n' << _("Duration: ") << call->GetDuration();
+	       << '\n' << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
 	m_CallInfo->SetLabel(label);
 }
 
 void MyFrame::handleEvent(const AmiMessage &message)
 {
+	if (message.has("InternalMessage")) return;
 	std::string status;
 	for (auto iter : message)
 	{	
@@ -215,7 +230,7 @@ void MyFrame::OnHangup(const AmiMessage &m)
 		Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 		if (call->GetUniqueID() == std::stoi(m["UniqueID"]))
 		{
-			if (m["ConnectedLineNum"] == m["CallerIDNum"])
+			if (m["ConnectedLineNum"] == m["CallerIDNum"] && m_last_channel_state == AST_STATE_RINGING)
 			{
 				delete call;
 				m_callList->DeleteItem(lastItem);
@@ -308,4 +323,21 @@ void MyFrame::OnDial(const AmiMessage &m)
 	m_last_channel_state = AST_STATE_RING;
 }
 
+
+void MyFrame::OnInternalMessage(const AmiMessage &m)
+{
+	static std::string last;
+	if (m["InternalMessage"] == last) return;
+	last = m["InternalMessage"];
+	if (m["InternalMessage"] == "ConnectionLost")
+	{
+		SetStatusText(_("Connection Lost"));
+		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " Connection Lost\n");
+	}
+	else if (m["InternalMessage"] == "Connected")
+	{
+		SetStatusText(_("Connected"));
+		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " Connected\n");
+	}
+}
 
