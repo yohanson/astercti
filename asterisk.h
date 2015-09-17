@@ -84,12 +84,21 @@ class Asterisk : public wxEvtHandler
 {
 private:
 	wxSocketClient *m_socket;
+	std::string m_ami_username;
+	std::string m_ami_secret;
+	std::string m_ami_host;
+	int	    m_ami_port;
 	std::list<IObserver* > _observers;
 	char m_recv_buff[RECV_BUFF];
+	wxTimer *m_pingTimer;
+	bool m_ping_timer_active;
+	void OnPingTimeout(wxTimerEvent& event);
 
 	void Notify(AmiMessage &message);
 	void OnSocketEvent(wxSocketEvent &event);
 	void OnInputAvailable();
+	void AmiConnect();
+	void AmiPing();
 	
 public:
 	void add(IObserver& observer);

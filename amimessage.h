@@ -34,6 +34,7 @@ public:
 	std::string &operator[](const char *key){return map[key];};
 	const std::string operator[](std::string &key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
 	const std::string operator[](const char *key) const {try{return map.at(key);}catch (std::out_of_range){return "";}};
+	bool has(const char *key) const {try{return !map.at(key).empty();}catch (std::out_of_range){return false;}};
 	void clear(){map.clear();};
 
 	typedef AmiMessageMap::iterator iterator;

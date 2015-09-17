@@ -35,4 +35,10 @@ public:
 	//void virtual OnCdr(const AmiMessage &message) = 0;
 };
 
+class InternalMessageFilter : public AmiMessageFilter
+{
+public:
+	bool filter(const AmiMessage &message);
+};
+
 #endif

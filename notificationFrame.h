@@ -9,7 +9,7 @@
 #include <wx/timer.h>
 
 #include "observer.h"
-#include "chan_events.h"
+#include "events.h"
 #include "controller.h"
 
 class notificationFrame: public wxFrame, public ControllerUser, public EventListener
