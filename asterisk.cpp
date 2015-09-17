@@ -15,20 +15,13 @@ void Asterisk::Notify(AmiMessage &message)
 		if (message["Ping"] == "Pong")
 		{
 			m_pingTimer->Stop();
-			std::cout << wxDateTime::Now().FormatISOCombined() << " Pong" << std::endl;
 			m_ping_timer_active = false;
 			m_pingTimer->StartOnce(5000);
 			AmiMessage m;
 			m["InternalMessage"] = "Connected";
 			Notify(m);
-	}
-		else
-		for (auto iter : message)
-		{
-			std::cout << iter.first << ": " << iter.second << std::endl;
 		}
 	}
-	//else
 	for (auto iter : _observers)
 	{
 		iter->handleEvent(message);
@@ -37,6 +30,8 @@ void Asterisk::Notify(AmiMessage &message)
 
 void Asterisk::OnSocketEvent(wxSocketEvent &event)
 {
+	std::string login;
+	AmiMessage m;
 	switch ( event.GetSocketEvent() )
 	{
 		case wxSOCKET_INPUT:
@@ -50,10 +45,16 @@ void Asterisk::OnSocketEvent(wxSocketEvent &event)
 
 		case wxSOCKET_LOST:
 			std::cout << "Socket connection was unexpectedly lost." << std::endl;
+			m["InternalMessage"] = "ConnectionLost";
+			Notify(m);
+			AmiConnect();
 			break;
 
 		case wxSOCKET_CONNECTION:
-			std::cout << "... socket is now connected." << std::endl;
+			std::cout << wxDateTime::Now().FormatISOCombined() << " Socket is now connected." << std::endl;
+			login = "Action: login\nUsername: "+m_ami_username+"\nSecret: "+m_ami_secret+"\n\n";
+			m_socket->Write(login.c_str(), login.length());
+			AmiPing();
 			break;
 
 		default:
@@ -76,10 +77,8 @@ void Asterisk::OnInputAvailable()
 	while (end != std::string::npos)
 	{
 		line = raw_messages.substr(start, end-start);
-		//std::cout << line << std::endl;
 		if ( ! line.length() )
 		{
-			//std::cout << "===================================\n" << message << std::endl;
 			Notify(am);
 			am.clear();
 		}
@@ -115,7 +114,6 @@ void Asterisk::AmiPing()
 {
 	m_ping_timer_active = true;
 	m_pingTimer->StartOnce(5000);
-	std::cout << wxDateTime::Now().FormatISOCombined() << " Ping" << std::endl;
 	std::string action = "Action: ping\n\n";
 	m_socket->Write(action.c_str(), action.length());
 }
@@ -128,8 +126,11 @@ void Asterisk::OnPingTimeout(wxTimerEvent& event)
 		AmiMessage m;
 		m["InternalMessage"] = "ConnectionLost";
 		Notify(m);
+		m_socket->Close();
+		AmiConnect();
 	}
-	AmiPing();
+	else
+		AmiPing();
 }
 
 void Asterisk::AmiConnect()
@@ -137,10 +138,7 @@ void Asterisk::AmiConnect()
 	wxIPV4address addr;
 	addr.Hostname(m_ami_host);
 	addr.Service(m_ami_port);
-	m_socket->Connect(addr);
-	std::string login = "Action: login\nUsername: "+m_ami_username+"\nSecret: "+m_ami_secret+"\n\n";
-	m_socket->Write(login.c_str(), login.length());
-	AmiPing();
+	m_socket->Connect(addr, false);
 }
 
 Asterisk::Asterisk(std::string host, int port, std::string username, std::string secret)
