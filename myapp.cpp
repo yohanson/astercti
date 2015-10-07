@@ -19,7 +19,12 @@
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
-    std::cout << "app init" << std::endl;
+    if (wxPlatformInfo::Get().GetOperatingSystemId() & wxOS_UNIX)
+    {
+        wxLog *logger = new wxLogStream(&std::cout);
+        wxLog::SetActiveTarget(logger);
+    }
+    wxLogMessage("app init");
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -38,13 +43,15 @@ bool MyApp::OnInit()
     wxFileName configfile = m_config->GetLocalFile("astercti.ini", wxCONFIG_USE_SUBDIR);
     if (!configfile.IsFileReadable())
     {
-	std::cerr << "Error opening config file." << std::endl
-	          << "Sample config is at /usr/share/astercti/astercti.ini" << std::endl
-	          << "Copy it to " << configfile.GetFullPath() << " and edit." << std::endl;
+        std::ostringstream msg;
+        msg << _("Error opening config file.") << std::endl
+            << _("Sample config is at /usr/share/astercti/astercti.ini") << std::endl
+            << _("Copy it to ") << configfile.GetFullPath() << _(" and edit.");
+        wxLogMessage("%s", msg.str());
 	return false;
     }
 
-    std::cout << "Filename: " << configfile.GetFullPath() << std::endl;
+    wxLogMessage("Filename: %s", configfile.GetFullPath());
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
     SetExitOnFrameDelete(true);

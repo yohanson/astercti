@@ -15,7 +15,8 @@ RELEASE_OBJ=$(RELDIR)/myapp.o $(RELDIR)/mainframe.o $(RELDIR)/notificationFrame.
 	  $(RELDIR)/observer.o $(RELDIR)/events.o
 
 WINRELEASE_OBJ=$(WINRELDIR)/myapp.o $(WINRELDIR)/mainframe.o $(WINRELDIR)/notificationFrame.o \
-	  $(WINRELDIR)/taskbaricon.o $(WINRELDIR)/controller.o $(WINRELDIR)/asterisk.o $(WINRELDIR)/observer.o $(WINRELDIR)/jsoncpp.o
+	  $(WINRELDIR)/taskbaricon.o $(WINRELDIR)/controller.o $(WINRELDIR)/asterisk.o \
+	  $(WINRELDIR)/observer.o $(WINRELDIR)/events.o $(WINRELDIR)/jsoncpp.o $(WINRELDIR)/gitversion.o
 
 
 
