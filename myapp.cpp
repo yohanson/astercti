@@ -7,6 +7,7 @@
 #include <wx/string.h>
 #include <locale>
 #include <wx/intl.h>
+#include <wx/stdpaths.h>
 
 #include "events.h"
 #include "controller.h"
@@ -19,10 +20,15 @@
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
+    wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     if (wxPlatformInfo::Get().GetOperatingSystemId() & wxOS_UNIX)
     {
         wxLog *logger = new wxLogStream(&std::cout);
         wxLog::SetActiveTarget(logger);
+#ifdef __WXGTK__
+	wxStandardPaths::Get().SetInstallPrefix("/usr");
+	datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
+#endif
     }
     wxLogMessage("app init");
     if (!setlocale(LC_CTYPE, ""))
@@ -77,7 +83,7 @@ bool MyApp::OnInit()
     events->add(*notifyframe);
     mychanfilter->add(*events);
     intmsgfilter->add(*events);
-    wxString iconfile = "/usr/share/pixmaps/astercti.png";
+    wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
     MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage);

@@ -79,6 +79,7 @@ win: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
 win: $(WINRELEASE_OBJ)
 	echo $(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
 	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
+	makensis windows_install_script.nsis
 
 bump: debianbump versionhbump
 

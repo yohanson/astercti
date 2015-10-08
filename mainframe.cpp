@@ -5,6 +5,7 @@
 #include <wx/splitter.h>
 #include <wx/image.h>
 #include <wx/imaglist.h>
+#include <wx/stdpaths.h>
 
 #include "observer.h"
 #include "asterisk.h"
@@ -32,11 +33,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     menuBar->Append( menuHelp, "&Help" );
     SetMenuBar( menuBar );
 
+    wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     wxImageList *imagelist = new wxImageList(24, 24, true);
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/incoming_answered.png")));
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/incoming_unanswered.png")));
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/outbound_answered.png")));
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/outbound_unanswered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_answered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_unanswered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_answered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_unanswered.png")));
 
     wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
     TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
@@ -48,7 +50,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     RightPanel->SetSizer(RightSizer);
     wxBoxSizer *DialSizer = new wxBoxSizer(wxHORIZONTAL);
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    wxBitmapButton *DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage("/usr/share/astercti/dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
+    wxBitmapButton *DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage(datadir + "dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);

@@ -1,0 +1,25 @@
+# define the name of the installer
+Outfile "astercti_installer.exe"
+ 
+# define the directory to install to, the desktop in this case as specified  
+# by the predefined $DESKTOP variable
+InstallDir $APPDATA\astercti
+
+# default section
+Section
+ 
+# define the output path for this file
+SetOutPath $INSTDIR
+ 
+# define what to install and place it in the output path
+File astercti.exe
+File astercti.ini
+File astercti.png
+File dial.png
+File incoming_answered.png
+File incoming_unanswered.png
+File outbound_answered.png
+File outbound_unanswered.png
+
+SectionEnd
+
