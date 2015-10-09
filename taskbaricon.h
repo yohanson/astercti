@@ -13,7 +13,7 @@ public:
 
     void Init();
     void SetMainFrame(wxWindow *);
-    void OnLeftButtonDClick(wxTaskBarIconEvent&);
+    void OnClick(wxTaskBarIconEvent&);
     void OnExit(wxCommandEvent&);
     wxMenu* CreatePopupMenu();
 };

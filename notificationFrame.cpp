@@ -170,10 +170,10 @@ void notificationFrame::OnRing(const AmiMessage &message)
 {
 	std::string callerid = message["ConnectedLineNum"];
 	wxString html = "";
-	html << wxT("<h5>☎ ") + message["ConnectedLineNum"];
+	html << wxT("<h5><font face='pt sans,tahoma,sans'>☎ ") + message["ConnectedLineNum"];
 	if (message["ConnectedLineName"] != "")
 		html << " (" << message["ConnectedLineName"] << ")";
-	html << "</h5>";
+	html << "</font></h5>";
 	m_current_channel = message["Channel"];
 
 	bool number_matches = false;

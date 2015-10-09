@@ -27,6 +27,9 @@ all: release
 clean:
 	rm -f $(BINARY) *.o
 	rm -f gitversion.cpp
+	rm -f *.exe
+	rm -f $(WINRELDIR)/*.o
+	rm -f $(WINDBGDIR)/*.o
 
 $(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o events.o gitversion.o
 	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
@@ -36,12 +39,21 @@ debug: $(BINARY)
 
 release: CXXFLAGS += -s -DNDEBUG -O2
 release: $(BINARY) i18n/ru.mo
+	strip --strip-all $(BINARY)
 
+messages.po:
+	xgettext -C -k_ --omit-header *.cpp
 
 # template:
 #%.en.po : %.pot
 #	-[ -e $@ ] && msgmerge --width=110 --update $@ $<
 #	[ -e $@ ] || cp $< $@
+
+i18n/%.po: messages.po
+	msgmerge --width=110 --update $@ $<
+	rm -f messages.po
+
+i18n: i18n/ru.mo
 
 i18n/ru.mo:
 	msgfmt i18n/ru.po -o i18n/ru.mo
@@ -54,7 +66,7 @@ install: release
 	cp -r outbound_answered.png	$(DESTDIR)/usr/share/astercti/outbound_answered.png
 	cp -r outbound_unanswered.png	$(DESTDIR)/usr/share/astercti/outbound_unanswered.png
 	cp -r wait.gif			$(DESTDIR)/usr/share/astercti/wait.gif
-	cp -r astercti.ini		$(DESTDIR)/usr/share/astercti/astercti.ini
+	cp -r astercti.ini.default	$(DESTDIR)/usr/share/astercti/astercti.ini.default
 	cp -r astercti.png		$(DESTDIR)/usr/share/pixmaps/astercti.png
 	cp -r i18n/ru.mo		$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/asterisk.mo
 
@@ -62,23 +74,24 @@ install: release
 deb:
 	debuild --no-tgz-check -i -us -uc -b
 
-.PHONY: gitversion.cpp
+.PHONY: gitversion.cpp i18n/*.mo
+
 gitversion.cpp:
 	echo "const char *gitcommit = \"$(shell git rev-parse --short HEAD)\";" > $@
 	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso)\";" >> $@
 	echo "const char *builddate = \"$(shell date --rfc-3339=date)\";" >> $@
 
 $(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
-$(WINRELDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
+$(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
 $(WINRELDIR)/%.o: %.cpp
-	echo $(CXX) $(CXXFLAGS) -c -o $@ $<
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 win: CXX=i686-w64-mingw32-g++
 win: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
-win: $(WINRELEASE_OBJ)
+win: $(WINRELEASE_OBJ) i18n/ru.mo
 	echo $(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
 	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
+	strip --strip-all $(BINARY).exe
 	makensis windows_install_script.nsis
 
 bump: debianbump versionhbump

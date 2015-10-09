@@ -25,12 +25,11 @@ bool MyApp::OnInit()
     {
         wxLog *logger = new wxLogStream(&std::cout);
         wxLog::SetActiveTarget(logger);
-#ifdef __WXGTK__
+#ifndef __WXMSW__
 	wxStandardPaths::Get().SetInstallPrefix("/usr");
 	datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
 #endif
     }
-    wxLogMessage("app init");
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -51,13 +50,11 @@ bool MyApp::OnInit()
     {
         std::ostringstream msg;
         msg << _("Error opening config file.") << std::endl
-            << _("Sample config is at /usr/share/astercti/astercti.ini") << std::endl
-            << _("Copy it to ") << configfile.GetFullPath() << _(" and edit.");
+            << _("Sample config is at ") << configfile.GetFullPath() << ".default" << std::endl
+            << _("Rename it to astercti.ini and edit.");
         wxLogMessage("%s", msg.str());
 	return false;
     }
-
-    wxLogMessage("Filename: %s", configfile.GetFullPath());
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
     SetExitOnFrameDelete(true);
@@ -92,10 +89,12 @@ bool MyApp::OnInit()
     m_controller->add(frame);
     m_controller->add(notifyframe);
     m_controller->add(events);
+    m_taskbaricon = icon;
     return true;
 }
 
 MyApp::~MyApp()
 {
-	std::cout << "app destruct" << std::endl;
+	m_taskbaricon->Destroy();
+	wxLogMessage("app destruct");
 }
