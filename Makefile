@@ -5,49 +5,76 @@ RELDIR=release
 WINDBGDIR=debug_win
 WINRELDIR=release_win
 WINPATH=/usr/local/libwxmsw3.0/bin
+OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o \
+	asterisk.o observer.o events.o gitversion.o ipc.o
 
-DEBUG_OBJ=$(DBGDIR)/myapp.o $(DBGDIR)/mainframe.o $(DBGDIR)/notificationFrame.o \
-	  $(DBGDIR)/taskbaricon.o $(DBGDIR)/controller.o $(DBGDIR)/asterisk.o \
-	  $(DBGDIR)/observer.o $(DBGDIR)/events.o
-
-RELEASE_OBJ=$(RELDIR)/myapp.o $(RELDIR)/mainframe.o $(RELDIR)/notificationFrame.o \
-	  $(RELDIR)/taskbaricon.o $(RELDIR)/controller.o $(RELDIR)/asterisk.o \
-	  $(RELDIR)/observer.o $(RELDIR)/events.o
-
-WINRELEASE_OBJ=$(WINRELDIR)/myapp.o $(WINRELDIR)/mainframe.o $(WINRELDIR)/notificationFrame.o \
-	  $(WINRELDIR)/taskbaricon.o $(WINRELDIR)/controller.o $(WINRELDIR)/asterisk.o \
-	  $(WINRELDIR)/observer.o $(WINRELDIR)/events.o $(WINRELDIR)/jsoncpp.o $(WINRELDIR)/gitversion.o
-
-
-
-OUTDIR=$(RELDIR)
-
-all: release
+DEBUG_OBJ=$(addprefix $(DBGDIR)/, $(OBJECTS))
+RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))
+WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS))
+WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS))
 
 clean:
 	rm -f $(BINARY) *.o
 	rm -f gitversion.cpp
 	rm -f *.exe
-	rm -f $(WINRELDIR)/*.o
-	rm -f $(WINDBGDIR)/*.o
+	rm -f $(DBGDIR)/*
+	rm -f $(RELDIR)/*
+	rm -f $(WINRELDIR)/*
+	rm -f $(WINDBGDIR)/*
 
-$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o events.o gitversion.o
-	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
+$(DBGDIR)/%.o: CXXFLAGS += -DDEBUG -g
+$(DBGDIR)/%.o: %.cpp
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-debug: CXXFLAGS += -DDEBUG -g
-debug: $(BINARY)
+$(RELDIR)/%.o: CXXFLAGS += -s -DNDEBUG -O2
+$(RELDIR)/%.o: %.cpp
+	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-release: CXXFLAGS += -s -DNDEBUG -O2
-release: $(BINARY) i18n/ru.mo
-	strip --strip-all $(BINARY)
+$(WINDBGDIR)/%.o: CXX=i686-w64-mingw32-g++
+$(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
+$(WINDBGDIR)/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
+$(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
+$(WINRELDIR)/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+
+$(DBGDIR)/$(BINARY): $(DEBUG_OBJ)
+	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` $(DEBUG_OBJ) -o $@
+	ln -sf $@ $(BINARY)
+
+$(RELDIR)/$(BINARY): $(RELEASE_OBJ)
+	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` $(RELEASE_OBJ) -o $@
+	strip --strip-all $@
+	ln -sf $@ $(BINARY)
+
+$(WINDBGDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
+$(WINDBGDIR)/$(BINARY).exe: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+$(WINDBGDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
+	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
+
+
+$(WINRELDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
+$(WINRELDIR)/$(BINARY).exe: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+$(WINRELDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
+	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
+	strip --strip-all $@
+	makensis windows_install_script.nsis
+
+
+debug: $(DBGDIR)/$(BINARY)
+
+release: $(RELDIR)/$(BINARY) i18n/ru.mo
+
+windebug: $(WINDBGDIR)/$(BINARY).exe
+
+winrelease: $(WINRELDIR)/$(BINARY).exe i18n/ru.mo
+
 
 messages.po:
 	xgettext -C -k_ --omit-header *.cpp
-
-# template:
-#%.en.po : %.pot
-#	-[ -e $@ ] && msgmerge --width=110 --update $@ $<
-#	[ -e $@ ] || cp $< $@
 
 i18n/%.po: messages.po
 	msgmerge --width=110 --update $@ $<
@@ -69,6 +96,7 @@ install: release
 	cp -r astercti.ini.default	$(DESTDIR)/usr/share/astercti/astercti.ini.default
 	cp -r astercti.png		$(DESTDIR)/usr/share/pixmaps/astercti.png
 	cp -r i18n/ru.mo		$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/asterisk.mo
+	cp -r astercti.desktop		$(DESTDIR)/usr/share/applications
 
 
 deb:
@@ -80,19 +108,6 @@ gitversion.cpp:
 	echo "const char *gitcommit = \"$(shell git rev-parse --short HEAD)\";" > $@
 	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso)\";" >> $@
 	echo "const char *builddate = \"$(shell date --rfc-3339=date)\";" >> $@
-
-$(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
-$(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
-$(WINRELDIR)/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-win: CXX=i686-w64-mingw32-g++
-win: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
-win: $(WINRELEASE_OBJ) i18n/ru.mo
-	echo $(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
-	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $(BINARY).exe
-	strip --strip-all $(BINARY).exe
-	makensis windows_install_script.nsis
 
 bump: debianbump versionhbump
 
