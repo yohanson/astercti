@@ -31,7 +31,7 @@ clean:
 	rm -f $(WINRELDIR)/*.o
 	rm -f $(WINDBGDIR)/*.o
 
-$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o events.o gitversion.o
+$(BINARY): myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o asterisk.o observer.o events.o gitversion.o ipc.o
 	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` *.o -o $(BINARY)
 
 debug: CXXFLAGS += -DDEBUG -g
@@ -69,6 +69,7 @@ install: release
 	cp -r astercti.ini.default	$(DESTDIR)/usr/share/astercti/astercti.ini.default
 	cp -r astercti.png		$(DESTDIR)/usr/share/pixmaps/astercti.png
 	cp -r i18n/ru.mo		$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/asterisk.mo
+	cp -r astercti.desktop	$(DESTDIR)/usr/share/applications
 
 
 deb:

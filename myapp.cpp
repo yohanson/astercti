@@ -16,6 +16,7 @@
 #include "mainframe.h"
 #include "myapp.h"
 #include "taskbaricon.h"
+#include "ipc.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -38,6 +39,9 @@ bool MyApp::OnInit()
     }
     m_locale.Init();
     m_locale.AddCatalog("astercti");
+
+    if (!ParseCmdLine())
+	    return false;
 	
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
@@ -58,7 +62,6 @@ bool MyApp::OnInit()
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
     SetExitOnFrameDelete(true);
-    frame->Show( true );
     SetTopWindow(frame);
     std::cout << "addr: " << m_config->Read("server/address") << std::endl;
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
@@ -90,11 +93,38 @@ bool MyApp::OnInit()
     m_controller->add(notifyframe);
     m_controller->add(events);
     m_taskbaricon = icon;
+    frame->Show(!start_iconified);
+    IpcServer *m_ipcServer = new IpcServer(m_controller);
+    m_ipcServer->Create(IPC_SERVICENAME);
     return true;
 }
 
 MyApp::~MyApp()
 {
 	m_taskbaricon->Destroy();
-	wxLogMessage("app destruct");
+}
+
+bool MyApp::ParseCmdLine()
+{
+	wxCmdLineParser parser(g_cmdLineDesc, argc, argv);
+	switch ( parser.Parse() )
+    {
+        case -1: return false; // The parameter -h was passed, help was given, so abort the app
+	    case  0: break; // OK, so break to deal with any parameters etc
+		default: return false; // Some syntax error occurred. Abort
+	}
+
+    start_iconified = parser.Found(wxT("i"));
+    if (parser.GetParamCount())
+    {
+        wxString dialnumber = parser.GetParam(0);
+        IpcClient client;
+        if ( client.Connect("localhost", IPC_SERVICENAME,  IPC_TOPIC) )
+        {
+            client.GetConnection()->Execute(dialnumber);
+            client.Disconnect();
+        }
+        return false;
+    }
+    return true;
 }
