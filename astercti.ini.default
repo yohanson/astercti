@@ -10,19 +10,30 @@ password=<ami password>
 
 [lookup]
 # Output of lookup command will be displayed in notification. %s is replaced with Caller ID.
-#lookup_cmd=~/scripts/lookup %s
+;lookup_cmd=~/scripts/lookup %s
+
 # Lookup only numbers matching regex:
 #number_match_regex=^[0-9]{3,}$
+
 # Lookup only long numbers:
 number_min_length=7
+
 # Search clients web page url. %s replaced with Caller ID.
-;search_url=
+;search_url=https://example.com/searchcaller?phone=%s
+
 # Client's personal page URL. Fields like ${name} is replaced with values from JSON got with lookup.
 ;client_url=https://example.com/clients.cgi?&CT=${clienttype}&NClient=${id}
-;client_url_auto_open=0
+
+# templates can have macros like ${name}, they are taken out of JSON returned by lookup_cmd
+[templates]
+client_url=https://example.com/clients.cgi?cmd=2&CT=${clienttype}&NClient=${id}
+client_info=<a href="${url}">${name}</a>${services}
+client_preservices=<ul>
+client_service=<li>${service}</li>
+client_postservices=</ul>
+
 
 [gui]
-icon=/usr/share/pixmaps/astercti.png
 # Timeout in ms to hide notification after pickup.
 # -1: do not hide
 pickup_notify_hide_timeout=3000
