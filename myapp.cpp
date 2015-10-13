@@ -17,20 +17,19 @@
 #include "myapp.h"
 #include "taskbaricon.h"
 #include "ipc.h"
+#include "version.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
     wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
+#ifndef __WXMSW__
     if (wxPlatformInfo::Get().GetOperatingSystemId() & wxOS_UNIX)
     {
-        wxLog *logger = new wxLogStream(&std::cout);
-        wxLog::SetActiveTarget(logger);
-#ifndef __WXMSW__
-	wxStandardPaths::Get().SetInstallPrefix("/usr");
-	datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
-#endif
+        wxStandardPaths::Get().SetInstallPrefix("/usr");
+        datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
     }
+#endif
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -56,14 +55,13 @@ bool MyApp::OnInit()
         msg << _("Error opening config file.") << std::endl
             << _("Sample config is at ") << configfile.GetFullPath() << ".default" << std::endl
             << _("Rename it to astercti.ini and edit.");
-        wxLogMessage("%s", msg.str());
-	return false;
+        wxLogError("%s", msg.str());
+        return false;
     }
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
     SetExitOnFrameDelete(true);
     SetTopWindow(frame);
-    std::cout << "addr: " << m_config->Read("server/address") << std::endl;
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),
@@ -113,6 +111,15 @@ bool MyApp::ParseCmdLine()
 	    case  0: break; // OK, so break to deal with any parameters etc
 		default: return false; // Some syntax error occurred. Abort
 	}
+
+    if (parser.Found("v"))
+    {
+        std::cout << "AsterCTI v" << VERSION << std::endl;
+        std::cout << "Commit " << gitcommit << " " << gitcommitdate << std::endl;
+        std::cout << "Built " << builddate << std::endl;
+        std::cout << "https://github.com/yohanson/astercti" << std::endl;
+        return false;
+    }
 
     start_iconified = parser.Found(wxT("i"));
     if (parser.GetParamCount())
