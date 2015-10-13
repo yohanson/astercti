@@ -34,7 +34,6 @@ void AmiMessageFilter::handleEvent(const AmiMessage& message)
 
 MyChanFilter::MyChanFilter(std::string channel)
 {
-	std::cout << "New filter: " << channel << std::endl;
 	m_channel_id = channel;
 }
 

@@ -86,17 +86,17 @@ i18n/ru.mo:
 	msgfmt i18n/ru.po -o i18n/ru.mo
 
 install: release
-	cp -r $(BINARY)			$(DESTDIR)/usr/bin/astercti
-	cp -r dial.png			$(DESTDIR)/usr/share/astercti/dial.png
-	cp -r incoming_answered.png	$(DESTDIR)/usr/share/astercti/incoming_answered.png
+	cp -r $(BINARY)					$(DESTDIR)/usr/bin/astercti
+	cp -r dial.png					$(DESTDIR)/usr/share/astercti/dial.png
+	cp -r incoming_answered.png		$(DESTDIR)/usr/share/astercti/incoming_answered.png
 	cp -r incoming_unanswered.png	$(DESTDIR)/usr/share/astercti/incoming_unanswered.png
-	cp -r outbound_answered.png	$(DESTDIR)/usr/share/astercti/outbound_answered.png
+	cp -r outbound_answered.png		$(DESTDIR)/usr/share/astercti/outbound_answered.png
 	cp -r outbound_unanswered.png	$(DESTDIR)/usr/share/astercti/outbound_unanswered.png
-	cp -r wait.gif			$(DESTDIR)/usr/share/astercti/wait.gif
-	cp -r astercti.ini.default	$(DESTDIR)/usr/share/astercti/astercti.ini.default
-	cp -r astercti.png		$(DESTDIR)/usr/share/pixmaps/astercti.png
-	cp -r i18n/ru.mo		$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/asterisk.mo
-	cp -r astercti.desktop		$(DESTDIR)/usr/share/applications
+	cp -r wait.gif					$(DESTDIR)/usr/share/astercti/wait.gif
+	cp -r astercti.ini.default		$(DESTDIR)/usr/share/astercti/astercti.ini.default
+	cp -r astercti.png				$(DESTDIR)/usr/share/pixmaps/astercti.png
+	cp -r i18n/ru.mo				$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/asterisk.mo
+	cp -r astercti.desktop			$(DESTDIR)/usr/share/applications
 
 
 deb:

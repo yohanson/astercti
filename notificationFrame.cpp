@@ -24,29 +24,34 @@ const long notificationFrame::ID_BUTTON1 = wxNewId();
 
 void ExecCommand(wxString &cmd, wxArrayString &output)
 {
-	wxProcess p;
-	p.Redirect();
-	wxExecute(cmd, wxEXEC_SYNC, &p);
+    wxProcess p;
+    p.Redirect();
+    wxExecute(cmd, wxEXEC_SYNC, &p);
 
-	wxInputStream *i = p.GetInputStream();
-	if(i)
-	{ 
-		wxTextInputStream t(*i, " \t", wxConvUTF8);
+    wxInputStream *i = p.GetInputStream();
+    if(i)
+    {
+        wxTextInputStream t(*i, " \t", wxConvUTF8);
 
-		while(!i->Eof())
-		{
-			output.Add(t.ReadLine());
-		} 
-	}
-	if (p.IsErrorAvailable())
-	{
-		wxInputStream *e = p.GetErrorStream();
-		while (!e->Eof())
-		{
-			wxTextInputStream t(*e, " \t", wxConvUTF8);
-			std::cerr << t.ReadLine() << std::endl;
-		}
-	}
+        while(!i->Eof())
+        {
+            output.Add(t.ReadLine());
+        }
+    }
+    if (p.IsErrorAvailable())
+    {
+        wxInputStream *e = p.GetErrorStream();
+        wxString error_string;
+        while (!e->Eof())
+        {
+            wxTextInputStream t(*e, " \t", wxConvUTF8);
+            error_string = t.ReadLine();
+            if (!error_string.empty())
+            {
+                std::cerr << "error: '" << error_string << "'" << std::endl;
+            }
+        }
+    }
 }
 
 void FindAndReplace(std::string &tmpl, std::string varname, std::string value)

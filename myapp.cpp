@@ -16,20 +16,20 @@
 #include "mainframe.h"
 #include "myapp.h"
 #include "taskbaricon.h"
+#include "ipc.h"
+#include "version.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
     wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
+#ifndef __WXMSW__
     if (wxPlatformInfo::Get().GetOperatingSystemId() & wxOS_UNIX)
     {
-        wxLog *logger = new wxLogStream(&std::cout);
-        wxLog::SetActiveTarget(logger);
-#ifndef __WXMSW__
-	wxStandardPaths::Get().SetInstallPrefix("/usr");
-	datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
-#endif
+        wxStandardPaths::Get().SetInstallPrefix("/usr");
+        datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
     }
+#endif
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -38,6 +38,9 @@ bool MyApp::OnInit()
     }
     m_locale.Init();
     m_locale.AddCatalog("astercti");
+
+    if (!ParseCmdLine())
+	    return false;
 	
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
@@ -52,15 +55,13 @@ bool MyApp::OnInit()
         msg << _("Error opening config file.") << std::endl
             << _("Sample config is at ") << configfile.GetFullPath() << ".default" << std::endl
             << _("Rename it to astercti.ini and edit.");
-        wxLogMessage("%s", msg.str());
-	return false;
+        wxLogError("%s", msg.str());
+        return false;
     }
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
     SetExitOnFrameDelete(true);
-    frame->Show( true );
     SetTopWindow(frame);
-    std::cout << "addr: " << m_config->Read("server/address") << std::endl;
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),
@@ -90,11 +91,47 @@ bool MyApp::OnInit()
     m_controller->add(notifyframe);
     m_controller->add(events);
     m_taskbaricon = icon;
+    frame->Show(!start_iconified);
+    IpcServer *m_ipcServer = new IpcServer(m_controller);
+    m_ipcServer->Create(IPC_SERVICENAME);
     return true;
 }
 
 MyApp::~MyApp()
 {
 	m_taskbaricon->Destroy();
-	wxLogMessage("app destruct");
+}
+
+bool MyApp::ParseCmdLine()
+{
+	wxCmdLineParser parser(g_cmdLineDesc, argc, argv);
+	switch ( parser.Parse() )
+    {
+        case -1: return false; // The parameter -h was passed, help was given, so abort the app
+	    case  0: break; // OK, so break to deal with any parameters etc
+		default: return false; // Some syntax error occurred. Abort
+	}
+
+    if (parser.Found("v"))
+    {
+        std::cout << "AsterCTI v" << VERSION << std::endl;
+        std::cout << "Commit " << gitcommit << " " << gitcommitdate << std::endl;
+        std::cout << "Built " << builddate << std::endl;
+        std::cout << "https://github.com/yohanson/astercti" << std::endl;
+        return false;
+    }
+
+    start_iconified = parser.Found(wxT("i"));
+    if (parser.GetParamCount())
+    {
+        wxString dialnumber = parser.GetParam(0);
+        IpcClient client;
+        if ( client.Connect("localhost", IPC_SERVICENAME,  IPC_TOPIC) )
+        {
+            client.GetConnection()->Execute(dialnumber);
+            client.Disconnect();
+        }
+        return false;
+    }
+    return true;
 }
