@@ -13,6 +13,9 @@ RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))
 WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS))
 WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS))
 
+init:
+	mkdir -p $(DBGDIR) $(RELDIR) $(WINDBGDIR) $(WINRELDIR)
+
 clean:
 	rm -f $(BINARY) *.o
 	rm -f gitversion.cpp
