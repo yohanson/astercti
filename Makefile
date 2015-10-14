@@ -45,22 +45,22 @@ $(WINRELDIR)/%.o: %.cpp
 
 
 $(DBGDIR)/$(BINARY): $(DEBUG_OBJ)
-	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` $(DEBUG_OBJ) -o $@
+	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp` $(DEBUG_OBJ) -o $@
 	ln -sf $@ $(BINARY)
 
 $(RELDIR)/$(BINARY): $(RELEASE_OBJ)
-	$(CXX) `wx-config --libs` `pkg-config --libs jsoncpp` $(RELEASE_OBJ) -o $@
+	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp` $(RELEASE_OBJ) -o $@
 	strip --strip-all $@
 	ln -sf $@ $(BINARY)
 
 $(WINDBGDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
-$(WINDBGDIR)/$(BINARY).exe: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+$(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
 $(WINDBGDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
 	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
 
 
 $(WINRELDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
-$(WINRELDIR)/$(BINARY).exe: LDFLAGS=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+$(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
 $(WINRELDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
 	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
 	strip --strip-all $@
@@ -100,6 +100,9 @@ install: release
 	cp -r astercti.png				$(DESTDIR)/usr/share/pixmaps/astercti.png
 	cp -r i18n/ru.mo				$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/astercti.mo
 	cp -r astercti.desktop			$(DESTDIR)/usr/share/applications/astercti.desktop
+	cp -r astercti.1				$(DESTDIR)/usr/share/man/man1/astercti.1
+	gzip							$(DESTDIR)/usr/share/man/man1/astercti.1
+
 
 
 deb:
