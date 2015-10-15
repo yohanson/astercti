@@ -13,7 +13,7 @@ MyTaskBarIcon::MyTaskBarIcon(wxString iconfile)
 MyTaskBarIcon::MyTaskBarIcon(wxIcon icon)
 {
 	Init();
-	SetIcon(icon);
+	SetIcon(icon, "AsterCTI");
 }
 
 void MyTaskBarIcon::Init()
