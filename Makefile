@@ -10,8 +10,8 @@ OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o \
 
 DEBUG_OBJ=$(addprefix $(DBGDIR)/, $(OBJECTS))
 RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))
-WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS))
-WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS))
+WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS) jsoncpp.o)
+WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS) jsoncpp.o)
 
 init:
 	mkdir -p $(DBGDIR) $(RELDIR) $(WINDBGDIR) $(WINRELDIR)

@@ -12,13 +12,14 @@ Section
 SetOutPath $INSTDIR
  
 # define what to install and place it in the output path
-File astercti.exe
+File release_win\astercti.exe
 File astercti.png
 File dial.png
 File incoming_answered.png
 File incoming_unanswered.png
 File outbound_answered.png
 File outbound_unanswered.png
+File astercti.ini.default
 CreateDirectory $INSTDIR\ru
 File /oname=ru\astercti.mo i18n/ru.mo
 

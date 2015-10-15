@@ -84,7 +84,7 @@ bool MyApp::OnInit()
     wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
-    MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage);
+    MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage, "AsterCTI: " + m_config->Read("dialplan/exten"));
     icon->SetMainFrame(frame);
     m_controller->add(icon);
     m_controller->add(frame);
