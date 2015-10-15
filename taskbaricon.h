@@ -8,12 +8,12 @@ class MyTaskBarIcon : public wxTaskBarIcon, public ControllerUser
 private:
     wxWindow *m_mainFrame;
 public:
-    MyTaskBarIcon(wxString);
-    MyTaskBarIcon(wxIcon);
+    MyTaskBarIcon(wxString, wxString);
+    MyTaskBarIcon(wxIcon, wxString);
 
     void Init();
     void SetMainFrame(wxWindow *);
-    void OnLeftButtonDClick(wxTaskBarIconEvent&);
+    void OnClick(wxTaskBarIconEvent&);
     void OnExit(wxCommandEvent&);
     wxMenu* CreatePopupMenu();
 };

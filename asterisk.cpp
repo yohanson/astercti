@@ -44,14 +44,14 @@ void Asterisk::OnSocketEvent(wxSocketEvent &event)
 			break;
 
 		case wxSOCKET_LOST:
-			std::cout << "Socket connection was unexpectedly lost." << std::endl;
+			//std::cout << "Socket connection was unexpectedly lost." << std::endl;
 			m["InternalMessage"] = "ConnectionLost";
 			Notify(m);
 			AmiConnect();
 			break;
 
 		case wxSOCKET_CONNECTION:
-			std::cout << wxDateTime::Now().FormatISOCombined() << " Socket is now connected." << std::endl;
+			//std::cout << wxDateTime::Now().FormatISOCombined() << " Socket is now connected." << std::endl;
 			login = "Action: login\nUsername: "+m_ami_username+"\nSecret: "+m_ami_secret+"\n\n";
 			m_socket->Write(login.c_str(), login.length());
 			AmiPing();

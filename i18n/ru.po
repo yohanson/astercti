@@ -16,38 +16,58 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: mainframe.cpp:74
+#: mainframe.cpp:78
 msgid "Welcome to wxWidgets!"
 msgstr "Превед, Медвед!"
 
-#: mainframe.cpp:123
+#: mainframe.cpp:140
 msgid "Number: "
 msgstr "Номер: "
 
-#: mainframe.cpp:123
+#: mainframe.cpp:140
 msgid "Name: "
 msgstr "Имя: "
 
-#: mainframe.cpp:124
+#: mainframe.cpp:141
 msgid "Time: "
 msgstr "Время: "
 
-#: mainframe.cpp:125
+#: mainframe.cpp:142
 msgid "Duration: "
 msgstr "Длительность: "
+
+#: mainframe.cpp:337 mainframe.cpp:338
+msgid "Connection Lost"
+msgstr "Нет связи"
+
+#: mainframe.cpp:342 mainframe.cpp:343
+msgid "Connected"
+msgstr "Подключено"
+
+#: myapp.cpp:52
+msgid "Error opening config file."
+msgstr "Ошибка открытия конфига."
+
+#: myapp.cpp:53
+msgid "Sample config is at "
+msgstr "Шаблон конфига в "
+
+#: myapp.cpp:54
+msgid "Rename it to astercti.ini and edit."
+msgstr "Переименуйте его в astercti.ini и поправьте."
 
 #: notificationFrame.cpp:77
 msgid "No"
 msgstr "Нет"
 
-#: notificationFrame.cpp:225
+#: notificationFrame.cpp:231
 msgid "Pickup the handset to dial"
 msgstr "Снимите трубку для звонка на"
 
-#: notificationFrame.cpp:289
+#: notificationFrame.cpp:295
 msgid "See all found"
 msgstr "Все найденные"
 
-#: notificationFrame.cpp:293
+#: notificationFrame.cpp:299
 msgid "Unknown number."
 msgstr "Неизвестный номер."

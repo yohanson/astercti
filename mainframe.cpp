@@ -5,6 +5,7 @@
 #include <wx/splitter.h>
 #include <wx/image.h>
 #include <wx/imaglist.h>
+#include <wx/stdpaths.h>
 
 #include "observer.h"
 #include "asterisk.h"
@@ -32,11 +33,12 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     menuBar->Append( menuHelp, "&Help" );
     SetMenuBar( menuBar );
 
+    wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     wxImageList *imagelist = new wxImageList(24, 24, true);
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/incoming_answered.png")));
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/incoming_unanswered.png")));
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/outbound_answered.png")));
-    imagelist->Add(wxBitmap(wxImage("/usr/share/astercti/outbound_unanswered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_answered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_unanswered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_answered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_unanswered.png")));
 
     wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
     TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
@@ -48,11 +50,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     RightPanel->SetSizer(RightSizer);
     wxBoxSizer *DialSizer = new wxBoxSizer(wxHORIZONTAL);
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-    wxBitmapButton *DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage("/usr/share/astercti/dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
+    wxFont numberFont(wxSize(0,24), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    m_DialNumber->SetFont(numberFont);
+    wxBitmapButton *DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage(datadir + "dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, _("\n\n\n\n"));
+    m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n");
     m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     m_callList->InsertColumn(0, "");
@@ -102,7 +106,6 @@ void MyFrame::OnHello(wxCommandEvent& event)
 
 void MyFrame::OnClose(wxCloseEvent& event)
 {
-	std::cout << "close" << std::endl;
 	wxWindow::Destroy();
 }
 
@@ -332,12 +335,12 @@ void MyFrame::OnInternalMessage(const AmiMessage &m)
 	if (m["InternalMessage"] == "ConnectionLost")
 	{
 		SetStatusText(_("Connection Lost"));
-		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " Connection Lost\n");
+		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " " + _("Connection Lost") + "\n");
 	}
 	else if (m["InternalMessage"] == "Connected")
 	{
 		SetStatusText(_("Connected"));
-		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " Connected\n");
+		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " " + _("Connected") + "\n");
 	}
 }
 

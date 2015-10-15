@@ -7,6 +7,7 @@
 #include <wx/string.h>
 #include <locale>
 #include <wx/intl.h>
+#include <wx/stdpaths.h>
 
 #include "events.h"
 #include "controller.h"
@@ -15,11 +16,20 @@
 #include "mainframe.h"
 #include "myapp.h"
 #include "taskbaricon.h"
+#include "ipc.h"
+#include "version.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
-    std::cout << "app init" << std::endl;
+    wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
+#ifndef __WXMSW__
+    if (wxPlatformInfo::Get().GetOperatingSystemId() & wxOS_UNIX)
+    {
+        wxStandardPaths::Get().SetInstallPrefix("/usr");
+        datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
+    }
+#endif
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -28,6 +38,9 @@ bool MyApp::OnInit()
     }
     m_locale.Init();
     m_locale.AddCatalog("astercti");
+
+    if (!ParseCmdLine())
+	    return false;
 	
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
@@ -38,19 +51,17 @@ bool MyApp::OnInit()
     wxFileName configfile = m_config->GetLocalFile("astercti.ini", wxCONFIG_USE_SUBDIR);
     if (!configfile.IsFileReadable())
     {
-	std::cerr << "Error opening config file." << std::endl
-	          << "Sample config is at /usr/share/astercti/astercti.ini" << std::endl
-	          << "Copy it to " << configfile.GetFullPath() << " and edit." << std::endl;
-	return false;
+        std::ostringstream msg;
+        msg << _("Error opening config file.") << std::endl
+            << _("Sample config is at ") << configfile.GetFullPath() << ".default" << std::endl
+            << _("Rename it to astercti.ini and edit.");
+        wxLogError("%s", msg.str());
+        return false;
     }
-
-    std::cout << "Filename: " << configfile.GetFullPath() << std::endl;
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
     SetExitOnFrameDelete(true);
-    frame->Show( true );
     SetTopWindow(frame);
-    std::cout << "addr: " << m_config->Read("server/address") << std::endl;
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),
@@ -70,19 +81,57 @@ bool MyApp::OnInit()
     events->add(*notifyframe);
     mychanfilter->add(*events);
     intmsgfilter->add(*events);
-    wxString iconfile = "/usr/share/pixmaps/astercti.png";
+    wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
-    MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage);
+    MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage, "AsterCTI: " + m_config->Read("dialplan/exten"));
     icon->SetMainFrame(frame);
     m_controller->add(icon);
     m_controller->add(frame);
     m_controller->add(notifyframe);
     m_controller->add(events);
+    m_taskbaricon = icon;
+    frame->Show(!start_iconified);
+    IpcServer *m_ipcServer = new IpcServer(m_controller);
+    m_ipcServer->Create(IPC_SERVICENAME);
     return true;
 }
 
 MyApp::~MyApp()
 {
-	std::cout << "app destruct" << std::endl;
+	m_taskbaricon->Destroy();
+}
+
+bool MyApp::ParseCmdLine()
+{
+	wxCmdLineParser parser(g_cmdLineDesc, argc, argv);
+	switch ( parser.Parse() )
+    {
+        case -1: return false; // The parameter -h was passed, help was given, so abort the app
+	    case  0: break; // OK, so break to deal with any parameters etc
+		default: return false; // Some syntax error occurred. Abort
+	}
+
+    if (parser.Found("v"))
+    {
+        std::cout << "AsterCTI v" << VERSION << std::endl;
+        std::cout << "Commit " << gitcommit << " " << gitcommitdate << std::endl;
+        std::cout << "Built " << builddate << std::endl;
+        std::cout << "https://github.com/yohanson/astercti" << std::endl;
+        return false;
+    }
+
+    start_iconified = parser.Found(wxT("i"));
+    if (parser.GetParamCount())
+    {
+        wxString dialnumber = parser.GetParam(0);
+        IpcClient client;
+        if ( client.Connect("localhost", IPC_SERVICENAME,  IPC_TOPIC) )
+        {
+            client.GetConnection()->Execute(dialnumber);
+            client.Disconnect();
+        }
+        return false;
+    }
+    return true;
 }

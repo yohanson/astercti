@@ -1,0 +1,27 @@
+.\" Manpage for astercti.
+.\" Contact yohanson@ngs.ru to correct errors or typos.
+.TH astercti 1 "14 Oct 2015"
+.SH NAME
+AsterCTI \- Computer Telephone Integration for Asterisk
+.SH SYNOPSIS
+astercti [-ihv] [\fItel:number\fR]
+.SH DESCRIPTION
+AsterCTI shows who's calling, lists calls, allows to originate a call.
+.SH OPTIONS
+.TP
+.BR \-i ", " \-\-iconified
+Do not show main window upon startup.
+Icon in notification area only.
+.TP
+.BR \-v ", " \-\-version
+Show version.
+.TP
+.BR \-h ", " \-\-help
+Command line options
+.TP
+.BR \fItel:number\fR
+Telephone URI to originate call, i.e. tel:+18001234567.
+If specified, astercti tries to connect to already running process and commands it to start dialing.
+.SH AUTHOR
+Michael A. Mikhailov (yohanson@ngs.ru)
+

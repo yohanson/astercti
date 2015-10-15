@@ -3,24 +3,24 @@
 #include "controller.h"
 #include "taskbaricon.h"
 
-MyTaskBarIcon::MyTaskBarIcon(wxString iconfile)
+MyTaskBarIcon::MyTaskBarIcon(wxString iconfile, wxString tooltip = wxEmptyString)
 {
 	Init();
 	wxIcon icon(iconfile, wxBITMAP_TYPE_PNG);
-	SetIcon(icon);
+	SetIcon(icon, tooltip);
 }
 
-MyTaskBarIcon::MyTaskBarIcon(wxIcon icon)
+MyTaskBarIcon::MyTaskBarIcon(wxIcon icon, wxString tooltip = wxEmptyString)
 {
 	Init();
-	SetIcon(icon);
+	SetIcon(icon, tooltip);
 }
 
 void MyTaskBarIcon::Init()
 {
 	m_mainFrame = NULL;
 	descr = "taskbar icon";
-	Bind(wxEVT_TASKBAR_LEFT_DCLICK, &MyTaskBarIcon::OnLeftButtonDClick, this);
+	Bind(wxEVT_TASKBAR_LEFT_DOWN, &MyTaskBarIcon::OnClick, this);
 }
 
 void MyTaskBarIcon::SetMainFrame(wxWindow *frame)
@@ -33,12 +33,13 @@ void MyTaskBarIcon::OnExit(wxCommandEvent& event)
 	//if (m_controller)
 	//	m_controller->Shutdown();
 	//	m_controller = NULL;
+	RemoveIcon();
 	if (m_mainFrame)
 		m_mainFrame->Close();
-	wxTaskBarIcon::Destroy();
+	//wxTaskBarIcon::Destroy();
 }
 
-void MyTaskBarIcon::OnLeftButtonDClick(wxTaskBarIconEvent&)
+void MyTaskBarIcon::OnClick(wxTaskBarIconEvent&)
 {
 	if (m_mainFrame)
 	{

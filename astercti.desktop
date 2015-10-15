@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Name=AsterCTI
+Comment=App to integrate computer and Asterisk channel
+Exec=astercti %u
+Icon=astercti
+Terminal=false
+Type=Application
+Categories=Office;
+MimeType=application/x-xdg-protocol-tel;x-scheme-handler/tel;
+
