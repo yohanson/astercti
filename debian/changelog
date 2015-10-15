@@ -1,3 +1,11 @@
+astercti (0.0.8-1) unstable; urgency=medium
+
+  + Add command line options: hide on startup, dial a number (click2call)
+  + Add desktop file with handler of tel URI
+  * Fix translation filename
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Thu, 15 Oct 2015 09:44:26 +0600
+
 astercti (0.0.7-1) unstable; urgency=medium
 
   * Fix call list sizing issue
