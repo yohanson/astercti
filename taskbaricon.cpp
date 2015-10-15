@@ -3,17 +3,17 @@
 #include "controller.h"
 #include "taskbaricon.h"
 
-MyTaskBarIcon::MyTaskBarIcon(wxString iconfile)
+MyTaskBarIcon::MyTaskBarIcon(wxString iconfile, wxString tooltip = wxEmptyString)
 {
 	Init();
 	wxIcon icon(iconfile, wxBITMAP_TYPE_PNG);
-	SetIcon(icon);
+	SetIcon(icon, tooltip);
 }
 
-MyTaskBarIcon::MyTaskBarIcon(wxIcon icon)
+MyTaskBarIcon::MyTaskBarIcon(wxIcon icon, wxString tooltip = wxEmptyString)
 {
 	Init();
-	SetIcon(icon, "AsterCTI");
+	SetIcon(icon, tooltip);
 }
 
 void MyTaskBarIcon::Init()
