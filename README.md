@@ -2,6 +2,7 @@
 Asterisk Computer-Telephone Integration Application with GUI on wxWidgets.
 
 Currently can be used for displaying Caller ID and originating calls.
+Originating can be done by executing `astercti tel:<number>`
 
 Main window:   
 ![Main window screenshot](/screenshot.png?raw=true)
