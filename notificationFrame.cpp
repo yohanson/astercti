@@ -96,7 +96,7 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	descr = "notify frame";
 	wxBoxSizer* BoxSizerButtons;
 
-	Create(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER);
+	Create(parent, id, wxEmptyString, pos, size, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER);
 	SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOTEXT));
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK));
 	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
@@ -111,7 +111,6 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
-	buttonsHeight = BoxSizerButtons->GetSize().GetHeight();
 	wxButton *hidebutton = new wxButton(HtmlWindow1, wxID_ANY, wxT("×"), wxPoint(380,0), wxSize(20,20), wxBORDER_NONE);
 	m_hidetimer = new wxTimer(this);
 
@@ -125,7 +124,6 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 
 notificationFrame::~notificationFrame()
 {
-//	delete m_hidetimer;
 }
 
 void notificationFrame::SetLookupCmd(std::string cmd) {

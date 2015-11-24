@@ -62,7 +62,6 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		std::string m_current_channel;
 		std::string m_lookup_cmd;
 		std::string m_lookup_url;
-		int buttonsHeight;
 };
 
 
