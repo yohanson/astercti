@@ -76,6 +76,7 @@ bool MyApp::OnInit()
     intmsgfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
     notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
+    notifyframe->SetLookupUrl(m_config->Read("lookup/lookup_url").ToStdString());
     EventGenerator *events = new EventGenerator;
     events->add(*frame);
     events->add(*notifyframe);

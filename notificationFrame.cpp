@@ -15,9 +15,16 @@
 #include <wx/sstream.h>
 #include <json/value.h>
 #include <json/reader.h>
+#include <curl/curl.h>
 
 #include "notificationFrame.h"
 #include "controller.h"
+#include "version.h"
+
+struct MemoryStruct {
+	  char *memory;
+	    size_t size;
+};
 
 const long notificationFrame::ID_HTMLWINDOW1 = wxNewId();
 const long notificationFrame::ID_BUTTON1 = wxNewId();
@@ -65,6 +72,25 @@ void FindAndReplace(std::string &tmpl, std::string varname, std::string value)
 	}
 }
 
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+ 
+  mem->memory = (char *) realloc(mem->memory, mem->size + realsize + 1);
+  if(mem->memory == NULL) {
+    /* out of memory! */ 
+    printf("not enough memory (realloc returned NULL)\n");
+    return 0;
+  }
+ 
+  memcpy(&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+ 
+  return realsize;
+}
+
 notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
 	descr = "notify frame";
@@ -99,12 +125,17 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 
 notificationFrame::~notificationFrame()
 {
-	delete m_hidetimer;
+//	delete m_hidetimer;
 }
 
 void notificationFrame::SetLookupCmd(std::string cmd) {
 	m_lookup_cmd = cmd;
 }
+
+void notificationFrame::SetLookupUrl(std::string url) {
+	m_lookup_url = url;
+}
+
 
 void notificationFrame::OnPaint(wxPaintEvent& event)
 {
@@ -243,12 +274,40 @@ wxString notificationFrame::Lookup(std::string callerid)
 	wxString out;
 	wxArrayString output;
 	wxString cmd;
-	cmd.Printf(wxString(m_lookup_cmd), callerid);
-	ExecCommand(cmd, output);
-	for (auto iter : output)
+	CURL *curl;
+	CURLcode res;
+	struct MemoryStruct chunk;
+	chunk.memory = NULL;
+	chunk.size = 0;
+	curl = curl_easy_init();
+	if (curl)
+	{
+		char *url = new char[ m_lookup_url.length() + callerid.length() + 1 ];
+		sprintf(url, m_lookup_url.c_str(), callerid.c_str());
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "astercti/" VERSION);
+		res = curl_easy_perform(curl);
+		if (res != CURLE_OK)
+		{
+			std::cerr << "curl failed: " << curl_easy_strerror(res) << std::endl;
+		}
+		else
+		{
+			
+		}
+		curl_easy_cleanup(curl);
+		free(chunk.memory);
+		delete[] url;
+	}
+	//cmd.Printf(wxString(m_lookup_cmd), callerid);
+	//ExecCommand(cmd, output);
+	/*for (auto iter : output)
 	{
 		out += iter;
-	}
+	}*/
 
 	Json::Value root;
 	Json::Reader reader;

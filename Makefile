@@ -45,11 +45,11 @@ $(WINRELDIR)/%.o: %.cpp
 
 
 $(DBGDIR)/$(BINARY): $(DEBUG_OBJ)
-	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp` $(DEBUG_OBJ) -o $@
+	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(DEBUG_OBJ) -o $@
 	ln -sf $@ $(BINARY)
 
 $(RELDIR)/$(BINARY): $(RELEASE_OBJ)
-	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp` $(RELEASE_OBJ) -o $@
+	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(RELEASE_OBJ) -o $@
 	strip --strip-all $@
 	ln -sf $@ $(BINARY)
 
