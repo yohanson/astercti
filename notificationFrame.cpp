@@ -282,8 +282,9 @@ wxString notificationFrame::Lookup(std::string callerid)
 	{
 		char *url = new char[ m_lookup_url.length() + callerid.length() + 1 ];
 		sprintf(url, m_lookup_url.c_str(), callerid.c_str());
+		std::cerr << "URL: " << url << std::endl;
 		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "astercti/" VERSION);
@@ -294,7 +295,9 @@ wxString notificationFrame::Lookup(std::string callerid)
 		}
 		else
 		{
-			
+			std::cerr << "Returned (chunk): " << chunk.memory << std::endl;
+			out = wxString::FromUTF8((const char *)chunk.memory);
+			std::cerr << "Returned (wxString): " << out << std::endl;
 		}
 		curl_easy_cleanup(curl);
 		free(chunk.memory);
