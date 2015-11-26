@@ -80,7 +80,7 @@ enum ast_channel_state {
 #define AST_CAUSE_NOTDEFINED 0
 
 
-class Asterisk : public wxEvtHandler
+class Asterisk : public wxEvtHandler, public IObservable
 {
 private:
 	wxSocketClient *m_socket;
@@ -88,7 +88,6 @@ private:
 	std::string m_ami_secret;
 	std::string m_ami_host;
 	int	    m_ami_port;
-	std::list<IObserver* > _observers;
 	char m_recv_buff[RECV_BUFF];
 	wxTimer *m_pingTimer;
 	bool m_ping_timer_active;
@@ -101,7 +100,6 @@ private:
 	void AmiPing();
 	
 public:
-	void add(IObserver& observer);
 	Asterisk(std::string host, int port, std::string username, std::string secret);
 	~Asterisk();
 	void Originate(std::string mychan, std::string context, std::string exten, std::string myexten = "", int priority = 1);

@@ -1,14 +1,16 @@
 #ifndef _MAINFRAME_H_
 #define _MAINFRAME_H_
 
-#include "events.h"
 #include <wx/listctrl.h>
+#include "events.h"
+#include "taskbaricon.h"
 
 class MyFrame: public wxFrame, public IObserver, public ControllerUser, public EventListener
 {
 public:
     MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
     ~MyFrame();
+    void SetTaskBarIcon(MyTaskBarIcon *);
     void handleEvent(const AmiMessage &);
     void OnOriginate(const AmiMessage &);
     void OnRing(const AmiMessage &);
@@ -30,6 +32,7 @@ private:
     wxListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
     wxStaticText *m_CallInfo;
+    MyTaskBarIcon *m_taskbaricon;
 };
 
 class CallListItem : public wxListItem, public Call

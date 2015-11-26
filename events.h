@@ -38,9 +38,14 @@ public:
 
 class EventListener
 {
+private:
+    std::list<EventGenerator *> m_eventgenerators;
 protected:
 	ast_channel_state m_last_channel_state;
 public:
+    EventListener();
+    ~EventListener();
+    void listens_to(EventGenerator &);
 	virtual void OnRing(const AmiMessage &);
 	virtual void OnOriginate(const AmiMessage &);
 	virtual void OnDial(const AmiMessage &);

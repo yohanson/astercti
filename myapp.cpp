@@ -60,8 +60,6 @@ bool MyApp::OnInit()
     }
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
-    SetExitOnFrameDelete(true);
-    SetTopWindow(frame);
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),
@@ -70,6 +68,9 @@ bool MyApp::OnInit()
     m_controller->SetMainFrame(frame);
     MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     InternalMessageFilter *intmsgfilter = new InternalMessageFilter();
+    asterisk->observable_descr = "asterisk";
+    mychanfilter->observable_descr = "mychanfilter";
+    intmsgfilter->observable_descr = "intmsgfilter";
     asterisk->add(*mychanfilter);
     asterisk->add(*intmsgfilter);
     mychanfilter->add(*frame);
@@ -83,14 +84,16 @@ bool MyApp::OnInit()
     wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
-    MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage, "AsterCTI: " + m_config->Read("dialplan/exten"));
-    icon->SetMainFrame(frame);
-    m_controller->add(icon);
+    m_taskbaricon = new MyTaskBarIcon(iconimage, "AsterCTI: " + m_config->Read("dialplan/exten"));
+    m_taskbaricon->SetMainFrame(frame);
+    frame->SetTaskBarIcon(m_taskbaricon);
+    m_controller->add(m_taskbaricon);
     m_controller->add(frame);
     m_controller->add(notifyframe);
     m_controller->add(events);
-    m_taskbaricon = icon;
     frame->Show(!start_iconified);
+    SetTopWindow(frame);
+    SetExitOnFrameDelete(true);
     if (!m_config->Read("lookup/lookup_cmd") && !m_config->Read("lookup/lookup_url"))
     {
         wxLogWarning(_("Lookup URL and Lookup command are both unconfigured.\nLookup disabled."));
@@ -107,11 +110,14 @@ bool MyApp::OnInit()
 
 MyApp::~MyApp()
 {
-	m_taskbaricon->Destroy();
+}
+
+int MyApp::OnExit()
+{
     delete m_config;
     delete m_ipcServer;
     delete m_controller;
-
+    return 0;
 }
 
 bool MyApp::ParseCmdLine()

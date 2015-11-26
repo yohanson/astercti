@@ -34,9 +34,9 @@ void MyTaskBarIcon::OnExit(wxCommandEvent& event)
 	//	m_controller->Shutdown();
 	//	m_controller = NULL;
 	RemoveIcon();
-	if (m_mainFrame)
+    if (m_mainFrame)
 		m_mainFrame->Close();
-	//wxTaskBarIcon::Destroy();
+	//Destroy();
 }
 
 void MyTaskBarIcon::OnClick(wxTaskBarIconEvent&)

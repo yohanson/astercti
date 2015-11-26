@@ -12,6 +12,7 @@ class MyApp: public wxApp
 public:
     ~MyApp();
     virtual bool OnInit();
+    virtual int OnExit();
     virtual bool ParseCmdLine();
     AsteriskController *m_controller;
     wxFileConfig *m_config;

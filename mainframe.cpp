@@ -19,6 +19,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
     descr = "mainframe";
+    m_taskbaricon = NULL;
 
     wxImage::AddHandler(new wxPNGHandler);
     wxMenu *menuFile = new wxMenu;
@@ -81,9 +82,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
 
 MyFrame::~MyFrame()
 {
-	delete m_DialNumber;
-	std::cout << "mainframe destruct" << std::endl;
-
 }
 
 void MyFrame::OnExit(wxCommandEvent& event)
@@ -106,7 +104,8 @@ void MyFrame::OnHello(wxCommandEvent& event)
 
 void MyFrame::OnClose(wxCloseEvent& event)
 {
-	wxWindow::Destroy();
+    m_taskbaricon->Destroy();
+	Destroy();
 }
 
 void MyFrame::OnDialPressEnter(wxCommandEvent &event)
@@ -141,6 +140,11 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 	       << call->GetName() << '\n' << _("Time: ") << call->GetTime().FormatISOCombined(' ')
 	       << '\n' << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
 	m_CallInfo->SetLabel(label);
+}
+
+void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
+{
+    m_taskbaricon = taskbaricon;
 }
 
 void MyFrame::handleEvent(const AmiMessage &message)

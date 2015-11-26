@@ -34,7 +34,7 @@ $(RELDIR)/%.o: %.cpp
 	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 $(WINDBGDIR)/%.o: CXX=i686-w64-mingw32-g++
-$(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
+$(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
 $(WINDBGDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
