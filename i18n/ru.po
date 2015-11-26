@@ -16,58 +16,63 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: mainframe.cpp:78
-msgid "Welcome to wxWidgets!"
-msgstr "Превед, Медвед!"
-
-#: mainframe.cpp:140
+#: mainframe.cpp:138
 msgid "Number: "
 msgstr "Номер: "
 
-#: mainframe.cpp:140
+#: mainframe.cpp:138
 msgid "Name: "
 msgstr "Имя: "
 
-#: mainframe.cpp:141
+#: mainframe.cpp:139
 msgid "Time: "
 msgstr "Время: "
 
-#: mainframe.cpp:142
+#: mainframe.cpp:140
 msgid "Duration: "
 msgstr "Длительность: "
 
-#: mainframe.cpp:337 mainframe.cpp:338
+#: mainframe.cpp:336 mainframe.cpp:337
 msgid "Connection Lost"
 msgstr "Нет связи"
 
-#: mainframe.cpp:342 mainframe.cpp:343
+#: mainframe.cpp:341 mainframe.cpp:342
 msgid "Connected"
 msgstr "Подключено"
 
-#: myapp.cpp:52
+#: myapp.cpp:55
 msgid "Error opening config file."
 msgstr "Ошибка открытия конфига."
 
-#: myapp.cpp:53
+#: myapp.cpp:56
 msgid "Sample config is at "
 msgstr "Шаблон конфига в "
 
-#: myapp.cpp:54
+#: myapp.cpp:57
 msgid "Rename it to astercti.ini and edit."
 msgstr "Переименуйте его в astercti.ini и поправьте."
 
-#: notificationFrame.cpp:77
+#: myapp.cpp:99 notificationFrame.cpp:331
+msgid ""
+"Lookup URL and Lookup command are both unconfigured.\n"
+"Lookup disabled."
+msgstr ""
+"В конфиге не задан ни lookup_url, ни lookup_cmd.\n"
+"Поиск информации по номеру звонящего отключен."
+
+#: notificationFrame.cpp:108
 msgid "No"
 msgstr "Нет"
 
-#: notificationFrame.cpp:231
+#: notificationFrame.cpp:267
 msgid "Pickup the handset to dial"
 msgstr "Снимите трубку для звонка на"
 
-#: notificationFrame.cpp:295
+#: notificationFrame.cpp:381
 msgid "See all found"
 msgstr "Все найденные"
 
-#: notificationFrame.cpp:299
+#: notificationFrame.cpp:385
 msgid "Unknown number."
 msgstr "Неизвестный номер."
+
