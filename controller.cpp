@@ -78,6 +78,13 @@ long AsteriskController::CfgInt(std::string s)
 	m_config->Read(s, &val);
 	return val;
 };
+bool AsteriskController::CfgBool(std::string s, bool def)
+{
+	if (!m_config)
+	       return def;
+	return m_config->ReadBool(s, def);
+};
+
 
 
 // ControllerUser

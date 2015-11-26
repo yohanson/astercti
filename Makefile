@@ -54,15 +54,15 @@ $(RELDIR)/$(BINARY): $(RELEASE_OBJ)
 	ln -sf $@ $(BINARY)
 
 $(WINDBGDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
-$(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
-$(WINDBGDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
-	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
-
+$(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs` -llibcurl
+$(WINDBGDIR)/$(BINARY).exe: $(WINDEBUG_OBJ) i18n/ru.mo
+	$(CXX)  $(WINDEBUG_OBJ) $(LDFLAGS)  -o $@
+	makensis windows_install_debug.nsis
 
 $(WINRELDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
-$(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+$(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs`
 $(WINRELDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
-	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
+	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS) libcurl.dll  -o $@
 	strip --strip-all $@
 	makensis windows_install_script.nsis
 

@@ -119,7 +119,7 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 	Bind(wxEVT_HTML_LINK_CLICKED, &notificationFrame::OnLinkClicked, this);
 	hidebutton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &notificationFrame::OnHideButtonClick, this);
 	Bind(wxEVT_TIMER, &notificationFrame::OnHideTimer, this);
-	
+    m_lookup_enabled = false;
 }
 
 notificationFrame::~notificationFrame()
@@ -128,10 +128,12 @@ notificationFrame::~notificationFrame()
 
 void notificationFrame::SetLookupCmd(std::string cmd) {
 	m_lookup_cmd = cmd;
+    m_lookup_enabled |= (!cmd.empty());
 }
 
 void notificationFrame::SetLookupUrl(std::string url) {
 	m_lookup_url = url;
+    m_lookup_enabled |= (!url.empty());
 }
 
 
@@ -211,7 +213,7 @@ void notificationFrame::OnRing(const AmiMessage &message)
 	m_current_channel = message["Channel"];
 
 	bool number_matches = false;
-	if (!m_lookup_cmd.empty() && callerid != m_controller->GetMyExten())
+	if (m_lookup_enabled && callerid != m_controller->GetMyExten())
 	{
 		std::string regex = m_controller->Cfg("lookup/number_match_regex");
 		if (!regex.empty())
@@ -233,7 +235,7 @@ void notificationFrame::OnRing(const AmiMessage &message)
 		}
 
 	}
-	if (!callerid.empty() && callerid != "<unknown>" && !m_lookup_cmd.empty() && number_matches)
+	if (!callerid.empty() && callerid != "<unknown>" && m_lookup_enabled  && number_matches)
 	{
 		SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 		ShowWithoutActivating();
@@ -272,43 +274,62 @@ wxString notificationFrame::Lookup(std::string callerid)
 	wxString out;
 	wxArrayString output;
 	wxString cmd;
-	CURL *curl;
-	CURLcode res;
-	struct MemoryStruct chunk;
-	chunk.memory = NULL;
-	chunk.size = 0;
-	curl = curl_easy_init();
-	if (curl)
-	{
-		char *url = new char[ m_lookup_url.length() + callerid.length() + 1 ];
-		sprintf(url, m_lookup_url.c_str(), callerid.c_str());
-		std::cerr << "URL: " << url << std::endl;
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "astercti/" VERSION);
-		res = curl_easy_perform(curl);
-		if (res != CURLE_OK)
-		{
-			std::cerr << "curl failed: " << curl_easy_strerror(res) << std::endl;
-		}
-		else
-		{
-			std::cerr << "Returned (chunk): " << chunk.memory << std::endl;
-			out = wxString::FromUTF8((const char *)chunk.memory);
-			std::cerr << "Returned (wxString): " << out << std::endl;
-		}
-		curl_easy_cleanup(curl);
-		free(chunk.memory);
-		delete[] url;
-	}
-	//cmd.Printf(wxString(m_lookup_cmd), callerid);
-	//ExecCommand(cmd, output);
-	/*for (auto iter : output)
-	{
-		out += iter;
-	}*/
+
+    if (!m_lookup_url.empty())
+    {
+        CURL *curl;
+        CURLcode res;
+        struct MemoryStruct chunk;
+        chunk.memory = NULL;
+        chunk.size = 0;
+        curl = curl_easy_init();
+        if (curl)
+        {
+            char *url = new char[ m_lookup_url.length() + callerid.length() + 1 ];
+            sprintf(url, m_lookup_url.c_str(), callerid.c_str());
+            curl_easy_setopt(curl, CURLOPT_URL, url);
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, "astercti/" VERSION);
+            if (m_controller->CfgBool("lookup/curl_insecure", false))
+            {
+                curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+                curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
+            }
+#ifdef __WXMSW__
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_CAINFO, "curl-ca-bundle.crt");
+            }
+#endif
+            res = curl_easy_perform(curl);
+            if (res != CURLE_OK)
+            {
+                wxLogError("curl failed: %s", curl_easy_strerror(res));
+            }
+            else
+            {
+                out = wxString::FromUTF8((const char *)chunk.memory);
+            }
+            curl_easy_cleanup(curl);
+            free(chunk.memory);
+            delete[] url;
+        }
+    }
+    else if (!m_lookup_cmd.empty())
+    {
+        cmd.Printf(wxString(m_lookup_cmd), callerid);
+        ExecCommand(cmd, output);
+        for (auto iter : output)
+        {
+            out += iter;
+        }
+    }
+    else
+    {
+        wxLogWarning(_("Lookup URL and Lookup command are both unconfigured.\nLookup disabled."));
+    }
 
 	Json::Value root;
 	Json::Reader reader;

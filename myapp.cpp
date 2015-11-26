@@ -75,8 +75,6 @@ bool MyApp::OnInit()
     mychanfilter->add(*frame);
     intmsgfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
-    notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
-    notifyframe->SetLookupUrl(m_config->Read("lookup/lookup_url").ToStdString());
     EventGenerator *events = new EventGenerator;
     events->add(*frame);
     events->add(*notifyframe);
@@ -93,7 +91,16 @@ bool MyApp::OnInit()
     m_controller->add(events);
     m_taskbaricon = icon;
     frame->Show(!start_iconified);
-    IpcServer *m_ipcServer = new IpcServer(m_controller);
+    if (!m_config->Read("lookup/lookup_cmd") && !m_config->Read("lookup/lookup_url"))
+    {
+        wxLogWarning(_("Lookup URL and Lookup command are both unconfigured.\nLookup disabled."));
+    }
+    else
+    {
+        notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
+        notifyframe->SetLookupUrl(m_config->Read("lookup/lookup_url").ToStdString());
+    }
+    m_ipcServer = new IpcServer(m_controller);
     m_ipcServer->Create(IPC_SERVICENAME);
     return true;
 }
@@ -101,6 +108,10 @@ bool MyApp::OnInit()
 MyApp::~MyApp()
 {
 	m_taskbaricon->Destroy();
+    delete m_config;
+    delete m_ipcServer;
+    delete m_controller;
+
 }
 
 bool MyApp::ParseCmdLine()

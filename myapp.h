@@ -5,6 +5,7 @@
 #include <wx/cmdline.h>
 #include "controller.h"
 #include "taskbaricon.h"
+#include "ipc.h"
 
 class MyApp: public wxApp
 {
@@ -18,6 +19,7 @@ public:
     MyTaskBarIcon *m_taskbaricon;
 private:
     bool start_iconified;
+    IpcServer *m_ipcServer;
 };
 
 static const wxCmdLineEntryDesc g_cmdLineDesc [] =

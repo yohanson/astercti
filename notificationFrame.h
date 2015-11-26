@@ -61,6 +61,7 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		wxTimer *m_hidetimer;
 		std::string m_current_channel;
 		std::string m_lookup_cmd;
+        bool m_lookup_enabled;
 		std::string m_lookup_url;
 };
 

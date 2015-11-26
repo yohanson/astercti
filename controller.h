@@ -31,6 +31,7 @@ public:
 	std::string GetMyChannel() const;
 	std::string Cfg(std::string);
 	long CfgInt(std::string);
+	bool CfgBool(std::string, bool);
 };
 
 class ControllerUser

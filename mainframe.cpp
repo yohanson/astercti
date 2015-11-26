@@ -259,16 +259,12 @@ void MyFrame::OnCdr(const AmiMessage &m)
 				call->SetDuration(stoi(m["BillableSeconds"]));
 				if (call->GetDirection() == Call::CALL_OUT)
 				{
-					StatusText->AppendText("It's Call::CALL_OUT\n");
 					call->SetNumber(m["Destination"]);
 					if (!call->GetName().empty())
 						m_callList->SetItemText(lastItem, call->GetNumber() + " (" + call->GetName() + ")");
 					else
 						m_callList->SetItemText(lastItem, call->GetNumber());
 				}
-				else StatusText->AppendText("It's NOT Call::CALL_OUT. (?)\n");
-				if (call->GetDirection() == Call::CALL_IN)
-					StatusText->AppendText("It's Call::CALL_IN\n");
 
 				if (m["Disposition"] == "ANSWERED")
 					if (call->GetDirection() == Call::CALL_IN)
