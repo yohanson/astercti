@@ -66,21 +66,21 @@ bool MyApp::OnInit()
 		m_config->Read("server/password").ToStdString());
     m_controller = new AsteriskController(asterisk, m_config);
     m_controller->SetMainFrame(frame);
-    MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
-    InternalMessageFilter *intmsgfilter = new InternalMessageFilter();
+    m_mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
+    m_intmsgfilter = new InternalMessageFilter();
     asterisk->observable_descr = "asterisk";
-    mychanfilter->observable_descr = "mychanfilter";
-    intmsgfilter->observable_descr = "intmsgfilter";
-    asterisk->add(*mychanfilter);
-    asterisk->add(*intmsgfilter);
-    mychanfilter->add(*frame);
-    intmsgfilter->add(*frame);
+    m_mychanfilter->observable_descr = "mychanfilter";
+    m_intmsgfilter->observable_descr = "intmsgfilter";
+    asterisk->add(*m_mychanfilter);
+    asterisk->add(*m_intmsgfilter);
+    m_mychanfilter->add(*frame);
+    m_intmsgfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
-    EventGenerator *events = new EventGenerator;
-    events->add(*frame);
-    events->add(*notifyframe);
-    mychanfilter->add(*events);
-    intmsgfilter->add(*events);
+    m_events = new EventGenerator;
+    m_events->add(*frame);
+    m_events->add(*notifyframe);
+    m_mychanfilter->add(*m_events);
+    m_intmsgfilter->add(*m_events);
     wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
@@ -90,7 +90,7 @@ bool MyApp::OnInit()
     m_controller->add(m_taskbaricon);
     m_controller->add(frame);
     m_controller->add(notifyframe);
-    m_controller->add(events);
+    m_controller->add(m_events);
     frame->Show(!start_iconified);
     SetTopWindow(frame);
     SetExitOnFrameDelete(true);
@@ -114,6 +114,9 @@ MyApp::~MyApp()
 
 int MyApp::OnExit()
 {
+    delete m_events;
+    delete m_mychanfilter;
+    delete m_intmsgfilter;
     delete m_config;
     delete m_ipcServer;
     delete m_controller;

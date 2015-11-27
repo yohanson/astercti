@@ -124,6 +124,7 @@ notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoin
 
 notificationFrame::~notificationFrame()
 {
+    delete m_hidetimer;
 }
 
 void notificationFrame::SetLookupCmd(std::string cmd) {

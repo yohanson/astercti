@@ -152,6 +152,7 @@ Asterisk::Asterisk(std::string host, int port, std::string username, std::string
 Asterisk::~Asterisk()
 {
 	m_socket->Close();
+    delete m_socket;
 }
 
 void Asterisk::Originate(std::string mychan, std::string context, std::string exten, std::string myexten, int priority)
