@@ -3,6 +3,7 @@
 void EventGenerator::add(EventListener &listener)
 {
 	_listeners.push_back(&listener);
+    listener.listens_to(*this);
 }
 
 void EventGenerator::remove(EventListener &listener)
@@ -96,6 +97,21 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 	{
 		NotifyOnInternalMessage(m);
 	}
+}
+
+EventListener::EventListener()
+{
+}
+
+EventListener::~EventListener()
+{
+    for (auto eg : m_eventgenerators)
+        eg->remove(*this);
+}
+
+void EventListener::listens_to(EventGenerator &eg)
+{
+    m_eventgenerators.push_back(&eg);
 }
 
 void EventListener::OnRing(const AmiMessage &){};

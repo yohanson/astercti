@@ -9,20 +9,22 @@ username=<ami username>
 password=<ami password>
 
 [lookup]
-# Output of lookup command will be displayed in notification. %s is replaced with Caller ID.
+# Lookup can be made by command or by URL
+# Output of lookup will be displayed in notification. %s is replaced with Caller ID.
 ;lookup_cmd=~/scripts/lookup %s
+;lookup_url=http://example.com/lookup?callerid=%s
 
-# Lookup only numbers matching regex:
-#number_match_regex=^[0-9]{3,}$
+# set to 1 to disable SSL host checking:
+;curl_insecure=0
 
 # Lookup only long numbers:
 number_min_length=7
 
+# Lookup only numbers matching regex:
+;number_match_regex=^[0-9]{3,}$
+
 # Search clients web page url. %s replaced with Caller ID.
 ;search_url=https://example.com/searchcaller?phone=%s
-
-# Client's personal page URL. Fields like ${name} is replaced with values from JSON got with lookup.
-;client_url=https://example.com/clients.cgi?&CT=${clienttype}&NClient=${id}
 
 # templates can have macros like ${name}, they are taken out of JSON returned by lookup_cmd
 [templates]
@@ -31,7 +33,6 @@ client_info=<a href="${url}">${name}</a>${services}
 client_preservices=<ul>
 client_service=<li>${service}</li>
 client_postservices=</ul>
-
 
 [gui]
 # Timeout in ms to hide notification after pickup.

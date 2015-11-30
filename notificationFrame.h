@@ -25,6 +25,7 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		void SetHtml(const wxString &s);
 		void UpdateSize();
 		void SetLookupCmd(std::string);
+		void SetLookupUrl(std::string);
 		wxString Lookup(std::string);
 
 		//(*Declarations(notificationFrame)
@@ -60,7 +61,8 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		wxTimer *m_hidetimer;
 		std::string m_current_channel;
 		std::string m_lookup_cmd;
-		int buttonsHeight;
+        bool m_lookup_enabled;
+		std::string m_lookup_url;
 };
 
 

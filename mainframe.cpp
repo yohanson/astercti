@@ -19,6 +19,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
     descr = "mainframe";
+    m_taskbaricon = NULL;
 
     wxImage::AddHandler(new wxPNGHandler);
     wxMenu *menuFile = new wxMenu;
@@ -75,15 +76,11 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     m_callList->Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::OnListItemSelect, this);
 
     CreateStatusBar();
-    SetStatusText( _("Welcome to wxWidgets!") );
     m_DialNumber->SetFocus();
 }
 
 MyFrame::~MyFrame()
 {
-	delete m_DialNumber;
-	std::cout << "mainframe destruct" << std::endl;
-
 }
 
 void MyFrame::OnExit(wxCommandEvent& event)
@@ -106,7 +103,8 @@ void MyFrame::OnHello(wxCommandEvent& event)
 
 void MyFrame::OnClose(wxCloseEvent& event)
 {
-	wxWindow::Destroy();
+    m_taskbaricon->Destroy();
+	Destroy();
 }
 
 void MyFrame::OnDialPressEnter(wxCommandEvent &event)
@@ -141,6 +139,11 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 	       << call->GetName() << '\n' << _("Time: ") << call->GetTime().FormatISOCombined(' ')
 	       << '\n' << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
 	m_CallInfo->SetLabel(label);
+}
+
+void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
+{
+    m_taskbaricon = taskbaricon;
 }
 
 void MyFrame::handleEvent(const AmiMessage &message)
@@ -259,16 +262,12 @@ void MyFrame::OnCdr(const AmiMessage &m)
 				call->SetDuration(stoi(m["BillableSeconds"]));
 				if (call->GetDirection() == Call::CALL_OUT)
 				{
-					StatusText->AppendText("It's Call::CALL_OUT\n");
 					call->SetNumber(m["Destination"]);
 					if (!call->GetName().empty())
 						m_callList->SetItemText(lastItem, call->GetNumber() + " (" + call->GetName() + ")");
 					else
 						m_callList->SetItemText(lastItem, call->GetNumber());
 				}
-				else StatusText->AppendText("It's NOT Call::CALL_OUT. (?)\n");
-				if (call->GetDirection() == Call::CALL_IN)
-					StatusText->AppendText("It's Call::CALL_IN\n");
 
 				if (m["Disposition"] == "ANSWERED")
 					if (call->GetDirection() == Call::CALL_IN)

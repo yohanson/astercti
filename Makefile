@@ -34,7 +34,7 @@ $(RELDIR)/%.o: %.cpp
 	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 $(WINDBGDIR)/%.o: CXX=i686-w64-mingw32-g++
-$(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
+$(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
 $(WINDBGDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
@@ -45,24 +45,24 @@ $(WINRELDIR)/%.o: %.cpp
 
 
 $(DBGDIR)/$(BINARY): $(DEBUG_OBJ)
-	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp` $(DEBUG_OBJ) -o $@
+	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(DEBUG_OBJ) -o $@
 	ln -sf $@ $(BINARY)
 
 $(RELDIR)/$(BINARY): $(RELEASE_OBJ)
-	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp` $(RELEASE_OBJ) -o $@
+	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(RELEASE_OBJ) -o $@
 	strip --strip-all $@
 	ln -sf $@ $(BINARY)
 
 $(WINDBGDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
-$(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
-$(WINDBGDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
-	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
-
+$(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs` -llibcurl
+$(WINDBGDIR)/$(BINARY).exe: $(WINDEBUG_OBJ) i18n/ru.mo
+	$(CXX)  $(WINDEBUG_OBJ) $(LDFLAGS)  -o $@
+	makensis windows_install_debug.nsis
 
 $(WINRELDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
-$(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib `$(WINPATH)/wx-config --libs`
+$(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs`
 $(WINRELDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
-	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS)  -o $@
+	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS) libcurl.dll  -o $@
 	strip --strip-all $@
 	makensis windows_install_script.nsis
 

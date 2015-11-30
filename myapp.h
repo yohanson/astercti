@@ -5,12 +5,15 @@
 #include <wx/cmdline.h>
 #include "controller.h"
 #include "taskbaricon.h"
+#include "ipc.h"
+#include "events.h"
 
 class MyApp: public wxApp
 {
 public:
     ~MyApp();
     virtual bool OnInit();
+    virtual int OnExit();
     virtual bool ParseCmdLine();
     AsteriskController *m_controller;
     wxFileConfig *m_config;
@@ -18,6 +21,10 @@ public:
     MyTaskBarIcon *m_taskbaricon;
 private:
     bool start_iconified;
+    IpcServer *m_ipcServer;
+    MyChanFilter *m_mychanfilter;
+    InternalMessageFilter *m_intmsgfilter;
+    EventGenerator *m_events;
 };
 
 static const wxCmdLineEntryDesc g_cmdLineDesc [] =

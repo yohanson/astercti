@@ -22,10 +22,7 @@ void Asterisk::Notify(AmiMessage &message)
 			Notify(m);
 		}
 	}
-	for (auto iter : _observers)
-	{
-		iter->handleEvent(message);
-	}
+    IObservable::Notify(message);
 }
 
 void Asterisk::OnSocketEvent(wxSocketEvent &event)
@@ -105,11 +102,6 @@ void Asterisk::OnInputAvailable()
 	}
 }
 
-void Asterisk::add(IObserver& observer)
-{
-	_observers.push_back(&observer);
-}
-
 void Asterisk::AmiPing()
 {
 	m_ping_timer_active = true;
@@ -160,6 +152,7 @@ Asterisk::Asterisk(std::string host, int port, std::string username, std::string
 Asterisk::~Asterisk()
 {
 	m_socket->Close();
+    delete m_socket;
 }
 
 void Asterisk::Originate(std::string mychan, std::string context, std::string exten, std::string myexten, int priority)

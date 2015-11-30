@@ -60,46 +60,67 @@ bool MyApp::OnInit()
     }
 
     MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
-    SetExitOnFrameDelete(true);
-    SetTopWindow(frame);
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),
 		m_config->Read("server/password").ToStdString());
     m_controller = new AsteriskController(asterisk, m_config);
     m_controller->SetMainFrame(frame);
-    MyChanFilter *mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
-    InternalMessageFilter *intmsgfilter = new InternalMessageFilter();
-    asterisk->add(*mychanfilter);
-    asterisk->add(*intmsgfilter);
-    mychanfilter->add(*frame);
-    intmsgfilter->add(*frame);
+    m_mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
+    m_intmsgfilter = new InternalMessageFilter();
+    asterisk->observable_descr = "asterisk";
+    m_mychanfilter->observable_descr = "mychanfilter";
+    m_intmsgfilter->observable_descr = "intmsgfilter";
+    asterisk->add(*m_mychanfilter);
+    asterisk->add(*m_intmsgfilter);
+    m_mychanfilter->add(*frame);
+    m_intmsgfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);
-    notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
-    EventGenerator *events = new EventGenerator;
-    events->add(*frame);
-    events->add(*notifyframe);
-    mychanfilter->add(*events);
-    intmsgfilter->add(*events);
+    m_events = new EventGenerator;
+    m_events->add(*frame);
+    m_events->add(*notifyframe);
+    m_mychanfilter->add(*m_events);
+    m_intmsgfilter->add(*m_events);
     wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";
     wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
     frame->SetIcon(iconimage);
-    MyTaskBarIcon *icon = new MyTaskBarIcon(iconimage, "AsterCTI: " + m_config->Read("dialplan/exten"));
-    icon->SetMainFrame(frame);
-    m_controller->add(icon);
+    m_taskbaricon = new MyTaskBarIcon(iconimage, "AsterCTI: " + m_config->Read("dialplan/exten"));
+    m_taskbaricon->SetMainFrame(frame);
+    frame->SetTaskBarIcon(m_taskbaricon);
+    m_controller->add(m_taskbaricon);
     m_controller->add(frame);
     m_controller->add(notifyframe);
-    m_controller->add(events);
-    m_taskbaricon = icon;
+    m_controller->add(m_events);
     frame->Show(!start_iconified);
-    IpcServer *m_ipcServer = new IpcServer(m_controller);
+    SetTopWindow(frame);
+    SetExitOnFrameDelete(true);
+    if (!m_config->Read("lookup/lookup_cmd") && !m_config->Read("lookup/lookup_url"))
+    {
+        wxLogWarning(_("Lookup URL and Lookup command are both unconfigured.\nLookup disabled."));
+    }
+    else
+    {
+        notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
+        notifyframe->SetLookupUrl(m_config->Read("lookup/lookup_url").ToStdString());
+    }
+    m_ipcServer = new IpcServer(m_controller);
     m_ipcServer->Create(IPC_SERVICENAME);
     return true;
 }
 
 MyApp::~MyApp()
 {
-	m_taskbaricon->Destroy();
+}
+
+int MyApp::OnExit()
+{
+    delete m_events;
+    delete m_mychanfilter;
+    delete m_intmsgfilter;
+    delete m_config;
+    delete m_ipcServer;
+    delete m_controller;
+    return 0;
 }
 
 bool MyApp::ParseCmdLine()

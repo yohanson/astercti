@@ -1,5 +1,6 @@
 *~
 *.o
+*.dll
 *.exe
 astercti
 *.log
@@ -7,3 +8,4 @@ i18n/*.mo
 debian/astercti.substvars
 debian/files
 gitversion.cpp
+curl-ca-bundle.crt
