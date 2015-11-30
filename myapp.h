@@ -6,6 +6,7 @@
 #include "controller.h"
 #include "taskbaricon.h"
 #include "ipc.h"
+#include "events.h"
 
 class MyApp: public wxApp
 {
