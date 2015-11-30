@@ -15,6 +15,14 @@
 
 wxDECLARE_APP(MyApp);
 
+enum CALLSTATUS {
+    INCOMING_ANSWERED,
+    INCOMING_UNANSWERED,
+    OUTBOUND_ANSWERED,
+    OUTBOUND_UNANSWERED,
+    INCOMING_ANSWERED_ELSEWHERE
+};
+
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
@@ -40,6 +48,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     imagelist->Add(wxBitmap(wxImage(datadir + "incoming_unanswered.png")));
     imagelist->Add(wxBitmap(wxImage(datadir + "outbound_answered.png")));
     imagelist->Add(wxBitmap(wxImage(datadir + "outbound_unanswered.png")));
+    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_answered_elsewhere.png")));
 
     wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
     TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
@@ -133,8 +142,8 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 	wxDateTime duration((time_t)call->GetDuration());
 	wxString timeformat;
 	if (call->GetDuration() >= 3600)
-		timeformat = "%-H:%M:%S";
-	else timeformat = "%-M:%S";
+		timeformat = "%H:%M:%S";
+	else timeformat = "%M:%S";
 	label << _("Number: ") << call->GetNumber() << '\n' << _("Name: ")
 	       << call->GetName() << '\n' << _("Time: ") << call->GetTime().FormatISOCombined(' ')
 	       << '\n' << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
@@ -207,7 +216,7 @@ void MyFrame::OnUp(const AmiMessage &m)
 		if (call->GetUniqueID() == std::stoi(m["Uniqueid"])) // updating existing call
 		{
 			if (call->GetDirection() == Call::CALL_IN)
-				m_callList->SetItemImage(lastItem, 0);
+				m_callList->SetItemImage(lastItem, INCOMING_ANSWERED);
 			else // outbound call
 			{
 				if (m["ConnectedLineNum"] != m["CallerIDNum"])
@@ -220,7 +229,7 @@ void MyFrame::OnUp(const AmiMessage &m)
 					else m_callList->SetItemText(lastItem, m["ConnectedLineNum"]);
 					call->SetNumber(m["ConnectedLineNum"]);
 				}
-				m_callList->SetItemImage(lastItem, 2);
+				m_callList->SetItemImage(lastItem, OUTBOUND_ANSWERED);
 			}
 		}
 	}
@@ -238,6 +247,10 @@ void MyFrame::OnHangup(const AmiMessage &m)
 		{
 			if (m["ConnectedLineNum"] == m["CallerIDNum"] && m_last_channel_state == AST_STATE_RINGING)
 			{
+                if (m["Cause"] == "26") // answered elsewhere
+                {
+                    m_callList->SetItemImage(lastItem, INCOMING_ANSWERED_ELSEWHERE);
+                }
 				delete call;
 				m_callList->DeleteItem(lastItem);
 			}
@@ -271,16 +284,16 @@ void MyFrame::OnCdr(const AmiMessage &m)
 
 				if (m["Disposition"] == "ANSWERED")
 					if (call->GetDirection() == Call::CALL_IN)
-						m_callList->SetItemImage(lastItem, 0);
+						m_callList->SetItemImage(lastItem, INCOMING_ANSWERED);
 					else
-						m_callList->SetItemImage(lastItem, 2);
+						m_callList->SetItemImage(lastItem, OUTBOUND_ANSWERED);
 				else // missed
 				{
 					call->SetDuration(0);
 					if (call->GetDirection() == Call::CALL_IN)
-						m_callList->SetItemImage(lastItem, 1);
+						m_callList->SetItemImage(lastItem, INCOMING_UNANSWERED);
 					else
-						m_callList->SetItemImage(lastItem, 3);
+						m_callList->SetItemImage(lastItem, OUTBOUND_UNANSWERED);
 				}
 			}
 			else StatusText->AppendText("UniqueID " + m["UniqueID"] + " not found.\n");
