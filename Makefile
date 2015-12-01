@@ -114,7 +114,7 @@ deb:
 gitversion.cpp:
 	echo "const char *gitcommit = \"$(shell git rev-parse --short HEAD)\";" > $@
 	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso)\";" >> $@
-	echo "const char *builddate = \"$(shell date --rfc-3339=date)\";" >> $@
+	echo "const char *builddate = \"$(shell date -Iseconds)\";" >> $@
 
 bump: debianbump versionhbump
 

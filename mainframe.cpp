@@ -112,6 +112,12 @@ void MyFrame::OnHello(wxCommandEvent& event)
 
 void MyFrame::OnClose(wxCloseEvent& event)
 {
+    if (event.CanVeto())
+    {
+        Show(false);
+        event.Veto();
+        return;
+    }
     m_taskbaricon->Destroy();
 	Destroy();
 }
@@ -245,15 +251,22 @@ void MyFrame::OnHangup(const AmiMessage &m)
 		Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 		if (call->GetUniqueID() == std::stoi(m["UniqueID"]))
 		{
-			if (m["ConnectedLineNum"] == m["CallerIDNum"] && m_last_channel_state == AST_STATE_RINGING)
-			{
-                if (m["Cause"] == "26") // answered elsewhere
+            if (m_last_channel_state == AST_STATE_RINGING)
+            {
+                // Originating cancelled:
+                if (m["ConnectedLineNum"] == m["CallerIDNum"])
                 {
-                    m_callList->SetItemImage(lastItem, INCOMING_ANSWERED_ELSEWHERE);
+                    delete call;
+                    m_callList->DeleteItem(lastItem);
                 }
-				delete call;
-				m_callList->DeleteItem(lastItem);
-			}
+                else
+                {
+                    if (m["Cause"] == "26") // answered elsewhere
+                    {
+                        m_callList->SetItemImage(lastItem, INCOMING_ANSWERED_ELSEWHERE);
+                    }
+                }
+            }
 		}
 	}
 	m_last_channel_state = AST_STATE_DOWN;

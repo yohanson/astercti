@@ -23,20 +23,16 @@ void MyTaskBarIcon::Init()
 	Bind(wxEVT_TASKBAR_LEFT_DOWN, &MyTaskBarIcon::OnClick, this);
 }
 
-void MyTaskBarIcon::SetMainFrame(wxWindow *frame)
+void MyTaskBarIcon::SetMainFrame(wxFrame *frame)
 {
 	m_mainFrame = frame;
 }
 
 void MyTaskBarIcon::OnExit(wxCommandEvent& event)
 {
-	//if (m_controller)
-	//	m_controller->Shutdown();
-	//	m_controller = NULL;
 	RemoveIcon();
     if (m_mainFrame)
-		m_mainFrame->Close();
-	//Destroy();
+		m_mainFrame->Close(true);
 }
 
 void MyTaskBarIcon::OnClick(wxTaskBarIconEvent&)
@@ -48,7 +44,7 @@ void MyTaskBarIcon::OnClick(wxTaskBarIconEvent&)
 		else
 		{
 			m_mainFrame->Show(true);
-			m_mainFrame->Raise();
+            m_mainFrame->Raise();
 		}
 	}
 }
