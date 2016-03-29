@@ -4,6 +4,7 @@
 #include <wx/listctrl.h>
 #include "events.h"
 #include "taskbaricon.h"
+#include "call.h"
 
 class MyFrame: public wxFrame, public IObserver, public ControllerUser, public EventListener
 {
@@ -13,6 +14,7 @@ public:
     void SetTaskBarIcon(MyTaskBarIcon *);
     void handleEvent(const AmiMessage &);
     void OnOriginate(const AmiMessage &);
+    void OnDialIn(const AmiMessage &);
     void OnRing(const AmiMessage &);
     void OnHangup(const AmiMessage &);
     void OnCdr(const AmiMessage &);

@@ -11,6 +11,7 @@
 #include "observer.h"
 #include "events.h"
 #include "controller.h"
+#include "call.h"
 
 class notificationFrame: public wxFrame, public ControllerUser, public EventListener
 {
@@ -35,6 +36,7 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		//*)
 		
 		void OnOriginate(const AmiMessage &);
+		void OnDialIn(const AmiMessage &);
 		void OnRing(const AmiMessage &);
 		void OnHangup(const AmiMessage &);
 		//void OnCdr(const AmiMessage &);
@@ -63,6 +65,8 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		std::string m_lookup_cmd;
         bool m_lookup_enabled;
 		std::string m_lookup_url;
+
+        Call m_call;
 };
 
 

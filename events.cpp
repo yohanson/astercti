@@ -29,6 +29,13 @@ void EventGenerator::NotifyOnDial(const AmiMessage &message) {
 	}
 }
 
+void EventGenerator::NotifyOnDialIn(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnDialIn(message);
+	}
+}
+
+
 void EventGenerator::NotifyOnUp(const AmiMessage &message) {
 	for (auto iter : _listeners) {
 		iter->OnUp(message);
@@ -93,6 +100,11 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 	{
 		NotifyOnCdr(m);
 	}
+    else if (m["Event"] == "Dial")
+    {
+        std::cout << "Event: Dial" << std::endl;
+        NotifyOnDialIn(m);
+    }
 	else if (m.has("InternalMessage"))
 	{
 		NotifyOnInternalMessage(m);
@@ -114,6 +126,7 @@ void EventListener::listens_to(EventGenerator &eg)
     m_eventgenerators.push_back(&eg);
 }
 
+void EventListener::OnDialIn(const AmiMessage &){};
 void EventListener::OnRing(const AmiMessage &){};
 void EventListener::OnOriginate(const AmiMessage &){};
 void EventListener::OnDial(const AmiMessage &){};

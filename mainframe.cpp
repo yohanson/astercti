@@ -12,6 +12,7 @@
 #include "myapp.h"
 #include "mainframe.h"
 #include "version.h"
+#include "call.h"
 
 wxDECLARE_APP(MyApp);
 
@@ -26,7 +27,7 @@ enum CALLSTATUS {
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
         : wxFrame(NULL, wxID_ANY, title, pos, size)
 {
-    descr = "mainframe";
+    edescr = "mainframe";
     m_taskbaricon = NULL;
 
     wxImage::AddHandler(new wxPNGHandler);
@@ -189,24 +190,63 @@ void MyFrame::OnOriginate(const AmiMessage &m)
 	m_last_channel_state = AST_STATE_RINGING;
 }
 
-void MyFrame::OnRing(const AmiMessage &m)
+void MyFrame::OnDialIn(const AmiMessage &m)
 {
-	StatusText->AppendText("##### Incoming call! #####\n\n");
+   	StatusText->AppendText("##### Somebody's going to dial us #####\n\n");
 	wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
-	if (m["ConnectedLineName"] != "")
-	{
-		item->SetText(m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
-		call->SetName(m["ConnectedLineName"]);
-	}
-	else item->SetText(m["ConnectedLineNum"]);
-	call->SetNumber(m["ConnectedLineNum"]);
-	call->SetUniqueID(std::stoi(m["Uniqueid"]));
+	item->SetText(m["CallerIDNum"]);
+	call->SetNumber(m["CallerIDNum"]);
+	call->SetUniqueID(std::stoi(m["DestUniqueID"]));
+    call->SetSecondChannelID(m["ChannelID"]);
 	call->SetTime(wxDateTime::Now());
 	call->SetDirection(Call::CALL_IN);
 	item->SetData(call);
 	m_callList->InsertItem(*item);
+}
+
+void MyFrame::OnRing(const AmiMessage &m)
+{
+	StatusText->AppendText("##### Incoming call! #####\n\n");
+	wxListItem item;
+    long lastItem = 0;
+	Call *call;
+    bool existing = false;
+	if (m_callList->GetItemCount())
+	{
+		lastItem = m_callList->GetItemCount()-1;
+		call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
+		if (call->GetUniqueID() == std::stoi(m["Uniqueid"])) // updating existing call
+        {
+            existing = true;
+            item.SetId(m_callList->GetItemCount()-1);
+            item.SetMask(wxLIST_MASK_TEXT|wxLIST_MASK_IMAGE|wxLIST_MASK_DATA);
+            m_callList->GetItem(item);
+        }
+    }
+    if (!existing)
+    {
+        call = new Call;
+        item.SetId(m_callList->GetItemCount());
+        call->SetUniqueID(std::stoi(m["Uniqueid"]));
+    }
+
+	if (m["ConnectedLineName"] != "")
+	{
+		item.SetText(m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
+		call->SetName(m["ConnectedLineName"]);
+	}
+	else item.SetText(m["ConnectedLineNum"]);
+	call->SetNumber(m["ConnectedLineNum"]);
+	call->SetTime(wxDateTime::Now());
+	call->SetDirection(Call::CALL_IN);
+    if (!existing)
+    {
+	    item.SetData(call);
+	    m_callList->InsertItem(item);
+    }
+    else m_callList->SetItem(item);
 	m_last_channel_state = AST_STATE_RINGING;
 }
 

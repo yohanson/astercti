@@ -25,6 +25,7 @@ class EventGenerator : public IObserver, public ControllerUser
 public:
 	void add(EventListener &);
 	void remove(EventListener &);
+	void NotifyOnDialIn(const AmiMessage &);
 	void NotifyOnRing(const AmiMessage &);
 	void NotifyOnOriginate(const AmiMessage &);
 	void NotifyOnDial(const AmiMessage &);
@@ -43,9 +44,11 @@ private:
 protected:
 	ast_channel_state m_last_channel_state;
 public:
+    wxString edescr;
     EventListener();
     ~EventListener();
     void listens_to(EventGenerator &);
+	virtual void OnDialIn(const AmiMessage &);
 	virtual void OnRing(const AmiMessage &);
 	virtual void OnOriginate(const AmiMessage &);
 	virtual void OnDial(const AmiMessage &);

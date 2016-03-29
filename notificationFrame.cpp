@@ -93,7 +93,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
 notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
-	descr = "notify frame";
+	edescr = "notify frame";
 	wxBoxSizer* BoxSizerButtons;
 
 	Create(parent, id, wxEmptyString, pos, size, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER);
@@ -201,6 +201,11 @@ void notificationFrame::OnUp(const AmiMessage &message)
 	}
 	else if (timer != -1)
 		m_hidetimer->StartOnce(timer);
+}
+
+void notificationFrame::OnDialIn(const AmiMessage &m)
+{
+    
 }
 
 void notificationFrame::OnRing(const AmiMessage &message)
