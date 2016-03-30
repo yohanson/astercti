@@ -18,6 +18,7 @@
 #include "taskbaricon.h"
 #include "ipc.h"
 #include "version.h"
+#include "chanstatus.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -68,11 +69,13 @@ bool MyApp::OnInit()
     m_controller->SetMainFrame(frame);
     m_mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     m_intmsgfilter = new InternalMessageFilter();
+    ChannelStatusPool *chanstatuspool = new ChannelStatusPool();
     asterisk->observable_descr = "asterisk";
     m_mychanfilter->observable_descr = "mychanfilter";
     m_intmsgfilter->observable_descr = "intmsgfilter";
     asterisk->add(*m_mychanfilter);
     asterisk->add(*m_intmsgfilter);
+    asterisk->add(*chanstatuspool);
     m_mychanfilter->add(*frame);
     m_intmsgfilter->add(*frame);
     notificationFrame *notifyframe = new notificationFrame(frame);

@@ -76,10 +76,6 @@ bool MyChanFilter::filter(const AmiMessage &message)
 	}
     else if (message["Event"] == "Dial")
     {
-        for (auto iter : message)
-        {	
-            std::cout << iter.first << ": " << iter.second << std::endl;
-        }
         if (message["DestinationChannelID"] == m_channel_id)
             return true;
     }
