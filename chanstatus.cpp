@@ -13,8 +13,12 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     else if (m["Event"] == "Hangup")
     {
         changed = true;
-        std::cout << m["Event"] << std::endl;
-        auto it = m_channels.find(m["Channel"]);
+        std::cout << m["Event"] << " " << m["Channel"] << std::endl;
+        std::string channel = m["Channel"];
+        size_t zombie = channel.find("<ZOMBIE>");
+        if (zombie != std::string::npos)
+		channel = channel.substr(0, zombie);
+        auto it = m_channels.find(channel);
         if (it == m_channels.end())
             return;
         m_channels.erase(it);
@@ -22,7 +26,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
         {
             for (auto peerChan = chan->second->m_peerChannels.begin(); peerChan != chan->second->m_peerChannels.end(); ++peerChan)
             {
-                if (*peerChan == m["Channel"])
+                if (*peerChan == channel)
                 {
                     chan->second->m_peerChannels.erase(peerChan);
                     break;
