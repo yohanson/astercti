@@ -20,7 +20,8 @@ class EventListener;
 // Takes AmiMessage, calls corresponding method of listeners
 class EventGenerator : public IObserver, public ControllerUser
 {
-	std::list<EventListener *> _listeners;
+protected:
+    std::list<EventListener *> _listeners;
 	void handleEvent(const AmiMessage &);
 public:
 	void add(EventListener &);
@@ -35,6 +36,7 @@ public:
 	void NotifyOnLookupStart(const AmiMessage &);
 	void NotifyOnLookupFinish(const AmiMessage &);
 	void NotifyOnInternalMessage(const AmiMessage &);
+	virtual void NotifyOnCallerInfoAvailable(const AmiMessage &);
 };
 
 class EventListener
@@ -58,7 +60,7 @@ public:
 	virtual void OnLookupStart(const AmiMessage &);
 	virtual void OnLookupFinish(const AmiMessage &);
 	virtual void OnInternalMessage(const AmiMessage &);
-
+	virtual void OnCallerInfoAvailable(const AmiMessage &);
 };
 
 #endif

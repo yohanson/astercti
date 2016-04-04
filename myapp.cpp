@@ -69,7 +69,7 @@ bool MyApp::OnInit()
     m_controller->SetMainFrame(frame);
     m_mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     m_intmsgfilter = new InternalMessageFilter();
-    ChannelStatusPool *chanstatuspool = new ChannelStatusPool();
+    ChannelStatusPool *chanstatuspool = new ChannelStatusPool(m_config->Read("dialplan/channel").ToStdString());
     asterisk->observable_descr = "asterisk";
     m_mychanfilter->observable_descr = "mychanfilter";
     m_intmsgfilter->observable_descr = "intmsgfilter";
@@ -82,6 +82,8 @@ bool MyApp::OnInit()
     m_events = new EventGenerator;
     m_events->add(*frame);
     m_events->add(*notifyframe);
+    chanstatuspool->add(*frame);
+    chanstatuspool->add(*notifyframe);
     m_mychanfilter->add(*m_events);
     m_intmsgfilter->add(*m_events);
     wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";

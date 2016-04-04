@@ -275,6 +275,12 @@ void notificationFrame::OnOriginate(const AmiMessage &message)
 	ShowWithoutActivating();
 }
 
+void notificationFrame::OnCallerInfoAvailable(const AmiMessage &message)
+{
+    std::cout << "We are notified of transfer! " << message["CallerIDNum"] << message["CallerIDName"] << std::endl;
+	SetHtml("Transferring call: "+message["CallerIDNum"]+" ("+message["CallerIDName"]+")");
+}
+
 wxString notificationFrame::Lookup(std::string callerid)
 {
 	wxString out;

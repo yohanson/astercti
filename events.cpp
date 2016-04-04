@@ -70,6 +70,8 @@ void EventGenerator::NotifyOnInternalMessage(const AmiMessage &message) {
 		iter->OnInternalMessage(message);
 	}
 }
+void EventGenerator::NotifyOnCallerInfoAvailable(const AmiMessage &message) {
+}
 void EventGenerator::handleEvent(const AmiMessage &m)
 {
 	if (m["Event"] == "Newstate")
@@ -136,4 +138,4 @@ void EventListener::OnCdr(const AmiMessage &){};
 void EventListener::OnLookupStart(const AmiMessage &){};
 void EventListener::OnLookupFinish(const AmiMessage &){};
 void EventListener::OnInternalMessage(const AmiMessage &){};
-
+void EventListener::OnCallerInfoAvailable(const AmiMessage &){};

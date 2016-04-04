@@ -42,6 +42,7 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		//void OnCdr(const AmiMessage &);
 		void OnDial(const AmiMessage &);
 		void OnUp(const AmiMessage &);
+		void OnCallerInfoAvailable(const AmiMessage &);
 
 
 
