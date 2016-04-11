@@ -20,6 +20,7 @@
 #include "notificationFrame.h"
 #include "controller.h"
 #include "version.h"
+#include "chanstatus.h"
 
 struct MemoryStruct {
 	  char *memory;
@@ -91,12 +92,13 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
   return realsize;
 }
 
-notificationFrame::notificationFrame(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
+notificationFrame::notificationFrame(wxWindow* parent, ChannelStatusPool *pool)
+    : ChannelStatusPooler(pool)
 {
 	edescr = "notify frame";
 	wxBoxSizer* BoxSizerButtons;
 
-	Create(parent, id, wxEmptyString, pos, size, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER);
+	Create(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSTAY_ON_TOP|wxFRAME_NO_TASKBAR|wxFRAME_TOOL_WINDOW|wxNO_BORDER);
 	SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOTEXT));
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK));
 	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
@@ -203,20 +205,27 @@ void notificationFrame::OnUp(const AmiMessage &message)
 		m_hidetimer->StartOnce(timer);
 }
 
-void notificationFrame::OnDialIn(const AmiMessage &m)
+void notificationFrame::OnDialIn(const AmiMessage &message)
 {
-    
-}
-
-void notificationFrame::OnRing(const AmiMessage &message)
-{
-	std::string callerid = message["ConnectedLineNum"];
+ 	std::string callerid = message["CallerIDNum"];
 	wxString html = "";
-	html << wxT("<h5><font face='pt sans,tahoma,sans'>☎ ") + message["ConnectedLineNum"];
-	if (message["ConnectedLineName"] != "")
-		html << " (" << message["ConnectedLineName"] << ")";
+	html << wxT("<h5><font face='pt sans,tahoma,sans'>☎ ") + message["CallerIDNum"];
+	if (message["CallerIDName"] != "")
+		html << " (" << message["CallerIDName"] << ")";
 	html << "</font></h5>";
-	m_current_channel = message["Channel"];
+	m_current_channel = message["Destination"];
+
+    std::list<Channel *> peers = m_channelstatuspool->getBridgedChannelsOf(message["Channel"]);
+    if (peers.size() == 1)
+    {
+        Channel *peer = *peers.begin();
+        std::string transferred_calleridnum = peer->m_bridgedTo->m_callerIDNum;
+        std::string transferred_calleridname = peer->m_bridgedTo->m_callerIDName;
+        //StatusText->AppendText(m["CallerIDNum"] + " ("+ m["CallerIDName"] +") is transferring: " + transferred_calleridnum + " (" + transferred_calleridname + ")\n\n");
+        html << "<h5>&#8627; " << transferred_calleridnum << " (" << transferred_calleridname << ")</h5>";
+        callerid = transferred_calleridnum;
+    }
+
 
 	bool number_matches = false;
 	if (m_lookup_enabled && callerid != m_controller->GetMyExten())
@@ -254,7 +263,6 @@ void notificationFrame::OnRing(const AmiMessage &message)
 		SetHtml(html);
 	}
 	ShowWithoutActivating();
-
 }
 
 void notificationFrame::OnHangup(const AmiMessage &message)
@@ -273,12 +281,6 @@ void notificationFrame::OnOriginate(const AmiMessage &message)
 	wxString html = _("Pickup the handset to dial") + " <b>" + message["ConnectedLineName"] + "</b>";
 	SetHtml(html);
 	ShowWithoutActivating();
-}
-
-void notificationFrame::OnCallerInfoAvailable(const AmiMessage &message)
-{
-    std::cout << "We are notified of transfer! " << message["CallerIDNum"] << message["CallerIDName"] << std::endl;
-	SetHtml("Transferring call: "+message["CallerIDNum"]+" ("+message["CallerIDName"]+")");
 }
 
 wxString notificationFrame::Lookup(std::string callerid)
