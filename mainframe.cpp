@@ -194,7 +194,9 @@ void MyFrame::OnOriginate(const AmiMessage &m)
 void MyFrame::OnDialIn(const AmiMessage &m)
 {
    	StatusText->AppendText("##### Somebody's going to dial us #####\n\n");
-	wxListItem *item = new wxListItem;
+    std::string calleridnum = m["CallerIDNum"];
+    std::string calleridname = m["CallerIDName"];
+    wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
     if (!m["CallerIDName"].empty())
@@ -203,19 +205,30 @@ void MyFrame::OnDialIn(const AmiMessage &m)
         call->SetName(m["CallerIDName"]);
     }
     else item->SetText(m["CallerIDNum"]);
-	call->SetNumber(m["CallerIDNum"]);
+    std::list<Channel *> peers = m_channelstatuspool->getBridgedChannelsOf(m["Channel"]);
+    if (peers.size() == 1)
+    {
+        Channel *peer = *peers.begin();
+        std::string transferred_calleridnum = peer->m_bridgedTo->m_callerIDNum;
+        std::string transferred_calleridname = peer->m_bridgedTo->m_callerIDName;
+        if (!transferred_calleridname.empty())
+        {
+            item->SetText(m["CallerIDNum"] + " (" + m["CallerIDName"] + ")" + " [" + transferred_calleridnum + " (" + transferred_calleridname + ")]");
+            call->SetName(m["CallerIDName"] + " [" + transferred_calleridname + "]");
+        }
+        else item->SetText(m["CallerIDNum"] + " [" + transferred_calleridnum + "]");
+	    call->SetNumber(m["CallerIDNum"] + " [" + transferred_calleridnum + "]");
+    }
+    else
+    {
+	    call->SetNumber(m["CallerIDNum"]);
+    }
 	call->SetUniqueID(std::stoi(m["DestUniqueID"]));
     call->SetSecondChannelID(m["ChannelID"]);
 	call->SetTime(wxDateTime::Now());
 	call->SetDirection(Call::CALL_IN);
 	item->SetData(call);
 	m_callList->InsertItem(*item);
-    std::list<Channel *> peers = m_channelstatuspool->getBridgedChannelsOf(m["Channel"]);
-    if (peers.size() == 1)
-    {
-        Channel *peer = *peers.begin();
-        StatusText->AppendText(m["CallerIDNum"] + " ("+ m["CallerIDName"] +") is transferring: " + peer->m_bridgedTo->m_callerIDNum + " (" + peer->m_bridgedTo->m_callerIDName + ")\n\n");
-    }
 }
 
 void MyFrame::OnUp(const AmiMessage &m)
