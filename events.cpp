@@ -129,7 +129,9 @@ void EventListener::listens_to(EventGenerator &eg)
 }
 
 void EventListener::OnDialIn(const AmiMessage &){};
-void EventListener::OnRing(const AmiMessage &){};
+void EventListener::OnRing(const AmiMessage &){
+    m_last_channel_state = AST_STATE_RINGING;
+};
 void EventListener::OnOriginate(const AmiMessage &){};
 void EventListener::OnDial(const AmiMessage &){};
 void EventListener::OnUp(const AmiMessage &){};
