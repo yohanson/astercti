@@ -199,7 +199,7 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
-    if (!m["CallerIDName"].empty())
+    if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>")
     {
         item->SetText(m["CallerIDNum"] + " (" + m["CallerIDName"] + ")");
         call->SetName(m["CallerIDName"]);
@@ -211,13 +211,13 @@ void MyFrame::OnDialIn(const AmiMessage &m)
         Channel *peer = *peers.begin();
         std::string transferred_calleridnum = peer->m_bridgedTo->m_callerIDNum;
         std::string transferred_calleridname = peer->m_bridgedTo->m_callerIDName;
-        if (!transferred_calleridname.empty())
+        if (!transferred_calleridname.empty() && transferred_calleridname != "<unknown>")
         {
-            item->SetText(m["CallerIDNum"] + " (" + m["CallerIDName"] + ")" + " [" + transferred_calleridnum + " (" + transferred_calleridname + ")]");
+            item->SetText(transferred_calleridnum);
             call->SetName(m["CallerIDName"] + " [" + transferred_calleridname + "]");
         }
         else item->SetText(m["CallerIDNum"] + " [" + transferred_calleridnum + "]");
-	    call->SetNumber(m["CallerIDNum"] + " [" + transferred_calleridnum + "]");
+	    call->SetNumber(transferred_calleridnum);
     }
     else
     {
