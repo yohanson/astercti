@@ -12,6 +12,8 @@
 #include "myapp.h"
 #include "mainframe.h"
 #include "version.h"
+#include "call.h"
+#include "chanstatus.h"
 
 wxDECLARE_APP(MyApp);
 
@@ -23,10 +25,10 @@ enum CALLSTATUS {
     INCOMING_ANSWERED_ELSEWHERE
 };
 
-MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
-        : wxFrame(NULL, wxID_ANY, title, pos, size)
+MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool)
+        : wxFrame(NULL, wxID_ANY, title, pos, size), ChannelStatusPooler(pool)
 {
-    descr = "mainframe";
+    edescr = "mainframe";
     m_taskbaricon = NULL;
 
     wxImage::AddHandler(new wxPNGHandler);
@@ -189,25 +191,44 @@ void MyFrame::OnOriginate(const AmiMessage &m)
 	m_last_channel_state = AST_STATE_RINGING;
 }
 
-void MyFrame::OnRing(const AmiMessage &m)
+void MyFrame::OnDialIn(const AmiMessage &m)
 {
-	StatusText->AppendText("##### Incoming call! #####\n\n");
-	wxListItem *item = new wxListItem;
+   	StatusText->AppendText("##### Somebody's going to dial us #####\n\n");
+    std::string calleridnum = m["CallerIDNum"];
+    std::string calleridname = m["CallerIDName"];
+    wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
-	if (m["ConnectedLineName"] != "")
-	{
-		item->SetText(m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
-		call->SetName(m["ConnectedLineName"]);
-	}
-	else item->SetText(m["ConnectedLineNum"]);
-	call->SetNumber(m["ConnectedLineNum"]);
-	call->SetUniqueID(std::stoi(m["Uniqueid"]));
+    if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>")
+    {
+        item->SetText(m["CallerIDNum"] + " (" + m["CallerIDName"] + ")");
+        call->SetName(m["CallerIDName"]);
+    }
+    else item->SetText(m["CallerIDNum"]);
+    std::list<Channel *> peers = m_channelstatuspool->getBridgedChannelsOf(m["Channel"]);
+    if (peers.size() == 1)
+    {
+        Channel *peer = *peers.begin();
+        std::string transferred_calleridnum = peer->m_bridgedTo->m_callerIDNum;
+        std::string transferred_calleridname = peer->m_bridgedTo->m_callerIDName;
+        if (!transferred_calleridname.empty() && transferred_calleridname != "<unknown>")
+        {
+            item->SetText(transferred_calleridnum);
+            call->SetName(m["CallerIDName"] + " [" + transferred_calleridname + "]");
+        }
+        else item->SetText(m["CallerIDNum"] + " [" + transferred_calleridnum + "]");
+	    call->SetNumber(transferred_calleridnum);
+    }
+    else
+    {
+	    call->SetNumber(m["CallerIDNum"]);
+    }
+	call->SetUniqueID(std::stoi(m["DestUniqueID"]));
+    call->SetSecondChannelID(m["ChannelID"]);
 	call->SetTime(wxDateTime::Now());
 	call->SetDirection(Call::CALL_IN);
 	item->SetData(call);
 	m_callList->InsertItem(*item);
-	m_last_channel_state = AST_STATE_RINGING;
 }
 
 void MyFrame::OnUp(const AmiMessage &m)

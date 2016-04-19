@@ -6,7 +6,7 @@ WINDBGDIR=debug_win
 WINRELDIR=release_win
 WINPATH=/usr/local/libwxmsw3.0/bin
 OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o \
-	asterisk.o observer.o events.o gitversion.o ipc.o
+	asterisk.o observer.o events.o gitversion.o ipc.o chanstatus.o
 
 DEBUG_OBJ=$(addprefix $(DBGDIR)/, $(OBJECTS))
 RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))

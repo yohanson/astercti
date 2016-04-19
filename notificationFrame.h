@@ -11,12 +11,14 @@
 #include "observer.h"
 #include "events.h"
 #include "controller.h"
+#include "call.h"
+#include "chanstatus.h"
 
-class notificationFrame: public wxFrame, public ControllerUser, public EventListener
+class notificationFrame: public wxFrame, public ControllerUser, public EventListener, public ChannelStatusPooler
 {
 	public:
 
-		notificationFrame(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
+		notificationFrame(wxWindow* parent, ChannelStatusPool *pool);
 		virtual ~notificationFrame();
 		bool AcceptsFocus() { return false; }
 		bool AcceptsFocusFromKeyboard() { return false; }
@@ -35,9 +37,8 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		//*)
 		
 		void OnOriginate(const AmiMessage &);
-		void OnRing(const AmiMessage &);
+		void OnDialIn(const AmiMessage &);
 		void OnHangup(const AmiMessage &);
-		//void OnCdr(const AmiMessage &);
 		void OnDial(const AmiMessage &);
 		void OnUp(const AmiMessage &);
 
@@ -63,6 +64,8 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		std::string m_lookup_cmd;
         bool m_lookup_enabled;
 		std::string m_lookup_url;
+
+        Call m_call;
 };
 
 

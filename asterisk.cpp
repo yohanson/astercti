@@ -96,6 +96,10 @@ void Asterisk::OnInputAvailable()
 			{
 				am["DestinationChannelID"] = value.substr(0, value.find_last_of('-'));
 			}
+            else if (key == "Destination")
+            {
+				am["DestinationChannelID"] = value.substr(0, value.find_last_of('-'));
+            }
 		}
 		start = end + delim.length();
 		end = raw_messages.find(delim, start);
@@ -108,6 +112,12 @@ void Asterisk::AmiPing()
 	m_pingTimer->StartOnce(5000);
 	std::string action = "Action: ping\n\n";
 	m_socket->Write(action.c_str(), action.length());
+}
+
+void Asterisk::AmiRequestStatus()
+{
+    std::string cmd = "Action: status\n\n"; 
+    m_socket->Write(cmd.c_str(), cmd.length());
 }
 
 void Asterisk::OnPingTimeout(wxTimerEvent& event)

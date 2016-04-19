@@ -20,11 +20,13 @@ class EventListener;
 // Takes AmiMessage, calls corresponding method of listeners
 class EventGenerator : public IObserver, public ControllerUser
 {
-	std::list<EventListener *> _listeners;
+protected:
+    std::list<EventListener *> _listeners;
 	void handleEvent(const AmiMessage &);
 public:
 	void add(EventListener &);
 	void remove(EventListener &);
+	void NotifyOnDialIn(const AmiMessage &);
 	void NotifyOnRing(const AmiMessage &);
 	void NotifyOnOriginate(const AmiMessage &);
 	void NotifyOnDial(const AmiMessage &);
@@ -34,6 +36,7 @@ public:
 	void NotifyOnLookupStart(const AmiMessage &);
 	void NotifyOnLookupFinish(const AmiMessage &);
 	void NotifyOnInternalMessage(const AmiMessage &);
+	virtual void NotifyOnCallerInfoAvailable(const AmiMessage &);
 };
 
 class EventListener
@@ -43,9 +46,11 @@ private:
 protected:
 	ast_channel_state m_last_channel_state;
 public:
+    wxString edescr;
     EventListener();
     ~EventListener();
     void listens_to(EventGenerator &);
+	virtual void OnDialIn(const AmiMessage &);
 	virtual void OnRing(const AmiMessage &);
 	virtual void OnOriginate(const AmiMessage &);
 	virtual void OnDial(const AmiMessage &);
@@ -55,7 +60,7 @@ public:
 	virtual void OnLookupStart(const AmiMessage &);
 	virtual void OnLookupFinish(const AmiMessage &);
 	virtual void OnInternalMessage(const AmiMessage &);
-
+	virtual void OnCallerInfoAvailable(const AmiMessage &);
 };
 
 #endif
