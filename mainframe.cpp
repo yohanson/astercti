@@ -166,6 +166,15 @@ void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
 void MyFrame::handleEvent(const AmiMessage &message)
 {
 	if (message.has("InternalMessage")) return;
+    if (StatusText->GetNumberOfLines() > LOG_MAX_LINES)
+    {
+        int chars = 0;
+        for (int i = 0; i<LOG_DELETE_LINES; i++)
+        {
+            chars += StatusText->GetLineLength(i)+1;
+        }
+        StatusText->Remove(0, chars);
+    }
 	std::string status;
 	for (auto iter : message)
 	{	

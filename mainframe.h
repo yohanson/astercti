@@ -7,6 +7,9 @@
 #include "call.h"
 #include "chanstatus.h"
 
+#define LOG_MAX_LINES 1000
+#define LOG_DELETE_LINES 50
+
 class MyFrame: public wxFrame, public IObserver, public ControllerUser, public EventListener, public ChannelStatusPooler
 {
 public:
