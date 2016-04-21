@@ -98,6 +98,7 @@ private:
 	void OnInputAvailable();
 	void AmiConnect();
 	void AmiPing();
+    void AmiRequestStatus();
 	
 public:
 	Asterisk(std::string host, int port, std::string username, std::string secret);
@@ -106,29 +107,4 @@ public:
 	void HangupChannel(std::string &channel);
 };
 
-class Call
-{
-public:
-	Call(){m_duration=0; m_unique_id=0;};
-	wxString m_number;
-	wxString m_name;
-	wxString m_description;
-	long m_unique_id;
-	wxDateTime m_time;
-	long m_duration;
-	enum Direction {CALL_IN, CALL_OUT} m_direction;
-	enum Disposition {CALL_ANSWERED, CALL_UNANSWERED} m_disposition;
-	void		SetNumber(wxString s){m_number = s;};
-	wxString	GetNumber(){return m_number;};
-	void		SetName(wxString s){m_name = s;};
-	wxString	GetName(){return m_name;};
-	long		GetUniqueID(){return m_unique_id;};
-	void		SetUniqueID(long id){m_unique_id = id;};
-	void		SetTime(wxDateTime t){m_time = t;};
-	wxDateTime	GetTime(){return m_time;};
-	void		SetDuration(int d){m_duration = d;};
-	int		GetDuration(){return m_duration;};
-	void		SetDirection(Direction d){m_direction = d;};
-	Direction	GetDirection(){return m_direction;};
-};
 #endif

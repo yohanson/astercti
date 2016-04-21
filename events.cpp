@@ -29,6 +29,13 @@ void EventGenerator::NotifyOnDial(const AmiMessage &message) {
 	}
 }
 
+void EventGenerator::NotifyOnDialIn(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnDialIn(message);
+	}
+}
+
+
 void EventGenerator::NotifyOnUp(const AmiMessage &message) {
 	for (auto iter : _listeners) {
 		iter->OnUp(message);
@@ -63,6 +70,8 @@ void EventGenerator::NotifyOnInternalMessage(const AmiMessage &message) {
 		iter->OnInternalMessage(message);
 	}
 }
+void EventGenerator::NotifyOnCallerInfoAvailable(const AmiMessage &message) {
+}
 void EventGenerator::handleEvent(const AmiMessage &m)
 {
 	if (m["Event"] == "Newstate")
@@ -93,6 +102,11 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 	{
 		NotifyOnCdr(m);
 	}
+    else if (m["Event"] == "Dial")
+    {
+        std::cout << "Event: Dial" << std::endl;
+        NotifyOnDialIn(m);
+    }
 	else if (m.has("InternalMessage"))
 	{
 		NotifyOnInternalMessage(m);
@@ -114,7 +128,10 @@ void EventListener::listens_to(EventGenerator &eg)
     m_eventgenerators.push_back(&eg);
 }
 
-void EventListener::OnRing(const AmiMessage &){};
+void EventListener::OnDialIn(const AmiMessage &){};
+void EventListener::OnRing(const AmiMessage &){
+    m_last_channel_state = AST_STATE_RINGING;
+};
 void EventListener::OnOriginate(const AmiMessage &){};
 void EventListener::OnDial(const AmiMessage &){};
 void EventListener::OnUp(const AmiMessage &){};
@@ -123,4 +140,4 @@ void EventListener::OnCdr(const AmiMessage &){};
 void EventListener::OnLookupStart(const AmiMessage &){};
 void EventListener::OnLookupFinish(const AmiMessage &){};
 void EventListener::OnInternalMessage(const AmiMessage &){};
-
+void EventListener::OnCallerInfoAvailable(const AmiMessage &){};

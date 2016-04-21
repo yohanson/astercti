@@ -4,16 +4,18 @@
 #include <wx/listctrl.h>
 #include "events.h"
 #include "taskbaricon.h"
+#include "call.h"
+#include "chanstatus.h"
 
-class MyFrame: public wxFrame, public IObserver, public ControllerUser, public EventListener
+class MyFrame: public wxFrame, public IObserver, public ControllerUser, public EventListener, public ChannelStatusPooler
 {
 public:
-    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size);
+    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool);
     ~MyFrame();
     void SetTaskBarIcon(MyTaskBarIcon *);
     void handleEvent(const AmiMessage &);
     void OnOriginate(const AmiMessage &);
-    void OnRing(const AmiMessage &);
+    void OnDialIn(const AmiMessage &);
     void OnHangup(const AmiMessage &);
     void OnCdr(const AmiMessage &);
     void OnDial(const AmiMessage &);

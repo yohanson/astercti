@@ -1,3 +1,12 @@
+astercti (0.0.10-1) unstable; urgency=medium
+
+  + Show CallerID of a call being transferred to us
+  * Hide to tray on window close
+  * Paint icon white inside
+  * Fix duration format in windows (was M:00)
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 19 Apr 2016 17:12:15 +0600
+
 astercti (0.0.9-1) unstable; urgency=medium
 
   * Fix segfaults (in observer and window management).

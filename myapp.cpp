@@ -18,6 +18,7 @@
 #include "taskbaricon.h"
 #include "ipc.h"
 #include "version.h"
+#include "chanstatus.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -59,7 +60,8 @@ bool MyApp::OnInit()
         return false;
     }
 
-    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400) );
+    ChannelStatusPool *chanstatuspool = new ChannelStatusPool(m_config->Read("dialplan/channel").ToStdString());
+    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400), chanstatuspool);
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),
@@ -73,9 +75,10 @@ bool MyApp::OnInit()
     m_intmsgfilter->observable_descr = "intmsgfilter";
     asterisk->add(*m_mychanfilter);
     asterisk->add(*m_intmsgfilter);
+    asterisk->add(*chanstatuspool);
     m_mychanfilter->add(*frame);
     m_intmsgfilter->add(*frame);
-    notificationFrame *notifyframe = new notificationFrame(frame);
+    notificationFrame *notifyframe = new notificationFrame(frame, chanstatuspool);
     m_events = new EventGenerator;
     m_events->add(*frame);
     m_events->add(*notifyframe);

@@ -74,6 +74,11 @@ bool MyChanFilter::filter(const AmiMessage &message)
 		if (message["ChannelID"] == m_channel_id)
 			return true;
 	}
+    else if (message["Event"] == "Dial")
+    {
+        if (message["DestinationChannelID"] == m_channel_id)
+            return true;
+    }
     return false;
 }
 
