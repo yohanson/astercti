@@ -18,6 +18,13 @@
 #include "asterisk.h"
 #include "events.h"
 
+#ifdef DEBUG
+#define DEBUG_MSG(str) do { std::cout << str; } while( false )
+#else
+#define DEBUG_MSG(str) do { } while ( false )
+#endif
+
+
 class ChannelName
 {
 private:

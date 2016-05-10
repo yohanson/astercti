@@ -6,6 +6,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     if (m["Event"] == "Newchannel")
     {
         changed = true;
+        if (m["Channel"] == "") return;
         Channel *chan = new Channel(m["Channel"]);
         chan->m_callerIDNum = m["CallerIDNum"];
         chan->m_callerIDName = m["CallerIDName"];
@@ -22,7 +23,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     else if (m["Event"] == "Hangup")
     {
         changed = true;
-        std::cout << m["Event"] << " " << m["Channel"] << std::endl;
+        DEBUG_MSG(m["Event"] << " " << m["Channel"] << std::endl);
         std::string channel = m["Channel"];
         size_t zombie = channel.find("<ZOMBIE>");
         if (zombie != std::string::npos)
@@ -46,7 +47,13 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
         changed = true;
         if (m["SubEvent"] == "Begin")
         {
-            std::cout << "Dial " << m["Channel"] << " → " << m["Destination"] << std::endl;
+            DEBUG_MSG("Dial " << m["Channel"] << " → " << m["Destination"] << std::endl);
+            DEBUG_MSG("------------------------------" << std::endl);
+            for (auto i : m)
+            {
+                DEBUG_MSG(i.first << ": " << i.second << std::endl);
+            }
+            DEBUG_MSG("------------------------------" << std::endl);
             auto src_mchan_it = findMetaChannel_iter(m["Channel"]);
             if (src_mchan_it == m_channels.end())
                 return;
@@ -64,10 +71,10 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
             dst_chan->m_bridgedTo = src_chan;
             if (dst_chan->getID() == m_mychannel)
             {
-                std::cout << "We have a call from " << (std::string)src_chan->m_channel << std::endl;
-                std::cout << "ID: " << src_chan->getID() << std::endl;
+                DEBUG_MSG("We have a call from " << (std::string)src_chan->m_channel << std::endl);
+                DEBUG_MSG("ID: " << src_chan->getID() << std::endl);
                 MetaChannel *mc = findMetaChannel(src_chan->m_channel.getID());
-                std::cout << "MetaChannel: " << mc << std::endl;
+                DEBUG_MSG("MetaChannel: " << mc << std::endl);
                 if (mc)
                 {
                     for (auto caller_chan : mc->m_ownChannels)
@@ -85,25 +92,25 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     }
     if (changed)
     {
-        std::cout << "Channels:" << std::endl;
+        DEBUG_MSG("Channels:" << std::endl);
         for (auto it = m_channels.begin(); it != m_channels.end(); ++it)
         {
-            std::cout << '\t' << it->second->m_channelID;
+            DEBUG_MSG('\t' << it->second->m_channelID);
             if (it->second->m_ownChannels.size())
             {
-                std::cout << ": ";
+                DEBUG_MSG(": ");
                 for (auto chan = it->second->m_ownChannels.begin(); chan != it->second->m_ownChannels.end(); ++chan)
                 {
-                    std::cout << (std::string)(*chan)->m_channel << "(" << (*chan)->m_callerIDNum << " " << (*chan)->m_callerIDName << ")";
+                    DEBUG_MSG((std::string)(*chan)->m_channel << "(" << (*chan)->m_callerIDNum << " " << (*chan)->m_callerIDName << ")");
                     if ((*chan)->m_bridgedTo)
-                        std::cout << "[" << (std::string)(*chan)->m_bridgedTo->m_channel << "]";
+                        DEBUG_MSG("[" << (std::string)(*chan)->m_bridgedTo->m_channel << "]");
                     if (chan != std::prev(it->second->m_ownChannels.end()))
-                        std::cout << ", ";
+                        DEBUG_MSG(", ");
                 }
             }
-            std::cout << std::endl;
+            DEBUG_MSG(std::endl);
         }
-        std::cout << std::endl;
+        DEBUG_MSG(std::endl);
     }
 }
 
@@ -114,6 +121,7 @@ const std::string ChannelName::getID() const
     {
         return s.substr(0, dash);
     }
+    return "";
 }
 
 const std::string Channel::getID() const
@@ -149,13 +157,13 @@ std::map<std::string, MetaChannel *>::iterator ChannelStatusPool::findMetaChanne
 MetaChannel *ChannelStatusPool::findMetaChannel(const std::string &chan)
 {
     auto it = m_channels.find(chan);
-    std::cout << "findMetaChannel(" << (chan) << ") = " << (unsigned long)it->second;
+    DEBUG_MSG("findMetaChannel(" << (chan) << ") = " << (unsigned long)it->second);
     if (it != m_channels.end())
     {
-        std::cout << " " << it->second->m_channelID << std::endl;
+        DEBUG_MSG(" " << it->second->m_channelID << std::endl);
         return it->second;
     }
-    std::cout << std::endl;
+    DEBUG_MSG(std::endl);
     return NULL;
 }
 
@@ -168,7 +176,7 @@ std::list<Channel *> ChannelStatusPool::getBridgedChannelsOf(const ChannelName &
 {
     std::list<Channel *> peers;
     MetaChannel *metachan = findMetaChannel(channelname.getID());
-    std::cout << "getting Bridged Channels of " << (std::string)channelname.getID() << " (got " << (void *)metachan << ")" << std::endl;
+    DEBUG_MSG("getting Bridged Channels of " << (std::string)channelname.getID() << " (got " << (void *)metachan << ")" << std::endl);
     if (!metachan)
         return peers;
     for (auto chan : metachan->m_ownChannels)

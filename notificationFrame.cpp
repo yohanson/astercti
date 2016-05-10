@@ -16,6 +16,7 @@
 #include <json/value.h>
 #include <json/reader.h>
 #include <curl/curl.h>
+#include <wx/stdpaths.h>
 
 #include "notificationFrame.h"
 #include "controller.h"
@@ -108,18 +109,21 @@ notificationFrame::notificationFrame(wxWindow* parent, ChannelStatusPool *pool)
 	BoxSizer1->Add(HtmlWindow1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizerButtons = new wxBoxSizer(wxHORIZONTAL);
 	Button1 = new wxButton(this, ID_BUTTON1, _("No"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    Button1->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "hangup.png")));
 	BoxSizerButtons->Add(Button1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizer1->Add(BoxSizerButtons, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
-	wxButton *hidebutton = new wxButton(HtmlWindow1, wxID_ANY, wxT("×"), wxPoint(380,0), wxSize(20,20), wxBORDER_NONE);
 	m_hidetimer = new wxTimer(this);
+#ifdef DEBUG
+    wxButton *hidebutton = new wxButton(HtmlWindow1, wxID_ANY, wxT("×"), wxPoint(380,0), wxSize(20,20), wxBORDER_NONE);
+	hidebutton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &notificationFrame::OnHideButtonClick, this);
+#endif
 
 	Connect(ID_BUTTON1,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&notificationFrame::OnButton1Click);
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&notificationFrame::OnPaint);
 	Bind(wxEVT_HTML_LINK_CLICKED, &notificationFrame::OnLinkClicked, this);
-	hidebutton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &notificationFrame::OnHideButtonClick, this);
 	Bind(wxEVT_TIMER, &notificationFrame::OnHideTimer, this);
     m_lookup_enabled = false;
 }
@@ -159,10 +163,12 @@ void notificationFrame::OnButton1Click(wxCommandEvent& event)
 	m_controller->HangupChannel(m_current_channel);
 }
 
+#ifdef DEBUG
 void notificationFrame::OnHideButtonClick(wxCommandEvent& event)
 {
 	Hide();
 }
+#endif
 
 void notificationFrame::OnHideTimer(wxTimerEvent &event)
 {
