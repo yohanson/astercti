@@ -1,3 +1,11 @@
+astercti (0.0.11-1) unstable; urgency=medium
+
+  * Fix crash when Channel is empty
+  * Don't print debugging info in release version
+  + Limit number of lines kept in log
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 10 May 2016 11:08:23 +0600
+
 astercti (0.0.10-1) unstable; urgency=medium
 
   + Show CallerID of a call being transferred to us
