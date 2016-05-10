@@ -24,6 +24,7 @@ public:
     void OnDial(const AmiMessage &);
     void OnUp(const AmiMessage &);
     void OnInternalMessage(const AmiMessage &);
+    void Log(const wxString &);
 
 private:
     void OnHello(wxCommandEvent& event);

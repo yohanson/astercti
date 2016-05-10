@@ -99,7 +99,7 @@ bool MyApp::OnInit()
     SetExitOnFrameDelete(true);
     if (!m_config->Read("lookup/lookup_cmd") && !m_config->Read("lookup/lookup_url"))
     {
-        wxLogWarning(_("Lookup URL and Lookup command are both unconfigured.\nLookup disabled."));
+        frame->Log(_("Lookup URL and Lookup command are both unconfigured.\nLookup disabled."));
     }
     else
     {

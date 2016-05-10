@@ -180,12 +180,12 @@ void MyFrame::handleEvent(const AmiMessage &message)
 	{	
 		status += iter.first + ": " + iter.second + "\n";
 	}
-	StatusText->AppendText(status+"\n");
+	Log(status);
 }
 
 void MyFrame::OnOriginate(const AmiMessage &m)
 {
-	StatusText->AppendText("##### We are originating! #####\n\n");
+	Log("##### We are originating! #####\n");
 	wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
@@ -202,7 +202,7 @@ void MyFrame::OnOriginate(const AmiMessage &m)
 
 void MyFrame::OnDialIn(const AmiMessage &m)
 {
-   	StatusText->AppendText("##### Somebody's going to dial us #####\n\n");
+    Log("##### Somebody's going to dial us #####\n");
     std::string calleridnum = m["CallerIDNum"];
     std::string calleridname = m["CallerIDName"];
     wxListItem *item = new wxListItem;
@@ -242,7 +242,7 @@ void MyFrame::OnDialIn(const AmiMessage &m)
 
 void MyFrame::OnUp(const AmiMessage &m)
 {
-	StatusText->AppendText("\n#####\nAlready talking\n#####\n\n");
+	Log("\n#####\nAlready talking\n#####\n");
 	wxListItem *item = NULL;
 	long lastItem = 0;
 	if (m_callList->GetItemCount())
@@ -274,7 +274,7 @@ void MyFrame::OnUp(const AmiMessage &m)
 
 void MyFrame::OnHangup(const AmiMessage &m)
 {
-	StatusText->AppendText("##### Hung up! #####\n\n");
+	Log("##### Hung up! #####\n");
 	if (m_callList->GetItemCount())
 	{
 		int lastItem = m_callList->GetItemCount()-1;
@@ -304,7 +304,7 @@ void MyFrame::OnHangup(const AmiMessage &m)
 
 void MyFrame::OnCdr(const AmiMessage &m)
 {
-	StatusText->AppendText("##### Cdr data arrived! #####\n\n");
+	Log("##### Cdr data arrived! #####\n");
 	long lastItem = 0;
 	if (!m["DestinationChannel"].empty())
 	{
@@ -339,7 +339,7 @@ void MyFrame::OnCdr(const AmiMessage &m)
 						m_callList->SetItemImage(lastItem, OUTBOUND_UNANSWERED);
 				}
 			}
-			else StatusText->AppendText("UniqueID " + m["UniqueID"] + " not found.\n");
+			else Log("UniqueID " + m["UniqueID"] + " not found.");
 		}
 	}
 	else // not a real channel
@@ -361,7 +361,7 @@ void MyFrame::OnCdr(const AmiMessage &m)
 
 void MyFrame::OnDial(const AmiMessage &m)
 {
-	StatusText->AppendText("##### We are dialing out! #####\n\n");
+	Log("##### We are dialing out! #####\n");
 	wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
@@ -390,12 +390,16 @@ void MyFrame::OnInternalMessage(const AmiMessage &m)
 	if (m["InternalMessage"] == "ConnectionLost")
 	{
 		SetStatusText(_("Connection Lost"));
-		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " " + _("Connection Lost") + "\n");
+		Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connection Lost"));
 	}
 	else if (m["InternalMessage"] == "Connected")
 	{
 		SetStatusText(_("Connected"));
-		StatusText->AppendText(wxDateTime::Now().FormatISOCombined() + " " + _("Connected") + "\n");
+		Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connected"));
 	}
 }
 
+void MyFrame::Log(const wxString &str)
+{
+    StatusText->AppendText(str + "\n");
+}
