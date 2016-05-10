@@ -3,17 +3,34 @@
 #include "controller.h"
 #include "taskbaricon.h"
 
-MyTaskBarIcon::MyTaskBarIcon(wxString iconfile, wxString tooltip = wxEmptyString)
+MyTaskBarIcon::MyTaskBarIcon(wxString defaultIconFile, wxString missedIconFile, wxString tooltip = wxEmptyString)
 {
 	Init();
-	wxIcon icon(iconfile, wxBITMAP_TYPE_PNG);
-	SetIcon(icon, tooltip);
+    m_defaultIcon = new wxIcon(defaultIconFile, wxBITMAP_TYPE_PNG);
+    m_missedIcon = new wxIcon(missedIconFile, wxBITMAP_TYPE_PNG);
+    tooltip_base = tooltip;
+	SetIcon(*m_defaultIcon, tooltip_base);
 }
 
-MyTaskBarIcon::MyTaskBarIcon(wxIcon icon, wxString tooltip = wxEmptyString)
+MyTaskBarIcon::MyTaskBarIcon(wxIcon defaultIcon, wxIcon missedIcon, wxString tooltip = wxEmptyString)
 {
 	Init();
-	SetIcon(icon, tooltip);
+    m_defaultIcon = new wxIcon(defaultIcon);
+    m_missedIcon = new wxIcon(missedIcon);
+    tooltip_base = tooltip;
+	SetIcon(*m_defaultIcon, tooltip_base);
+}
+
+void MyTaskBarIcon::SetMissedCalls(int missed = 0)
+{
+    if (missed)
+    {
+        SetIcon(*m_missedIcon, tooltip_base + "\n" + wxString::Format(wxPLURAL("Missed call", "%d missed calls", missed), missed));
+    }
+    else
+    {
+        SetIcon(*m_defaultIcon, tooltip_base);
+    }
 }
 
 void MyTaskBarIcon::Init()

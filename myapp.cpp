@@ -23,14 +23,13 @@
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
 {
-    wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
 #ifndef __WXMSW__
     if (wxPlatformInfo::Get().GetOperatingSystemId() & wxOS_UNIX)
     {
         wxStandardPaths::Get().SetInstallPrefix("/usr");
-        datadir = wxStandardPaths::Get().GetInstallPrefix() + "/share/pixmaps";
     }
 #endif
+    wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     if (!setlocale(LC_CTYPE, ""))
     {
     	fprintf(stderr, "Can't set the specified locale! "
@@ -84,10 +83,10 @@ bool MyApp::OnInit()
     m_events->add(*notifyframe);
     m_mychanfilter->add(*m_events);
     m_intmsgfilter->add(*m_events);
-    wxString iconfile = datadir + wxFileName::GetPathSeparator() + "astercti.png";
-    wxIcon iconimage(iconfile, wxBITMAP_TYPE_PNG);
-    frame->SetIcon(iconimage);
-    m_taskbaricon = new MyTaskBarIcon(iconimage, "AsterCTI: " + m_config->Read("dialplan/exten"));
+    wxIcon defaultIcon(datadir + "astercti.png", wxBITMAP_TYPE_PNG);
+    wxIcon  missedIcon(datadir + "astercti-missed.png", wxBITMAP_TYPE_PNG);
+    frame->SetIcon(defaultIcon);
+    m_taskbaricon = new MyTaskBarIcon(defaultIcon, missedIcon, "AsterCTI: " + m_config->Read("dialplan/exten"));
     m_taskbaricon->SetMainFrame(frame);
     frame->SetTaskBarIcon(m_taskbaricon);
     m_controller->add(m_taskbaricon);

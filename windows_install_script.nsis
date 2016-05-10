@@ -14,6 +14,7 @@ SetOutPath $INSTDIR
 # define what to install and place it in the output path
 File release_win\astercti.exe
 File astercti.png
+File astercti-missed.png
 File dial.png
 File hangup.png
 File incoming_answered.png

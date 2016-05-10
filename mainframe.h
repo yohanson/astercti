@@ -31,6 +31,7 @@ private:
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
+    void OnActivate(wxActivateEvent &event);
     void UpdateDialButtonImage();
     void OnDialPressEnter(wxCommandEvent &);
     void OnListResize(wxSizeEvent&);
@@ -42,6 +43,7 @@ private:
     wxStaticText *m_CallInfo;
     MyTaskBarIcon *m_taskbaricon;
     std::string m_current_channel;
+    int m_missed_calls;
 };
 
 class CallListItem : public wxListItem, public Call
