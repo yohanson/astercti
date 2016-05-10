@@ -64,9 +64,9 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     wxFont numberFont(wxSize(0,24), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     m_DialNumber->SetFont(numberFont);
-    wxBitmapButton *DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage(datadir + "dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
+    m_DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage(datadir + "dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
-    DialSizer->Add(DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
+    DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n");
     m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
@@ -82,7 +82,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     Connect(wxID_ABOUT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnAbout));
     Bind(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose), this);
     m_DialNumber->Bind(wxEVT_TEXT_ENTER, &MyFrame::OnDialPressEnter, this);
-    DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
+    m_DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
     m_callList->Bind(wxEVT_SIZE, &MyFrame::OnListResize, this);
     m_callList->Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::OnListItemSelect, this);
 
@@ -126,8 +126,23 @@ void MyFrame::OnClose(wxCloseEvent& event)
 
 void MyFrame::OnDialPressEnter(wxCommandEvent &event)
 {
-	if (!m_DialNumber->GetValue().IsEmpty())
-		m_controller->Originate(m_DialNumber->GetValue().ToStdString());
+    if (m_last_channel_state == AST_STATE_DOWN)
+    {
+        if (!m_DialNumber->GetValue().IsEmpty())
+            m_controller->Originate(m_DialNumber->GetValue().ToStdString());
+    }
+    else
+    {
+        m_controller->HangupChannel(m_current_channel);
+    }
+}
+
+void MyFrame::UpdateDialButtonImage()
+{
+    if (m_last_channel_state == AST_STATE_DOWN)
+        m_DialButton->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "dial.png")));
+    else
+        m_DialButton->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "hangup.png")));
 }
 
 void MyFrame::OnListResize(wxSizeEvent &event)
@@ -198,6 +213,8 @@ void MyFrame::OnOriginate(const AmiMessage &m)
 	item->SetImage(2);
 	m_callList->InsertItem(*item);
 	m_last_channel_state = AST_STATE_RINGING;
+    m_current_channel = m["Channel"];
+    UpdateDialButtonImage();
 }
 
 void MyFrame::OnDialIn(const AmiMessage &m)
@@ -205,6 +222,7 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     Log("##### Somebody's going to dial us #####\n");
     std::string calleridnum = m["CallerIDNum"];
     std::string calleridname = m["CallerIDName"];
+    m_current_channel = m["Destination"];
     wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
@@ -238,6 +256,7 @@ void MyFrame::OnDialIn(const AmiMessage &m)
 	call->SetDirection(Call::CALL_IN);
 	item->SetData(call);
 	m_callList->InsertItem(*item);
+    UpdateDialButtonImage();
 }
 
 void MyFrame::OnUp(const AmiMessage &m)
@@ -300,6 +319,7 @@ void MyFrame::OnHangup(const AmiMessage &m)
 		}
 	}
 	m_last_channel_state = AST_STATE_DOWN;
+    UpdateDialButtonImage();
 }
 
 void MyFrame::OnCdr(const AmiMessage &m)
@@ -362,6 +382,7 @@ void MyFrame::OnCdr(const AmiMessage &m)
 void MyFrame::OnDial(const AmiMessage &m)
 {
 	Log("##### We are dialing out! #####\n");
+    m_current_channel = m["Channel"];
 	wxListItem *item = new wxListItem;
 	item->SetId(m_callList->GetItemCount());
 	Call *call = new Call;
@@ -379,6 +400,7 @@ void MyFrame::OnDial(const AmiMessage &m)
 	item->SetImage(2);
 	m_callList->InsertItem(*item);
 	m_last_channel_state = AST_STATE_RING;
+    UpdateDialButtonImage();
 }
 
 

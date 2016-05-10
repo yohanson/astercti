@@ -31,14 +31,17 @@ private:
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
+    void UpdateDialButtonImage();
     void OnDialPressEnter(wxCommandEvent &);
     void OnListResize(wxSizeEvent&);
     void OnListItemSelect(wxListEvent&);
     wxTextCtrl *StatusText;
     wxListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
+    wxBitmapButton *m_DialButton;
     wxStaticText *m_CallInfo;
     MyTaskBarIcon *m_taskbaricon;
+    std::string m_current_channel;
 };
 
 class CallListItem : public wxListItem, public Call

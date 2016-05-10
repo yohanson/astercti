@@ -15,6 +15,7 @@ SetOutPath $INSTDIR
 File debug_win\astercti.exe
 File astercti.png
 File dial.png
+File hangup.png
 File incoming_answered.png
 File incoming_unanswered.png
 File outbound_answered.png
