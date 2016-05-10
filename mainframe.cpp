@@ -30,6 +30,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
 {
     edescr = "mainframe";
     m_taskbaricon = NULL;
+    m_last_channel_state = AST_STATE_DOWN;
 
     wxImage::AddHandler(new wxPNGHandler);
     wxMenu *menuFile = new wxMenu;

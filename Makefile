@@ -53,18 +53,22 @@ $(RELDIR)/$(BINARY): $(RELEASE_OBJ)
 	strip --strip-all $@
 	ln -sf $@ $(BINARY)
 
+$(WINDBGDIR)/$(BINARY).exe: VERSION=$(shell cat debian/changelog | head -n1 | grep -o '[0-9\.]*-' | grep -o '[0-9\.]*')
 $(WINDBGDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
 $(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs` -llibcurl
 $(WINDBGDIR)/$(BINARY).exe: $(WINDEBUG_OBJ) i18n/ru.mo
 	$(CXX)  $(WINDEBUG_OBJ) $(LDFLAGS)  -o $@
 	makensis windows_install_debug.nsis
+	mv astercti_debug_installer.exe astercti_$(VERSION)_debug_installer.exe
 
+$(WINRELDIR)/$(BINARY).exe: VERSION=$(shell cat debian/changelog | head -n1 | grep -o '[0-9\.]*-' | grep -o '[0-9\.]*')
 $(WINRELDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs`
 $(WINRELDIR)/$(BINARY).exe: $(WINRELEASE_OBJ) i18n/ru.mo
 	$(CXX)  $(WINRELEASE_OBJ) $(LDFLAGS) libcurl.dll  -o $@
 	strip --strip-all $@
 	makensis windows_install_script.nsis
+	mv astercti_installer.exe astercti_$(VERSION)_installer.exe
 
 
 debug: $(DBGDIR)/$(BINARY)
