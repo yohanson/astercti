@@ -3,6 +3,8 @@ astercti (0.0.11-1) unstable; urgency=medium
   * Fix crash when Channel is empty
   * Don't print debugging info in release version
   + Limit number of lines kept in log
+  + Make Dial button switch state and also do hangup
+  + Add red handset icon in notify dialog's button, hide cross btn
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 10 May 2016 11:08:23 +0600
 
