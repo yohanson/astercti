@@ -19,7 +19,7 @@
 #include "events.h"
 
 #ifdef DEBUG
-#define DEBUG_MSG(str) do { std::cout << str << std::endl; } while( false )
+#define DEBUG_MSG(str) do { std::cout << str; } while( false )
 #else
 #define DEBUG_MSG(str) do { } while ( false )
 #endif

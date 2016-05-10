@@ -91,6 +91,7 @@ i18n/ru.mo:
 install: release
 	cp -r $(RELDIR)/$(BINARY)				$(DESTDIR)/usr/bin/astercti
 	cp -r dial.png							$(DESTDIR)/usr/share/astercti/dial.png
+	cp -r hangup.png						$(DESTDIR)/usr/share/astercti/hangup.png
 	cp -r incoming_answered.png				$(DESTDIR)/usr/share/astercti/incoming_answered.png
 	cp -r incoming_unanswered.png			$(DESTDIR)/usr/share/astercti/incoming_unanswered.png
 	cp -r incoming_answered_elsewhere.png	$(DESTDIR)/usr/share/astercti/incoming_answered_elsewhere.png
