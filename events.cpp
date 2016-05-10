@@ -104,7 +104,6 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 	}
     else if (m["Event"] == "Dial")
     {
-        std::cout << "Event: Dial" << std::endl;
         NotifyOnDialIn(m);
     }
 	else if (m.has("InternalMessage"))
