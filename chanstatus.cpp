@@ -6,6 +6,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     if (m["Event"] == "Newchannel")
     {
         changed = true;
+        if (m["Channel"] == "") return;
         Channel *chan = new Channel(m["Channel"]);
         chan->m_callerIDNum = m["CallerIDNum"];
         chan->m_callerIDName = m["CallerIDName"];
@@ -114,6 +115,7 @@ const std::string ChannelName::getID() const
     {
         return s.substr(0, dash);
     }
+    return "";
 }
 
 const std::string Channel::getID() const
