@@ -1,3 +1,9 @@
+astercti (0.0.13-1) unstable; urgency=medium
+
+  * Change taskbar icon when calls missed
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Thu, 12 May 2016 14:24:19 +0600
+
 astercti (0.0.12-1) unstable; urgency=medium
 
   * Fix originating right after startup
