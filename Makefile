@@ -104,6 +104,8 @@ install: release
 	cp -r wait.gif							$(DESTDIR)/usr/share/astercti/wait.gif
 	cp -r astercti.ini.default				$(DESTDIR)/usr/share/astercti/astercti.ini.default
 	cp -r astercti.png						$(DESTDIR)/usr/share/pixmaps/astercti.png
+	cp -r astercti.png						$(DESTDIR)/usr/share/astercti/astercti.png
+	cp -r astercti-missed.png				$(DESTDIR)/usr/share/astercti/astercti-missed.png
 	cp -r i18n/ru.mo						$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/astercti.mo
 	cp -r astercti.desktop					$(DESTDIR)/usr/share/applications/astercti.desktop
 	cp -r astercti.1						$(DESTDIR)/usr/share/man/man1/astercti.1
