@@ -31,6 +31,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     edescr = "mainframe";
     m_taskbaricon = NULL;
     m_last_channel_state = AST_STATE_DOWN;
+    m_missed_calls = 0;
 
     wxImage::AddHandler(new wxPNGHandler);
     wxMenu *menuFile = new wxMenu;
@@ -82,6 +83,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnExit));
     Connect(wxID_ABOUT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnAbout));
     Bind(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose), this);
+    Bind(wxEVT_ACTIVATE, wxActivateEventHandler(MyFrame::OnActivate), this);
     m_DialNumber->Bind(wxEVT_TEXT_ENTER, &MyFrame::OnDialPressEnter, this);
     m_DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
     m_callList->Bind(wxEVT_SIZE, &MyFrame::OnListResize, this);
@@ -123,6 +125,15 @@ void MyFrame::OnClose(wxCloseEvent& event)
     }
     m_taskbaricon->Destroy();
 	Destroy();
+}
+
+void MyFrame::OnActivate(wxActivateEvent &event)
+{
+    if (m_missed_calls)
+    {
+        m_missed_calls = 0;
+        m_taskbaricon->SetMissedCalls(0);
+    }
 }
 
 void MyFrame::OnDialPressEnter(wxCommandEvent &event)
@@ -355,7 +366,11 @@ void MyFrame::OnCdr(const AmiMessage &m)
 				{
 					call->SetDuration(0);
 					if (call->GetDirection() == Call::CALL_IN)
+                    {
 						m_callList->SetItemImage(lastItem, INCOMING_UNANSWERED);
+                        m_missed_calls++;
+                        m_taskbaricon->SetMissedCalls(m_missed_calls);
+                    }
 					else
 						m_callList->SetItemImage(lastItem, OUTBOUND_UNANSWERED);
 				}
