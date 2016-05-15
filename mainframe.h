@@ -36,6 +36,8 @@ private:
     void OnDialPressEnter(wxCommandEvent &);
     void OnListResize(wxSizeEvent&);
     void OnListItemSelect(wxListEvent&);
+    bool SaveCalls(const wxString &filename);
+    bool LoadCalls(const wxString &filename);
     wxTextCtrl *StatusText;
     wxListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
