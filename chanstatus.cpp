@@ -6,7 +6,11 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     if (m["Event"] == "Newchannel")
     {
         changed = true;
-        if (m["Channel"] == "") return;
+        if (m["Channel"] == "")
+        {
+            std::cerr << "Empty channel" << std::endl;
+            return;
+        }
         Channel *chan = new Channel(m["Channel"]);
         chan->m_callerIDNum = m["CallerIDNum"];
         chan->m_callerIDName = m["CallerIDName"];
@@ -193,4 +197,16 @@ ChannelStatusPooler::ChannelStatusPooler(ChannelStatusPool *pool)
 {
     m_channelstatuspool = pool;
 }
+
+Channel::Channel(const std::string& chan)
+{
+    if (chan == "")
+    {
+        const char *emptychan = "Empty channel name";
+        std::cerr << emptychan;
+        throw std::invalid_argument(emptychan);
+    }
+    m_channel = chan;
+    m_bridgedTo = NULL;
+};
 

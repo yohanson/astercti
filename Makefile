@@ -6,7 +6,7 @@ WINDBGDIR=debug_win
 WINRELDIR=release_win
 WINPATH=/usr/local/libwxmsw3.0/bin
 OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o \
-	asterisk.o observer.o events.o ipc.o chanstatus.o call.o gitversion.o
+	asterisk.o observer.o events.o ipc.o chanstatus.o call.o debugreport.o gitversion.o
 
 DEBUG_OBJ=$(addprefix $(DBGDIR)/, $(OBJECTS))
 RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))
@@ -25,7 +25,7 @@ clean:
 	rm -f $(WINRELDIR)/*
 	rm -f $(WINDBGDIR)/*
 
-$(DBGDIR)/%.o: CXXFLAGS += -DDEBUG -g
+$(DBGDIR)/%.o: CXXFLAGS += -DDEBUG -g1 -O0
 $(DBGDIR)/%.o: %.cpp
 	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 
@@ -45,7 +45,7 @@ $(WINRELDIR)/%.o: %.cpp
 
 
 $(DBGDIR)/$(BINARY): $(DEBUG_OBJ)
-	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(DEBUG_OBJ) -o $@
+	$(CXX) $(LDFLAGS) -g1 `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(DEBUG_OBJ) -o $@
 	ln -sf $@ $(BINARY)
 
 $(RELDIR)/$(BINARY): $(RELEASE_OBJ)
