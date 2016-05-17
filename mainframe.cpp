@@ -489,7 +489,8 @@ bool MyFrame::LoadCalls(const wxString &filename)
     if (calls.IsOpened())
     {
         wxString buff;
-        if (!calls.ReadAll(&buff)) return false;
+        int bytes = calls.ReadAll(&buff);
+        if (bytes < 30) return false;
         wxStringTokenizer calls_tokenizer(buff, "\n");
         while ( calls_tokenizer.HasMoreTokens() )
         {
