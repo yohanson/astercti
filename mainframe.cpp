@@ -146,7 +146,18 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
     if (m_last_channel_state == AST_STATE_DOWN)
     {
         if (!m_DialNumber->GetValue().IsEmpty())
-            m_controller->Originate(m_DialNumber->GetValue().ToStdString());
+        {
+            std::string raw = m_DialNumber->GetValue().ToStdString();
+            std::string digits;
+            for (auto it = raw.begin(); it != raw.end(); ++it)
+            {
+                if (*it >= '0' && *it <= '9')
+                {
+                    digits += *it;
+                }
+            }
+            m_controller->Originate(digits);
+        }
     }
     else
     {
