@@ -77,7 +77,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     m_callList->InsertColumn(0, "");
-    LoadCalls(CALLS_FILE);
+    if (!LoadCalls(CALLS_FILE))
+        std::cerr << _("Loading calls failed") << std::endl;
     RightSizer->Add(DialSizer, 0, wxEXPAND);
     RightSizer->Add(m_CallInfo, 0, wxEXPAND);
     RightSizer->Add(StatusText, 1, wxEXPAND);
@@ -103,7 +104,8 @@ MyFrame::~MyFrame()
 
 void MyFrame::OnExit(wxCommandEvent& event)
 {
-    SaveCalls(CALLS_FILE);
+    if (!SaveCalls(CALLS_FILE))
+        std::cerr << _("Saving calls failed") << std::endl;
     Close( true );
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
@@ -475,7 +477,6 @@ bool MyFrame::SaveCalls(const wxString &filename)
 {
     wxFile calls;
     wxString fullpath = wxGetApp().m_config->GetLocalFileName(filename, wxCONFIG_USE_SUBDIR);
-    std::cout << "Gonna write to " << fullpath << "\n";
     calls.Open(fullpath, wxFile::write);
     long maxcalls = wxGetApp().m_config->ReadLong("gui/max_calls_saved", 1000);
     if (calls.IsOpened())
@@ -488,6 +489,7 @@ bool MyFrame::SaveCalls(const wxString &filename)
 	    calls.Close();
         return true;
     }
+    std::cerr << _("Unable to open calls file") << " " << fullpath << std::endl;
     return false;
 }
 
@@ -495,13 +497,20 @@ bool MyFrame::LoadCalls(const wxString &filename)
 {
     wxFile calls;
     wxString fullpath = wxGetApp().m_config->GetLocalFileName(filename, wxCONFIG_USE_SUBDIR);
-    std::cout << "Gonna read from " << fullpath << "\n";
     calls.Open(fullpath, wxFile::read);
     if (calls.IsOpened())
     {
         wxString buff;
-        int bytes = calls.ReadAll(&buff);
-        if (bytes < 30) return false;
+        if (!calls.ReadAll(&buff))
+        {
+            std::cerr << _("Unable to read calls from file") << " " << fullpath << std::endl;
+            return false;
+        }
+        if (buff.length() < 30)
+        {
+            std::cerr << _("File is too short") << " " << fullpath << std::endl;
+            return false;
+        }
         wxStringTokenizer calls_tokenizer(buff, "\n");
         while ( calls_tokenizer.HasMoreTokens() )
         {
@@ -547,5 +556,6 @@ bool MyFrame::LoadCalls(const wxString &filename)
 	    calls.Close();
         return true;
     }
+    std::cerr << _("Unable to open calls file") << " " << fullpath << std::endl;
     return false;
 }
