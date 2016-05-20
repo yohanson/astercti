@@ -8,7 +8,7 @@ Call::Call()
     m_duration = 0;
     m_unique_id = 0;
     m_direction = CALL_IN;
-    m_disposition = CALL_UNANSWERED;
+    m_disposition = CALL_ANSWERED;
 }
 
 wxString Call::Serialize()

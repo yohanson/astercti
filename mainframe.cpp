@@ -11,6 +11,7 @@
 #include "observer.h"
 #include "asterisk.h"
 #include "myapp.h"
+#include "calllistctrl.h"
 #include "mainframe.h"
 #include "version.h"
 #include "call.h"
@@ -19,14 +20,6 @@
 #define CALLS_FILE "calls.txt"
 
 wxDECLARE_APP(MyApp);
-
-enum CALLSTATUS {
-    INCOMING_ANSWERED,
-    INCOMING_UNANSWERED,
-    OUTBOUND_ANSWERED,
-    OUTBOUND_UNANSWERED,
-    INCOMING_ANSWERED_ELSEWHERE
-};
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool)
         : wxFrame(NULL, wxID_ANY, title, pos, size), ChannelStatusPooler(pool)
@@ -74,9 +67,10 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n\n\n");
-    m_callList = new wxListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
+    m_callList = new CallListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     m_callList->InsertColumn(0, "");
+    m_callList->InsertColumn(1, "");
     if (!LoadCalls(CALLS_FILE))
         std::cerr << _("Loading calls failed") << std::endl;
     RightSizer->Add(DialSizer, 0, wxEXPAND);
@@ -182,7 +176,12 @@ void MyFrame::OnListResize(wxSizeEvent &event)
 	int width = csize.x;
 	if (vsize.y > csize.y)
 		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
-	m_callList->SetColumnWidth(0, width);
+    int datewidth = width / 2;
+    if (width >= 300)
+        datewidth = 150;
+    else datewidth = 0;
+	m_callList->SetColumnWidth(0, width-datewidth);
+    m_callList->SetColumnWidth(1, datewidth);
 
 	event.Skip();
 }
@@ -265,15 +264,11 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     std::string calleridnum = m["CallerIDNum"];
     std::string calleridname = m["CallerIDName"];
     m_current_channel = m["Destination"];
-    wxListItem *item = new wxListItem;
-	item->SetId(0);
 	Call *call = new Call;
     if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>")
     {
-        item->SetText(m["CallerIDNum"] + " (" + m["CallerIDName"] + ")");
         call->SetName(m["CallerIDName"]);
     }
-    else item->SetText(m["CallerIDNum"]);
     std::list<Channel *> peers = m_channelstatuspool->getBridgedChannelsOf(m["Channel"]);
     if (peers.size() == 1)
     {
@@ -282,10 +277,8 @@ void MyFrame::OnDialIn(const AmiMessage &m)
         std::string transferred_calleridname = peer->m_bridgedTo->m_callerIDName;
         if (!transferred_calleridname.empty() && transferred_calleridname != "<unknown>")
         {
-            item->SetText(transferred_calleridnum);
             call->SetName(m["CallerIDName"] + " [" + transferred_calleridname + "]");
         }
-        else item->SetText(m["CallerIDNum"] + " [" + transferred_calleridnum + "]");
 	    call->SetNumber(transferred_calleridnum);
     }
     else
@@ -296,8 +289,7 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     call->SetSecondChannelID(m["ChannelID"]);
 	call->SetTimeStart(wxDateTime::Now());
 	call->SetDirection(Call::CALL_IN);
-	item->SetData(call);
-	m_callList->InsertItem(*item);
+	m_callList->InsertCallItem(call);
     UpdateDialButtonImage();
 }
 
@@ -308,32 +300,25 @@ void MyFrame::OnUp(const AmiMessage &m)
 	long lastItem = 0;
 	if (m_callList->GetItemCount())
 	{
-		lastItem = 0;
 		Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 		if (call->GetUniqueID() == std::stoi(m["Uniqueid"])) // updating existing call
 		{
             call->SetTimeAnswer(wxDateTime::Now());
             call->SetDisposition(Call::CALL_ANSWERED);
-			if (call->GetDirection() == Call::CALL_IN)
-            {
-				m_callList->SetItemImage(lastItem, INCOMING_ANSWERED);
-            }
-			else // outbound call
+			if (call->GetDirection() == Call::CALL_OUT)
 			{
 				if (m["ConnectedLineNum"] != m["CallerIDNum"])
 				{
 					if (m["ConnectedLineName"] != "")
 					{
-						m_callList->SetItemText(lastItem, m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
 						call->SetName(m["ConnectedLineName"]);
 					}
-					else m_callList->SetItemText(lastItem, m["ConnectedLineNum"]);
 					call->SetNumber(m["ConnectedLineNum"]);
 				}
-				m_callList->SetItemImage(lastItem, OUTBOUND_ANSWERED);
 			}
 		}
 	}
+    m_callList->UpdateItem(lastItem);
 	m_last_channel_state = AST_STATE_UP;
 }
 
@@ -397,7 +382,6 @@ void MyFrame::OnCdr(const AmiMessage &m)
 	long lastItem = 0;
 	if (!m["DestinationChannel"].empty())
 	{
-		wxListItem *item = NULL;
 		if (m_callList->GetItemCount())
 		{
 			lastItem = 0;
@@ -430,22 +414,16 @@ void MyFrame::OnDial(const AmiMessage &m)
 {
 	Log("##### We are dialing out! #####\n");
     m_current_channel = m["Channel"];
-	wxListItem *item = new wxListItem;
-	item->SetId(0);
 	Call *call = new Call;
 	if (m["ConnectedLineName"] != "")
 	{
-		item->SetText(m["ConnectedLineNum"] + " (" + m["ConnectedLineName"] + ")");
 		call->SetName(m["ConnectedLineName"]);
 	}
-	else item->SetText(m["ConnectedLineNum"]);
 	call->SetNumber(m["ConnectedLineNum"]);
 	call->SetUniqueID(std::stoi(m["Uniqueid"]));
 	call->SetTimeStart(wxDateTime::Now());
 	call->SetDirection(Call::CALL_OUT);
-	item->SetData(call);
-	item->SetImage(2);
-	m_callList->InsertItem(*item);
+	m_callList->InsertCallItem(call);
 	m_last_channel_state = AST_STATE_RING;
     UpdateDialButtonImage();
 }
@@ -516,42 +494,7 @@ bool MyFrame::LoadCalls(const wxString &filename)
         {
             wxString serialized_call = calls_tokenizer.GetNextToken();
             Call *call = new Call(serialized_call);
-            wxListItem *item = new wxListItem;
-            item->SetId(m_callList->GetItemCount());
-            if (!call->GetName().empty())
-            {
-                item->SetText(call->GetNumber() + " (" + call->GetName() + ")");
-            }
-            else item->SetText(call->GetNumber());
-            item->SetData(call);
-            if (call->GetDirection() == Call::CALL_IN)
-            {
-                switch (call->GetDisposition())
-                {
-                    case Call::CALL_UNANSWERED:
-                        item->SetImage(INCOMING_UNANSWERED);
-                        break;
-                    case Call::CALL_ANSWERED:
-                        item->SetImage(INCOMING_ANSWERED);
-                        break;
-                    case Call::CALL_ANSWERED_ELSEWHERE:
-                        item->SetImage(INCOMING_ANSWERED_ELSEWHERE);
-                        break;
-                 }
-            }
-            else // CALL_OUT
-            {
-                switch (call->GetDisposition())
-                {
-                    case Call::CALL_UNANSWERED:
-                        item->SetImage(OUTBOUND_UNANSWERED);
-                        break;
-                    case Call::CALL_ANSWERED:
-                        item->SetImage(OUTBOUND_ANSWERED);
-                        break;
-                 }
-            }
-            m_callList->InsertItem(*item);
+            m_callList->InsertCallItem(call, m_callList->GetItemCount());
         }
 	    calls.Close();
         return true;
