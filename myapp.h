@@ -15,6 +15,7 @@ public:
     virtual bool OnInit();
     virtual int OnExit();
     virtual bool ParseCmdLine();
+    virtual void OnFatalException();
     AsteriskController *m_controller;
     wxFileConfig *m_config;
     wxLocale m_locale;

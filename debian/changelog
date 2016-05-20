@@ -1,3 +1,11 @@
+astercti (0.0.14-1) unstable; urgency=medium
+
+  + Save call list on exit, load on start
+  + Reverse call list - last on top
+  * Strip non-numeric chars from number on Originate
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Fri, 20 May 2016 17:01:22 +0600
+
 astercti (0.0.13-1) unstable; urgency=medium
 
   * Change taskbar icon when calls missed

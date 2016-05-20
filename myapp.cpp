@@ -8,6 +8,7 @@
 #include <locale>
 #include <wx/intl.h>
 #include <wx/stdpaths.h>
+#include <wx/debugrpt.h>
 
 #include "events.h"
 #include "controller.h"
@@ -19,6 +20,7 @@
 #include "ipc.h"
 #include "version.h"
 #include "chanstatus.h"
+#include "debugreport.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -107,6 +109,9 @@ bool MyApp::OnInit()
     }
     m_ipcServer = new IpcServer(m_controller);
     m_ipcServer->Create(IPC_SERVICENAME);
+#ifndef __WXMSW__
+    wxHandleFatalExceptions();
+#endif
     return true;
 }
 
@@ -157,4 +162,48 @@ bool MyApp::ParseCmdLine()
         return false;
     }
     return true;
+}
+
+void MyApp::OnFatalException()
+{
+    wxString url = m_config->Read("gui/debugreport_url");
+    wxDebugReportCompress *report;
+    if (url.empty())
+    {
+        wxSafeShowMessage(_("debugreport_url not configured!"), _("Cannot send crash report.\nPlease, edit config to include [gui] section and 'debugreport_url=http://example.com/debugreport/' — your url of debug file receiver in it."));
+        report = new wxDebugReportCompress;
+        //report->SetCompressedFileDirectory(wxStandardPaths::Get().GetDataDir());
+    }
+    else
+    {
+        report = new MyDebugReport(url);
+    }
+
+    report->AddAll(wxDebugReport::Context_Exception);
+    report->AddFile(m_config->GetLocalFileName("astercti.ini", wxCONFIG_USE_SUBDIR), "AsterCTI Settings");
+    wxString versiontext;
+    versiontext << "AsterCTI v" VERSION "\n"
+        << "Commit " << gitcommit << " " << gitcommitdate << "\n"
+        << "Built " << builddate << "\n";
+    report->AddText(wxString("version.txt"), versiontext, _("Version information"));
+
+    wxString result;
+    if ( report->Process() )
+    {
+        if (!url.empty())
+            result = "Report successfully uploaded.";
+        else
+            result = "Report saved as '" + report->GetCompressedFileName() + "'.";
+
+    }
+    else
+    {
+        if (!url.empty())
+            result = "Report failed to upload.";
+        else
+            result = "Report failed to save.";
+
+    }
+    wxSafeShowMessage("AsterCTI Crash Report", result);
+    delete report;
 }

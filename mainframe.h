@@ -4,6 +4,7 @@
 #include <wx/listctrl.h>
 #include "events.h"
 #include "taskbaricon.h"
+#include "calllistctrl.h"
 #include "call.h"
 #include "chanstatus.h"
 
@@ -36,8 +37,10 @@ private:
     void OnDialPressEnter(wxCommandEvent &);
     void OnListResize(wxSizeEvent&);
     void OnListItemSelect(wxListEvent&);
+    bool SaveCalls(const wxString &filename);
+    bool LoadCalls(const wxString &filename);
     wxTextCtrl *StatusText;
-    wxListCtrl *m_callList;
+    CallListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
     wxBitmapButton *m_DialButton;
     wxStaticText *m_CallInfo;

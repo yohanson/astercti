@@ -37,15 +37,12 @@ public:
     ChannelName(std::string& str) {s = str;};
     ChannelName(const ChannelName& cn) {s = cn;};
     bool operator== (const ChannelName &cn) {return s == (std::string)cn;};
-    //const std::string& operator= (const ChannelName &cn) {return cn.s;};
-    //const ChannelName& operator= (const std::string &str) {ChannelName cn(str); return cn;};
 };
 
 class Channel
 {
 public:
-    Channel(const std::string& chan){m_channel = chan; m_bridgedTo = NULL;};
-    Channel(const ChannelName& chan){m_channel = chan; m_bridgedTo = NULL;};
+    Channel(const std::string& chan);
     enum ast_channel_state m_state;
 	ChannelName m_channel;
 	std::string m_callerIDNum;

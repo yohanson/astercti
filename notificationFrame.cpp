@@ -216,8 +216,10 @@ void notificationFrame::OnDialIn(const AmiMessage &message)
  	std::string callerid = message["CallerIDNum"];
 	wxString html = "";
 	html << wxT("<h5><font face='pt sans,tahoma,sans'>☎ ") + message["CallerIDNum"];
-	if (message["CallerIDName"] != "")
+	if (!message["CallerIDName"].empty() && message["CallerIDName"] != "<unknown>")
+    {
 		html << " (" << message["CallerIDName"] << ")";
+    }
 	html << "</font></h5>";
 	m_current_channel = message["Destination"];
 
