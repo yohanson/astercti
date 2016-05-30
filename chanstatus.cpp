@@ -71,8 +71,6 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
             Channel *dst_chan = dst_mchan_it->second->findChannel(m["Destination"]);
             if (!dst_chan)
                 return;
-            src_chan->m_bridgedTo = dst_chan;
-            dst_chan->m_bridgedTo = src_chan;
             if (dst_chan->getID() == m_mychannel)
             {
                 DEBUG_MSG("We have a call from " << (std::string)src_chan->m_channel << std::endl);
@@ -92,6 +90,25 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
                     }
                 }
             }
+        }
+    }
+    else if (m["Event"] == "Bridge")
+    {
+        changed = true;
+        Channel *channel1 = findChannel(m["Channel1"]);
+        Channel *channel2 = findChannel(m["Channel2"]);
+        if ( !(channel1 && channel2) )
+            return;
+        DEBUG_MSG("Bridge between " << m["Channel1"] << " and " << m["Channel2"] << " - " << m["Bridgestate"] << std::endl);
+        if (m["Bridgestate"] == "Link")
+        {
+            channel1->m_bridgedTo = channel2;
+            channel2->m_bridgedTo = channel1;
+        }
+        else if (m["Bridgestate"] == "Unlink")
+        {
+            channel1->m_bridgedTo = NULL;
+            channel2->m_bridgedTo = NULL;
         }
     }
     if (changed)
