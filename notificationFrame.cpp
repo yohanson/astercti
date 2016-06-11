@@ -228,7 +228,9 @@ void notificationFrame::OnDialIn(const AmiMessage &message)
     {
         Channel *peer = *peers.begin();
         std::string transferred_calleridnum = peer->m_bridgedTo->m_callerIDNum;
-        std::string transferred_calleridname = peer->m_bridgedTo->m_callerIDName;
+        std::string transferred_calleridname = "";
+        if (peer->m_bridgedTo->m_callerIDName != peer->m_bridgedTo->m_callerIDNum)
+            transferred_calleridname = peer->m_bridgedTo->m_callerIDName;
         //StatusText->AppendText(m["CallerIDNum"] + " ("+ m["CallerIDName"] +") is transferring: " + transferred_calleridnum + " (" + transferred_calleridname + ")\n\n");
         html << "<h5>&#8627; " << transferred_calleridnum << " (" << transferred_calleridname << ")</h5>";
         callerid = transferred_calleridnum;
