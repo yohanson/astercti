@@ -98,8 +98,6 @@ MyFrame::~MyFrame()
 
 void MyFrame::OnExit(wxCommandEvent& event)
 {
-    if (!SaveCalls(CALLS_FILE))
-        std::cerr << _("Saving calls failed") << std::endl;
     Close( true );
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
@@ -124,6 +122,8 @@ void MyFrame::OnClose(wxCloseEvent& event)
         event.Veto();
         return;
     }
+    if (!SaveCalls(CALLS_FILE))
+        std::cerr << _("Saving calls failed") << std::endl;
     m_taskbaricon->Destroy();
 	Destroy();
 }

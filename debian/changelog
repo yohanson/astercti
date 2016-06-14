@@ -1,3 +1,11 @@
+astercti (0.0.16-1) unstable; urgency=medium
+
+  * Fix save calls on exit via taskbar icon
+  * Clean up IPC code, preventing segfault on exit
+  + Rise main frame when second copy launch attempted
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 14 Jun 2016 14:22:39 +0600
+
 astercti (0.0.15-1) unstable; urgency=medium
 
   * Use "Event: Bridge" to detect bridged channels

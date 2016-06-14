@@ -42,6 +42,14 @@ void AsteriskController::CloseMainFrame(wxCommandEvent& event) {
 		m_mainFrame = NULL;
 	}
 };
+
+void AsteriskController::ShowMainFrame() {
+    if (m_mainFrame)
+    {
+        m_mainFrame->Show(true);
+        m_mainFrame->Raise();
+    }
+}
 void AsteriskController::SetMainFrame(wxWindow *frame) {
 	m_mainFrame = frame;
 }

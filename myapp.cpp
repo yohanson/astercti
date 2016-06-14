@@ -150,16 +150,26 @@ bool MyApp::ParseCmdLine()
     }
 
     start_iconified = parser.Found(wxT("i"));
+    IpcClient client;
+    bool ipcClientConnected =  client.Connect("localhost", IPC_SERVICENAME,  IPC_TOPIC);
     if (parser.GetParamCount())
     {
         wxString dialnumber = parser.GetParam(0);
-        IpcClient client;
-        if ( client.Connect("localhost", IPC_SERVICENAME,  IPC_TOPIC) )
+        if (ipcClientConnected)
         {
             client.GetConnection()->Execute(dialnumber);
             client.Disconnect();
         }
         return false;
+    }
+    else // no command line params
+    {
+        if (ipcClientConnected)
+        {
+            client.GetConnection()->Execute(IPC_CMD_RISE);
+            client.Disconnect();
+            return false;
+        }
     }
     return true;
 }

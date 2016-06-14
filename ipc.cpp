@@ -2,13 +2,13 @@
 #include "mainframe.h"
 
 IpcConnection::IpcConnection()
+    : m_controller(NULL)
 {
-    m_controller = NULL;
 }
 
-IpcConnection::IpcConnection(AsteriskController *controller)
+IpcConnection::IpcConnection(AsteriskController *controller, IpcServer *server)
+    : m_controller(controller), m_server(server)
 {
-    m_controller = controller;
 }
 
 bool IpcConnection::OnExecute(const wxString& topic,
@@ -55,6 +55,13 @@ bool IpcConnection::OnExecute(const wxString& topic,
         }
 		return true;
 	}
+    else if (uri == IPC_CMD_RISE)
+    {
+       if (m_controller)
+       {
+            m_controller->ShowMainFrame();
+       }
+    }
     return false;
 }
 
@@ -76,12 +83,20 @@ const void *IpcConnection::OnRequest(const wxString& topic,
     return data;
 }
 
+bool IpcConnection::OnDisconnect()
+{
+    if (m_server)
+    {
+        m_server->InvalidateConnection();
+    }
+    return wxConnection::OnDisconnect();
+}
+
 //--------------------
 
-IpcServer::IpcServer(AsteriskController *controller) : wxServer()
+IpcServer::IpcServer(AsteriskController *controller)
+    : m_connection(NULL), m_controller(controller)
 {
-    m_connection = NULL;
-    m_controller = controller;
 }
 
 IpcServer::~IpcServer()
@@ -93,7 +108,7 @@ wxConnectionBase *IpcServer::OnAcceptConnection(const wxString& topic)
 {
     if ( topic == IPC_TOPIC )
     {
-        m_connection = new IpcConnection(m_controller);
+        m_connection = new IpcConnection(m_controller, this);
         return m_connection;
     }
     else
@@ -107,8 +122,13 @@ void IpcServer::Disconnect()
 {
     if ( m_connection )
     {
-        wxDELETE(m_connection);
+        m_connection->Disconnect();
     }
+}
+
+void IpcServer::InvalidateConnection()
+{
+    m_connection = NULL;
 }
 
 //------------------------
@@ -136,7 +156,6 @@ void IpcClient::Disconnect()
     if (m_connection)
     {
         m_connection->Disconnect();
-        wxDELETE(m_connection);
     }
 }
 
