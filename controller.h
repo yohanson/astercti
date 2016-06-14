@@ -24,6 +24,7 @@ public:
 	void ImGonnaDie(ControllerUser *almostdead);
 	void add(ControllerUser *client);
 	void CloseMainFrame(wxCommandEvent& event);
+	void ShowMainFrame();
 	void SetMainFrame(wxWindow *frame);
 	void HangupChannel(std::string &channel);
 	void Originate(std::string exten);
