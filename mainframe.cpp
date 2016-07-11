@@ -389,6 +389,11 @@ void MyFrame::OnCdr(const AmiMessage &m)
 			if (call->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
 			{
 				call->SetDuration(stoi(m["BillableSeconds"]));
+                if (call->GetNumber().empty() && call->GetDirection() == Call::CALL_OUT)
+                {
+                    call->SetNumber(m["Destination"]);
+                    m_callList->UpdateItem(lastItem);
+                }
 			}
 			else Log("UniqueID " + m["UniqueID"] + " not found.");
 		}
