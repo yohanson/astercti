@@ -1,3 +1,10 @@
+astercti (0.0.17-1) unstable; urgency=medium
+
+  * Fix empty call number in call log when dialing out
+  + Save call log after every call
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Mon, 11 Jul 2016 10:03:55 +0600
+
 astercti (0.0.16-1) unstable; urgency=medium
 
   * Fix save calls on exit via taskbar icon
