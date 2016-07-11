@@ -389,6 +389,14 @@ void MyFrame::OnCdr(const AmiMessage &m)
 			if (call->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
 			{
 				call->SetDuration(stoi(m["BillableSeconds"]));
+                if (call->GetNumber().empty() && call->GetDirection() == Call::CALL_OUT)
+                {
+                    call->SetNumber(m["Destination"]);
+                    m_callList->UpdateItem(lastItem);
+                }
+
+                if (!SaveCalls(CALLS_FILE))
+                    std::cerr << _("Saving calls failed") << std::endl;
 			}
 			else Log("UniqueID " + m["UniqueID"] + " not found.");
 		}
