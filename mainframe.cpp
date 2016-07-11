@@ -394,6 +394,9 @@ void MyFrame::OnCdr(const AmiMessage &m)
                     call->SetNumber(m["Destination"]);
                     m_callList->UpdateItem(lastItem);
                 }
+
+                if (!SaveCalls(CALLS_FILE))
+                    std::cerr << _("Saving calls failed") << std::endl;
 			}
 			else Log("UniqueID " + m["UniqueID"] + " not found.");
 		}
