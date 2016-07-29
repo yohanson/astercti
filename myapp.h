@@ -7,6 +7,7 @@
 #include "taskbaricon.h"
 #include "ipc.h"
 #include "events.h"
+#include "filter.h"
 
 class MyApp: public wxApp
 {
@@ -25,6 +26,7 @@ private:
     IpcServer *m_ipcServer;
     MyChanFilter *m_mychanfilter;
     InternalMessageFilter *m_intmsgfilter;
+    ShortenNumberModifier *m_numbershortener;
     EventGenerator *m_events;
 };
 

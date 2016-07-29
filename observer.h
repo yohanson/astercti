@@ -28,25 +28,4 @@ public:
 	void Notify(const AmiMessage &message);
 };
 
-class AmiMessageFilter : public IObserver, public IObservable
-{
-	virtual bool filter(const AmiMessage &message) = 0;
-	void handleEvent(const AmiMessage& message);
-};
-
-class MyChanFilter : public AmiMessageFilter
-{
-	std::string m_channel_id;
-public:
-	MyChanFilter(std::string channel);
-	bool filter(const AmiMessage &message);
-	//void virtual OnCdr(const AmiMessage &message) = 0;
-};
-
-class InternalMessageFilter : public AmiMessageFilter
-{
-public:
-	bool filter(const AmiMessage &message);
-};
-
 #endif
