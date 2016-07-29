@@ -265,7 +265,7 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     std::string calleridname = m["CallerIDName"];
     m_current_channel = m["Destination"];
 	Call *call = new Call;
-    if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>")
+    if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>" && m["CallerIDName"] != m["CallerIDNum"])
     {
         call->SetName(m["CallerIDName"]);
     }
