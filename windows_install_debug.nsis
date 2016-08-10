@@ -22,5 +22,8 @@ File /oname=ru\astercti.mo i18n/ru.mo
 
 SetOutPath $APPDATA\astercti
 File astercti.ini.default
+
+WriteRegStr HKCR "tel" 'URL Protocol' ''
+WriteRegStr HKCR "tel\shell\open\command" '' '"$PROGRAMFILES\astercti\astercti.exe" "%1"'
 SectionEnd
 

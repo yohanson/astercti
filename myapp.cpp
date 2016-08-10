@@ -111,7 +111,8 @@ bool MyApp::OnInit()
         notifyframe->SetLookupUrl(m_config->Read("lookup/lookup_url").ToStdString());
     }
     m_ipcServer = new IpcServer(m_controller);
-    m_ipcServer->Create(IPC_SERVICENAME);
+    if (!m_ipcServer->Create(IPC_SERVICENAME))
+        wxLogMessage("Failure creating IPC Server %s", IPC_SERVICENAME);
 #ifndef __WXMSW__
     wxHandleFatalExceptions();
 #endif

@@ -131,6 +131,18 @@ void IpcServer::InvalidateConnection()
     m_connection = NULL;
 }
 
+bool
+IpcServer::IsConnected()
+{
+   return m_connection != NULL;
+}
+
+IpcConnection *
+IpcServer::GetConnection()
+{
+   return m_connection;
+}
+
 //------------------------
 
 IpcClient::IpcClient() : wxClient()
@@ -162,5 +174,17 @@ void IpcClient::Disconnect()
 IpcClient::~IpcClient()
 {
     Disconnect();
+}
+
+bool
+IpcClient::IsConnected()
+{
+   return m_connection != NULL;
+}
+
+IpcConnection *
+IpcClient::GetConnection()
+{
+   return m_connection;
 }
 
