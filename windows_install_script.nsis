@@ -13,15 +13,6 @@ SetOutPath $INSTDIR
  
 # define what to install and place it in the output path
 File release_win\astercti.exe
-File astercti.png
-File astercti-missed.png
-File dial.png
-File hangup.png
-File incoming_answered.png
-File incoming_unanswered.png
-File incoming_answered_elsewhere.png
-File outbound_answered.png
-File outbound_unanswered.png
 File astercti.ini.default
 File /usr/local/lib/libcurl.dll
 File *.dll

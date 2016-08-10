@@ -46,6 +46,8 @@ private:
     wxStaticText *m_CallInfo;
     MyTaskBarIcon *m_taskbaricon;
     std::string m_current_channel;
+    wxBitmap       m_dialIcon,
+                   m_hangupIcon;
     int m_missed_calls;
 };
 

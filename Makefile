@@ -8,11 +8,14 @@ WINPATH=/usr/local/libwxmsw3.0/bin
 OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o \
 	asterisk.o observer.o events.o ipc.o chanstatus.o call.o debugreport.o \
 	calllistctrl.o filter.o gitversion.o
+BIGICONS=astercti astercti-missed
+SMALLICONS=dial hangup incoming_answered_elsewhere incoming_answered \
+	incoming_unanswered outbound_answered outbound_unanswered
 
 DEBUG_OBJ=$(addprefix $(DBGDIR)/, $(OBJECTS))
 RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))
-WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS) jsoncpp.o)
-WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS) jsoncpp.o)
+WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS) jsoncpp.o resource.o)
+WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS) jsoncpp.o resource.o)
 
 init:
 	mkdir -p $(DBGDIR) $(RELDIR) $(WINDBGDIR) $(WINRELDIR)
@@ -21,6 +24,7 @@ clean:
 	rm -f $(BINARY) *.o
 	rm -f gitversion.cpp
 	rm -f *.exe
+	rm -f *.rc
 	rm -f $(DBGDIR)/*
 	rm -f $(RELDIR)/*
 	rm -f $(WINRELDIR)/*
@@ -39,11 +43,23 @@ $(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags`
 $(WINDBGDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+resource.rc: Makefile $(addsuffix .ico, $(BIGICONS) $(SMALLICONS))
+	> resource.rc
+	$(foreach icon,$(BIGICONS) $(SMALLICONS), echo $(icon) ICON \"$(addsuffix .ico,$(icon))\" >> resource.rc;)
+
+%/resource.o: resource.rc
+	`$(WINPATH)/wx-config --rescomp` -o $@ $<
+
+$(addsuffix .ico, $(BIGICONS)): $(addsuffix .png, $(basename $@))
+	convert $(addsuffix .png, $(basename $@)) -define icon:auto-resize=32,16 $@
+
+$(addsuffix .ico, $(SMALLICONS)): $(addsuffix .png, $(basename $@))
+	convert $(addsuffix .png, $(basename $@)) -define icon $@
+
 $(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I../jsoncpp/dist -I../jsoncpp/include
 $(WINRELDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
 
 $(DBGDIR)/$(BINARY): $(DEBUG_OBJ)
 	$(CXX) $(LDFLAGS) -g1 `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(DEBUG_OBJ) -o $@

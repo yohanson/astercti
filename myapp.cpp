@@ -21,6 +21,7 @@
 #include "version.h"
 #include "chanstatus.h"
 #include "debugreport.h"
+#include "iconmacro.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -87,8 +88,8 @@ bool MyApp::OnInit()
     m_events->add(*notifyframe);
     m_numbershortener->add(*m_events);
     m_intmsgfilter->add(*m_events);
-    wxIcon defaultIcon(datadir + "astercti.png", wxBITMAP_TYPE_PNG);
-    wxIcon  missedIcon(datadir + "astercti-missed.png", wxBITMAP_TYPE_PNG);
+    wxIcon defaultIcon(ACTI_ICON("astercti"));
+    wxIcon  missedIcon(ACTI_ICON("astercti-missed"));
     frame->SetIcon(defaultIcon);
     m_taskbaricon = new MyTaskBarIcon(defaultIcon, missedIcon, "AsterCTI: " + m_config->Read("dialplan/exten"));
     m_taskbaricon->SetMainFrame(frame);

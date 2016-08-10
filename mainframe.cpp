@@ -16,6 +16,7 @@
 #include "version.h"
 #include "call.h"
 #include "chanstatus.h"
+#include "iconmacro.h"
 
 #define CALLS_FILE "calls.txt"
 
@@ -44,11 +45,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
 
     wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     wxImageList *imagelist = new wxImageList(24, 24, true);
-    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_answered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_unanswered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_answered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_unanswered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_answered_elsewhere.png")));
+    imagelist->Add(ACTI_ICON("incoming_answered"));
+    imagelist->Add(ACTI_ICON("incoming_unanswered"));
+    imagelist->Add(ACTI_ICON("outbound_answered"));
+    imagelist->Add(ACTI_ICON("outbound_unanswered"));
+    imagelist->Add(ACTI_ICON("incoming_answered_elsewhere"));
+    m_dialIcon.CopyFromIcon(ACTI_ICON_SIZED("dial", 24));
+    m_hangupIcon.CopyFromIcon(ACTI_ICON_SIZED("hangup", 24));
 
     wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
     TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
@@ -62,7 +65,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     wxFont numberFont(wxSize(0,24), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     m_DialNumber->SetFont(numberFont);
-    m_DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage(datadir + "dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
+    m_DialButton = new wxBitmapButton(RightPanel, wxID_ANY, m_dialIcon, wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
@@ -164,9 +167,9 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
 void MyFrame::UpdateDialButtonImage()
 {
     if (m_last_channel_state == AST_STATE_DOWN)
-        m_DialButton->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "dial.png")));
+        m_DialButton->SetBitmap(m_dialIcon);
     else
-        m_DialButton->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "hangup.png")));
+        m_DialButton->SetBitmap(m_hangupIcon);
 }
 
 void MyFrame::OnListResize(wxSizeEvent &event)
