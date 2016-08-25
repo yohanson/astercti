@@ -97,7 +97,7 @@ private:
 	std::string m_ami_host;
 	int	    m_ami_port;
 	char m_recv_buff[RECV_BUFF];
-	wxTimer *m_pingTimer;
+	wxTimer m_pingTimer;
 	bool m_ping_timer_active;
 	void OnPingTimeout(wxTimerEvent& event);
 

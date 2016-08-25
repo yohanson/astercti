@@ -7,8 +7,8 @@ class MyTaskBarIcon : public wxTaskBarIcon, public ControllerUser
 {
 private:
     wxFrame *m_mainFrame;
-    wxIcon* m_defaultIcon;
-    wxIcon* m_missedIcon;
+    wxIcon m_defaultIcon;
+    wxIcon m_missedIcon;
     wxString tooltip_base;
 public:
     MyTaskBarIcon(wxString, wxString, wxString);

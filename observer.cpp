@@ -11,26 +11,33 @@ IObserver::~IObserver()
 {
     for (auto observable : m_observables)
     {
-        observable->remove(*this);
+        observable->no_broadcast(*this, false);
     }
 }
 
-void IObserver::listens_to(IObservable &o)
+void IObserver::subscribe(IObservable &o)
 {
     m_observables.push_back(&o);
 }
 
-//----
-
-void IObservable::add(IObserver &observer)
+void IObserver::unsubscribe(IObservable &o)
 {
-	_observers.push_back(&observer);
-    observer.listens_to(*this);
+    m_observables.remove(&o);
 }
 
-void IObservable::remove(IObserver &observer)
+//----
+
+void IObservable::broadcast(IObserver &observer)
+{
+	_observers.push_back(&observer);
+    observer.subscribe(*this);
+}
+
+void IObservable::no_broadcast(IObserver &observer, bool both_ends)
 {
 	_observers.remove(&observer);
+    if (both_ends)
+        observer.unsubscribe(*this);
 }
 
 void IObservable::Notify(const AmiMessage &message)
@@ -41,4 +48,10 @@ void IObservable::Notify(const AmiMessage &message)
 	}
 }
 
-
+IObservable::~IObservable()
+{
+    for (auto observer : _observers)
+    {
+        observer->unsubscribe(*this);
+    }
+}

@@ -1,12 +1,12 @@
 #include "events.h"
 
-void EventGenerator::add(EventListener &listener)
+void EventGenerator::broadcast(EventListener &listener)
 {
 	_listeners.push_back(&listener);
-    listener.listens_to(*this);
+    listener.subscribe(*this);
 }
 
-void EventGenerator::remove(EventListener &listener)
+void EventGenerator::no_broadcast(EventListener &listener)
 {
 	_listeners.remove(&listener);
 }
@@ -119,10 +119,10 @@ EventListener::EventListener()
 EventListener::~EventListener()
 {
     for (auto eg : m_eventgenerators)
-        eg->remove(*this);
+        eg->no_broadcast(*this);
 }
 
-void EventListener::listens_to(EventGenerator &eg)
+void EventListener::subscribe(EventGenerator &eg)
 {
     m_eventgenerators.push_back(&eg);
 }

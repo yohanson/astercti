@@ -14,11 +14,12 @@ void Asterisk::Notify(AmiMessage &message)
 	{
 		if (message["Ping"] == "Pong")
 		{
-			m_pingTimer->Stop();
+			m_pingTimer.Stop();
 			m_ping_timer_active = false;
-			m_pingTimer->StartOnce(5000);
+			m_pingTimer.StartOnce(5000);
 			AmiMessage m;
-			m["InternalMessage"] = "Connected";
+			m["InternalMessage"] = "ConnectionStatus";
+			m["Status"] = "Connected";
 			Notify(m);
 		}
 	}
@@ -32,23 +33,20 @@ void Asterisk::OnSocketEvent(wxSocketEvent &event)
 	switch ( event.GetSocketEvent() )
 	{
 		case wxSOCKET_INPUT:
-			//std::cout << "Input available on the socket" << std::endl;
 			OnInputAvailable();
 			break;
 
 		case wxSOCKET_OUTPUT:
-			//std::cout << "Output available to the socket." << std::endl;
 			break;
 
 		case wxSOCKET_LOST:
-			//std::cout << "Socket connection was unexpectedly lost." << std::endl;
-			m["InternalMessage"] = "ConnectionLost";
+			m["InternalMessage"] = "ConnectionStatus";
+			m["Status"] = "Lost";
 			Notify(m);
 			AmiConnect();
 			break;
 
 		case wxSOCKET_CONNECTION:
-			//std::cout << wxDateTime::Now().FormatISOCombined() << " Socket is now connected." << std::endl;
 			login = "Action: login\nUsername: "+m_ami_username+"\nSecret: "+m_ami_secret+"\n\n";
 			m_socket->Write(login.c_str(), login.length());
 			AmiPing();
@@ -109,7 +107,10 @@ void Asterisk::OnInputAvailable()
 void Asterisk::AmiPing()
 {
 	m_ping_timer_active = true;
-	m_pingTimer->StartOnce(5000);
+    if (!m_pingTimer.StartOnce(5000))
+    {
+        std::cerr << "Timer could not be started!" << std::endl;
+    }
 	std::string action = "Action: ping\n\n";
 	m_socket->Write(action.c_str(), action.length());
 }
@@ -126,7 +127,8 @@ void Asterisk::OnPingTimeout(wxTimerEvent& event)
 	{
 		std::cerr << wxDateTime::Now().FormatISOCombined() << " Connection lost" << std::endl;
 		AmiMessage m;
-		m["InternalMessage"] = "ConnectionLost";
+		m["InternalMessage"] = "ConnectionStatus";
+		m["Status"] = "Lost";
 		Notify(m);
 		m_socket->Close();
 		AmiConnect();
@@ -154,7 +156,7 @@ Asterisk::Asterisk(std::string host, int port, std::string username, std::string
 	m_socket->SetEventHandler(*this);
 	m_socket->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_OUTPUT_FLAG | wxSOCKET_CONNECTION_FLAG | wxSOCKET_LOST_FLAG);
 	m_socket->Notify(true);
-	m_pingTimer = new wxTimer(this);
+	m_pingTimer.SetOwner(this);
 	Bind(wxEVT_TIMER, &Asterisk::OnPingTimeout, this);
 	AmiConnect();
 }

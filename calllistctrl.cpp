@@ -2,11 +2,11 @@
 
 long CallListCtrl::InsertCallItem(Call *call, long index)
 {
-    wxListItem *item = new wxListItem;
-    item->SetId(index);
-    item->SetData(call);
-    InsertItem(*item);
-    SetItem(item->GetId(), 1, call->GetTimeStart().FormatISOCombined(' '));
+    wxListItem item;
+    item.SetId(index);
+    item.SetData(call);
+    InsertItem(item);
+    SetItem(item.GetId(), 1, call->GetTimeStart().FormatISOCombined(' '));
     UpdateItem(index);
 }
 
@@ -46,5 +46,16 @@ void CallListCtrl::UpdateItem(long index)
                 SetItemImage(index, OUTBOUND_ANSWERED);
                 break;
          }
+    }
+}
+
+CallListCtrl::~CallListCtrl()
+{
+    Call *call;
+    for (long i=0; i<GetItemCount(); i++)
+    {
+        call = reinterpret_cast<Call *>(GetItemData(i));
+        delete call;
+        SetItemPtrData(i, (wxUIntPtr)NULL);
     }
 }

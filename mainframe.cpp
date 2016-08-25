@@ -442,19 +442,27 @@ void MyFrame::OnDial(const AmiMessage &m)
 
 void MyFrame::OnInternalMessage(const AmiMessage &m)
 {
-	static std::string last;
-	if (m["InternalMessage"] == last) return;
-	last = m["InternalMessage"];
-	if (m["InternalMessage"] == "ConnectionLost")
-	{
-		SetStatusText(_("Connection Lost"));
-		Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connection Lost"));
-	}
-	else if (m["InternalMessage"] == "Connected")
-	{
-		SetStatusText(_("Connected"));
-		Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connected"));
-	}
+    static bool was_connected;
+    if (m["InternalMessage"] == "ConnectionStatus")
+    {
+        bool connected = (m["Status"] == "Connected");
+        if (connected == was_connected) return;
+        if (!connected)
+        {
+            SetStatusText(_("Connection Lost"));
+            Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connection Lost"));
+        }
+        else
+        {
+            SetStatusText(_("Connected"));
+            Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connected"));
+        }
+        was_connected = connected;
+    }
+    else if (m["InternalMessage"] == "LogMsg")
+    {
+        Log(m["LogMsg"]);
+    }
 }
 
 void MyFrame::Log(const wxString &str)

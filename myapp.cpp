@@ -62,8 +62,8 @@ bool MyApp::OnInit()
         return false;
     }
 
-    ChannelStatusPool *chanstatuspool = new ChannelStatusPool(m_config->Read("dialplan/channel").ToStdString());
-    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400), chanstatuspool);
+    m_chanstatuspool = new ChannelStatusPool(m_config->Read("dialplan/channel").ToStdString());
+    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400), m_chanstatuspool);
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),
@@ -76,18 +76,18 @@ bool MyApp::OnInit()
     asterisk->observable_descr = "asterisk";
     m_mychanfilter->observable_descr = "mychanfilter";
     m_intmsgfilter->observable_descr = "intmsgfilter";
-    asterisk->add(*m_mychanfilter);
-    asterisk->add(*m_intmsgfilter);
-    asterisk->add(*chanstatuspool);
-    m_mychanfilter->add(*m_numbershortener);
-    m_numbershortener->add(*frame);
-    m_intmsgfilter->add(*frame);
-    notificationFrame *notifyframe = new notificationFrame(frame, chanstatuspool);
+    asterisk->broadcast(*m_mychanfilter);
+    asterisk->broadcast(*m_intmsgfilter);
+    asterisk->broadcast(*m_chanstatuspool);
+    m_mychanfilter->broadcast(*m_numbershortener);
+    m_numbershortener->broadcast(*frame);
+    m_intmsgfilter->broadcast(*frame);
+    notificationFrame *notifyframe = new notificationFrame(frame, m_chanstatuspool);
     m_events = new EventGenerator;
-    m_events->add(*frame);
-    m_events->add(*notifyframe);
-    m_numbershortener->add(*m_events);
-    m_intmsgfilter->add(*m_events);
+    m_events->broadcast(*frame);
+    m_events->broadcast(*notifyframe);
+    m_numbershortener->broadcast(*m_events);
+    m_intmsgfilter->broadcast(*m_events);
     wxIcon defaultIcon(ACTI_ICON("astercti"));
     wxIcon  missedIcon(ACTI_ICON("astercti-missed"));
     frame->SetIcon(defaultIcon);
@@ -128,9 +128,11 @@ int MyApp::OnExit()
     delete m_events;
     delete m_mychanfilter;
     delete m_intmsgfilter;
+    delete m_numbershortener;
     delete m_config;
     delete m_ipcServer;
     delete m_controller;
+    delete m_chanstatuspool;
     return 0;
 }
 
