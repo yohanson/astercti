@@ -98,7 +98,7 @@ winrelease: $(WINRELDIR)/$(BINARY).exe i18n/ru.mo
 
 
 messages.po:
-	xgettext -C -k_ --omit-header *.cpp
+	xgettext -C -k_ -kwxPLURAL:1,2 --omit-header *.cpp
 
 i18n/%.po: messages.po
 	msgmerge --width=110 --update $@ $<

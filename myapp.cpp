@@ -186,7 +186,7 @@ void MyApp::OnFatalException()
     wxDebugReportCompress *report;
     if (url.empty())
     {
-        wxSafeShowMessage(_("debugreport_url not configured!"), _("Cannot send crash report.\nPlease, edit config to include [gui] section and 'debugreport_url=http://example.com/debugreport/' — your url of debug file receiver in it."));
+        wxSafeShowMessage(_("debugreport_url not configured!"), _("Cannot send crash report.\nPlease, edit config to include [gui] section and 'debugreport_url=http://example.com/debugreport/' - your url of debug file receiver in it."));
         report = new wxDebugReportCompress;
         //report->SetCompressedFileDirectory(wxStandardPaths::Get().GetDataDir());
     }

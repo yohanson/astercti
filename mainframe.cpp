@@ -7,6 +7,7 @@
 #include <wx/imaglist.h>
 #include <wx/stdpaths.h>
 #include <wx/tokenzr.h>
+#include <wx/aboutdlg.h>
 
 #include "observer.h"
 #include "asterisk.h"
@@ -101,12 +102,17 @@ void MyFrame::OnExit(wxCommandEvent& event)
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-	wxString version_message;
-       version_message << "AsterCTI v"  VERSION  "\n"
-		"Git commit: " << gitcommit << " " << gitcommitdate << "\n"
-		"Built: " << builddate << "\n"
-		"https://github.com/yohanson/astercti";
-	wxLogMessage(version_message);
+    wxString buildinfo;
+    buildinfo << "Git commit: " << gitcommit << "\n"
+	    << "Built: " << builddate << "\n";
+    wxAboutDialogInfo info;
+    info.SetName("AsterCTI");
+    info.SetVersion(FULLVERSION);
+    info.SetDescription(_("Computer-Telephone Integration app for Asterisk.") + "\n\n" + buildinfo);
+    info.SetCopyright(wxT("(C) 2015-2016"));
+    info.AddDeveloper("Michael Mikhailov <yohanson@ngs.ru>");
+    info.SetWebSite("https://github.com/yohanson/astercti");
+    wxAboutBox(info);
 }
 void MyFrame::OnClose(wxCloseEvent& event)
 {

@@ -1,7 +1,5 @@
 # Russian translation for AsterCTI
-# Copyright (C) 2015 Michael A. Mikhailov
 # This file is distributed under the same license as the astercti package.
-# Michael A. Mikhailov <yohanson@ngs.ru> 2015
 #
 #, fuzzy
 msgid ""
@@ -9,53 +7,84 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-28 19:21+0600\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2016-08-25 13:35+07\n"
+"Last-Translator: Michael A. Mikhailov <yohanson@ngs.ru>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; \
-    plural=n%10==1 && n%100!=11 ? 0 : \
-           n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3;plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? "
+"1 : 2;\n"
 
-#: mainframe.cpp:138
+#: mainframe.cpp:76
+msgid "Loading calls failed"
+msgstr "Не удалось загрузить звонки"
+
+#: mainframe.cpp:112
+msgid "Computer-Telephone Integration app for Asterisk."
+msgstr "Приложение интеграции компьютера и телефона для Asterisk."
+
+#: mainframe.cpp:132 mainframe.cpp:408
+msgid "Saving calls failed"
+msgstr "Не удалось сохранить звонки"
+
+#: mainframe.cpp:205
 msgid "Number: "
 msgstr "Номер: "
 
-#: mainframe.cpp:138
+#: mainframe.cpp:208
 msgid "Name: "
 msgstr "Имя: "
 
-#: mainframe.cpp:139
-msgid "Time: "
-msgstr "Время: "
+#: mainframe.cpp:210
+msgid "Dial: "
+msgstr "Звонок: "
 
-#: mainframe.cpp:140
+#: mainframe.cpp:213
+msgid "Answer: "
+msgstr "Ответ: "
+
+#: mainframe.cpp:217
+msgid "End: "
+msgstr "Конец: "
+
+#: mainframe.cpp:221
 msgid "Duration: "
 msgstr "Длительность: "
 
-#: mainframe.cpp:336 mainframe.cpp:337
+#: mainframe.cpp:458 mainframe.cpp:459
 msgid "Connection Lost"
 msgstr "Нет связи"
 
-#: mainframe.cpp:341 mainframe.cpp:342
+#: mainframe.cpp:463 mainframe.cpp:464
 msgid "Connected"
 msgstr "Подключено"
 
-#: myapp.cpp:55
+#: mainframe.cpp:495 mainframe.cpp:527
+msgid "Unable to open calls file"
+msgstr "Не удаётся открыть файл звонков"
+
+#: mainframe.cpp:509
+msgid "Unable to read calls from file"
+msgstr "Не удаётся прочитать из файла звонков"
+
+#: mainframe.cpp:514
+msgid "File is too short"
+msgstr "Файл слишком короткий"
+
+#: myapp.cpp:58
 msgid "Error opening config file."
 msgstr "Ошибка открытия конфига."
 
-#: myapp.cpp:56
+#: myapp.cpp:59
 msgid "Sample config is at "
 msgstr "Шаблон конфига в "
 
-#: myapp.cpp:57
+#: myapp.cpp:60
 msgid "Rename it to astercti.ini and edit."
 msgstr "Переименуйте его в astercti.ini и поправьте."
 
-#: myapp.cpp:99 notificationFrame.cpp:331
+#: myapp.cpp:106 notificationFrame.cpp:358
 msgid ""
 "Lookup URL and Lookup command are both unconfigured.\n"
 "Lookup disabled."
@@ -63,19 +92,37 @@ msgstr ""
 "В конфиге не задан ни lookup_url, ни lookup_cmd.\n"
 "Поиск информации по номеру звонящего отключен."
 
-#: notificationFrame.cpp:111
+#: myapp.cpp:189
+msgid "debugreport_url not configured!"
+msgstr "debugreport_url не настроен!"
+
+#: myapp.cpp:189
+msgid ""
+"Cannot send crash report.\n"
+"Please, edit config to include [gui] section and 'debugreport_url=http://example.com/debugreport/' - your "
+"url of debug file receiver in it."
+msgstr ""
+"Не могу отправить отчёт об ошибке.\n"
+"Поправьте конфиг, чтобы раздел [gui] содержал 'debugreport_url=http://example.com/debugreport/' — ваш "
+"адрес, принимающий debug-файлы."
+
+#: myapp.cpp:204
+msgid "Version information"
+msgstr "Информация о версии"
+
+#: notificationFrame.cpp:112
 msgid "No"
 msgstr "Нет"
 
-#: notificationFrame.cpp:287
+#: notificationFrame.cpp:294
 msgid "Pickup the handset to dial"
 msgstr "Снимите трубку для звонка на"
 
-#: notificationFrame.cpp:401
+#: notificationFrame.cpp:408
 msgid "See all found"
 msgstr "Все найденные"
 
-#: notificationFrame.cpp:405
+#: notificationFrame.cpp:412
 msgid "Unknown number."
 msgstr "Неизвестный номер."
 
@@ -85,4 +132,3 @@ msgid_plural "%d missed calls"
 msgstr[0] "Пропущенный звонок"
 msgstr[1] "%d пропущенных звонка"
 msgstr[2] "%d пропущенных звонков"
-
