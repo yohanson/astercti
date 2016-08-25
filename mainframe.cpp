@@ -204,7 +204,10 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
     {
         label << _("End: ") << call->GetTimeEnd().FormatISOCombined(' ') << '\n';
     }
-    label << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
+    if (call->GetDisposition() == Call::CALL_ANSWERED)
+    {
+        label << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
+    }
 	m_CallInfo->SetLabel(label);
 }
 
