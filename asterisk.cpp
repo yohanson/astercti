@@ -62,7 +62,7 @@ void Asterisk::OnSocketEvent(wxSocketEvent &event)
 
 void Asterisk::OnInputAvailable()
 {
-	m_socket->Read(m_recv_buff, RECV_BUFF);
+	m_socket->Read(m_recv_buff, RECV_BUFF-1);
 	int read_bytes = m_socket->LastReadCount();
 	m_recv_buff[read_bytes] = 0;
 	std::string raw_messages = m_recv_buff;
