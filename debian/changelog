@@ -1,11 +1,23 @@
-astercti (0.0.17-1) unstable; urgency=medium
+astercti (0.0.18-1) UNRELEASED; urgency=medium
+
+  * Fix buffer overflow that was crashing the application
+  * Fix IPC in Windows (click to call too)
+  * Cleanup: fix leaks, improve code, minor changes
+  * Time to remove "Hello world" message :)
+  + Store icons in resources for Windows: astercti.exe has got an icon!
+  + Implement number shortening (removing prefixes)
+  + Use wxAboutBox
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Fri, 26 Aug 2016 15:26:11 +0700
+
+astercti (0.0.17-1) UNRELEASED; urgency=medium
 
   * Fix empty call number in call log when dialing out
   + Save call log after every call
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Mon, 11 Jul 2016 10:03:55 +0600
 
-astercti (0.0.16-1) unstable; urgency=medium
+astercti (0.0.16-1) UNRELEASED; urgency=medium
 
   * Fix save calls on exit via taskbar icon
   * Clean up IPC code, preventing segfault on exit
@@ -13,13 +25,13 @@ astercti (0.0.16-1) unstable; urgency=medium
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 14 Jun 2016 14:22:39 +0600
 
-astercti (0.0.15-1) unstable; urgency=medium
+astercti (0.0.15-1) UNRELEASED; urgency=medium
 
   * Use "Event: Bridge" to detect bridged channels
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Mon, 30 May 2016 16:02:54 +0600
 
-astercti (0.0.14-1) unstable; urgency=medium
+astercti (0.0.14-1) UNRELEASED; urgency=medium
 
   + Save call list on exit, load on start
   + Reverse call list - last on top
@@ -27,19 +39,19 @@ astercti (0.0.14-1) unstable; urgency=medium
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Fri, 20 May 2016 17:01:22 +0600
 
-astercti (0.0.13-1) unstable; urgency=medium
+astercti (0.0.13-1) UNRELEASED; urgency=medium
 
   * Change taskbar icon when calls missed
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Thu, 12 May 2016 14:24:19 +0600
 
-astercti (0.0.12-1) unstable; urgency=medium
+astercti (0.0.12-1) UNRELEASED; urgency=medium
 
   * Fix originating right after startup
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 10 May 2016 15:09:46 +0600
 
-astercti (0.0.11-1) unstable; urgency=medium
+astercti (0.0.11-1) UNRELEASED; urgency=medium
 
   * Fix crash when Channel is empty
   * Don't print debugging info in release version
@@ -49,7 +61,7 @@ astercti (0.0.11-1) unstable; urgency=medium
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 10 May 2016 11:08:23 +0600
 
-astercti (0.0.10-1) unstable; urgency=medium
+astercti (0.0.10-1) UNRELEASED; urgency=medium
 
   + Show CallerID of a call being transferred to us
   * Hide to tray on window close
@@ -58,14 +70,14 @@ astercti (0.0.10-1) unstable; urgency=medium
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 19 Apr 2016 17:12:15 +0600
 
-astercti (0.0.9-1) unstable; urgency=medium
+astercti (0.0.9-1) UNRELEASED; urgency=medium
 
   * Fix segfaults (in observer and window management).
   * Fix some memory leaks.
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Fri, 27 Nov 2015 11:16:22 +0600
 
-astercti (0.0.8-1) unstable; urgency=medium
+astercti (0.0.8-1) UNRELEASED; urgency=medium
 
   + Add command line options: hide on startup, dial a number (click2call)
   + Add desktop file with handler of tel URI
@@ -73,57 +85,57 @@ astercti (0.0.8-1) unstable; urgency=medium
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Thu, 15 Oct 2015 09:44:26 +0600
 
-astercti (0.0.7-1) unstable; urgency=medium
+astercti (0.0.7-1) UNRELEASED; urgency=medium
 
   * Fix call list sizing issue
   * Reconnect if connection lost
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Thu, 17 Sep 2015 16:56:08 +0600
 
-astercti (0.0.6-1) unstable; urgency=medium
+astercti (0.0.6-1) UNRELEASED; urgency=medium
 
   * Fix error in call status determinig.
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Wed, 29 Jul 2015 18:23:59 +0600
 
-astercti (0.0.5-1) unstable; urgency=medium
+astercti (0.0.5-1) UNRELEASED; urgency=medium
 
   * More usable main window.
   * Make use of events, internals a bit cleaner now.
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Tue, 28 Jul 2015 19:50:03 +0600
 
-astercti (0.0.4-1) unstable; urgency=medium
+astercti (0.0.4-1) UNRELEASED; urgency=medium
 
   * Show services in lookup. Still barely-usable alpha.
 
  -- Michael A. Mikhailov <yohanson@ngs.ru>  Wed, 17 Jun 2015 12:49:38 +0600
 
-astercti (0.0.3-2) unstable; urgency=medium
+astercti (0.0.3-2) UNRELEASED; urgency=medium
 
   * Make it run in wheezy. For that I had to disable regexp and make
     all values is JSON to be strings.
 
  -- Mikhailov M.A. <yohanson@ngs.ru>  Mon, 08 Jun 2015 18:11:39 +0600
 
-astercti (0.0.3-1) unstable; urgency=medium
+astercti (0.0.3-1) UNRELEASED; urgency=medium
 
   * Lookup number via command printing JSON.
 
  -- Mikhailov M.A. <yohanson@ngs.ru>  Mon, 08 Jun 2015 15:02:32 +0600
 
-astercti (0.0.2-2) unstable; urgency=medium
+astercti (0.0.2-2) UNRELEASED; urgency=medium
 
   * Make notification frame disappear on pickup.
 
  -- Mikhailov M.A. <yohanson@ngs.ru>  Mon, 08 Jun 2015 15:01:58 +0600
 
-astercti (0.0.2-1) unstable; urgency=low
+astercti (0.0.2-1) UNRELEASED; urgency=low
 
   * Rewrite from scratch without astxx and boost, pure wxWidgets.
 
  -- Mikhailov M.A. <yohanson@ngs.ru>  Wed, 02 Jun 2015 14:51:23 +0600
-astercti (0.0.1-1) unstable; urgency=low
+astercti (0.0.1-1) UNRELEASED; urgency=low
 
   * Initial release with astxx.
 
