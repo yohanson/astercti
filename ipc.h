@@ -5,7 +5,12 @@
 #include "controller.h"
 
 static const std::string IPC_TOPIC      ( "astercti.IPC" );
-static const std::string IPC_SERVICENAME( "/tmp/astercti-ipc.socket" );
+#ifdef __WXMSW__
+    // In Windows only numbers work as a service name, don't know why
+    static const std::string IPC_SERVICENAME( "51924" ); // some random number
+#else
+    static const std::string IPC_SERVICENAME( "/tmp/astercti-ipc.socket" );
+#endif
 static const std::string IPC_CMD_RISE   ( "cmd:rise" );
 
 class IpcServer;
@@ -33,8 +38,8 @@ public:
     virtual ~IpcServer();
 
     void Disconnect();
-    bool IsConnected() { return m_connection != NULL; }
-    IpcConnection *GetConnection() { return m_connection; }
+    bool IsConnected();
+    IpcConnection *GetConnection();
     virtual wxConnectionBase *OnAcceptConnection(const wxString& topic);
     void InvalidateConnection();
 
@@ -52,8 +57,8 @@ public:
     bool Connect(const wxString& sHost, const wxString& sService, const wxString& sTopic);
     void Disconnect();
     wxConnectionBase *OnMakeConnection();
-    bool IsConnected() { return m_connection != NULL; };
-    IpcConnection *GetConnection() { return m_connection; };
+    bool IsConnected();
+    IpcConnection *GetConnection();
 
 protected:
     IpcConnection     *m_connection;

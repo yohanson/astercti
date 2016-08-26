@@ -6,30 +6,30 @@
 MyTaskBarIcon::MyTaskBarIcon(wxString defaultIconFile, wxString missedIconFile, wxString tooltip = wxEmptyString)
 {
 	Init();
-    m_defaultIcon = new wxIcon(defaultIconFile, wxBITMAP_TYPE_PNG);
-    m_missedIcon = new wxIcon(missedIconFile, wxBITMAP_TYPE_PNG);
+    m_defaultIcon.LoadFile(defaultIconFile, wxBITMAP_TYPE_PNG);
+    m_missedIcon.LoadFile(missedIconFile, wxBITMAP_TYPE_PNG);
     tooltip_base = tooltip;
-	SetIcon(*m_defaultIcon, tooltip_base);
+	SetIcon(m_defaultIcon, tooltip_base);
 }
 
 MyTaskBarIcon::MyTaskBarIcon(wxIcon defaultIcon, wxIcon missedIcon, wxString tooltip = wxEmptyString)
 {
 	Init();
-    m_defaultIcon = new wxIcon(defaultIcon);
-    m_missedIcon = new wxIcon(missedIcon);
+    m_defaultIcon = defaultIcon;
+    m_missedIcon = missedIcon;
     tooltip_base = tooltip;
-	SetIcon(*m_defaultIcon, tooltip_base);
+	SetIcon(m_defaultIcon, tooltip_base);
 }
 
 void MyTaskBarIcon::SetMissedCalls(int missed = 0)
 {
     if (missed)
     {
-        SetIcon(*m_missedIcon, tooltip_base + "\n" + wxString::Format(wxPLURAL("Missed call", "%d missed calls", missed), missed));
+        SetIcon(m_missedIcon, tooltip_base + "\n" + wxString::Format(wxPLURAL("Missed call", "%d missed calls", missed), missed));
     }
     else
     {
-        SetIcon(*m_defaultIcon, tooltip_base);
+        SetIcon(m_defaultIcon, tooltip_base);
     }
 }
 

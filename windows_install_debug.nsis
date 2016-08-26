@@ -13,14 +13,6 @@ SetOutPath $INSTDIR
  
 # define what to install and place it in the output path
 File debug_win\astercti.exe
-File astercti.png
-File astercti-missed.png
-File dial.png
-File hangup.png
-File incoming_answered.png
-File incoming_unanswered.png
-File outbound_answered.png
-File outbound_unanswered.png
 File astercti.ini.default
 File /usr/local/lib/libcurl.dll
 File *.dll
@@ -30,5 +22,8 @@ File /oname=ru\astercti.mo i18n/ru.mo
 
 SetOutPath $APPDATA\astercti
 File astercti.ini.default
+
+WriteRegStr HKCR "tel" 'URL Protocol' ''
+WriteRegStr HKCR "tel\shell\open\command" '' '"$PROGRAMFILES\astercti\astercti.exe" "%1"'
 SectionEnd
 

@@ -24,8 +24,8 @@ protected:
     std::list<EventListener *> _listeners;
 	void handleEvent(const AmiMessage &);
 public:
-	void add(EventListener &);
-	void remove(EventListener &);
+	void broadcast(EventListener &);
+	void no_broadcast(EventListener &);
 	void NotifyOnDialIn(const AmiMessage &);
 	void NotifyOnRing(const AmiMessage &);
 	void NotifyOnOriginate(const AmiMessage &);
@@ -49,7 +49,7 @@ public:
     wxString edescr;
     EventListener();
     ~EventListener();
-    void listens_to(EventGenerator &);
+    void subscribe(EventGenerator &);
 	virtual void OnDialIn(const AmiMessage &);
 	virtual void OnRing(const AmiMessage &);
 	virtual void OnOriginate(const AmiMessage &);

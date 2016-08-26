@@ -14,7 +14,8 @@ public:
     std::string observer_descr;
     IObserver();
     ~IObserver();
-    void listens_to(IObservable &);
+    void subscribe(IObservable &);
+    void unsubscribe(IObservable &);
     virtual void handleEvent(const AmiMessage&) = 0;
 };
 
@@ -23,30 +24,10 @@ class IObservable
 	std::list<IObserver *> _observers;
 public:
     std::string observable_descr;
-	void add(IObserver &observer);
-	void remove(IObserver &observer);
+	void broadcast(IObserver &observer);
+	void no_broadcast(IObserver &observer, bool both_ends = true);
 	void Notify(const AmiMessage &message);
-};
-
-class AmiMessageFilter : public IObserver, public IObservable
-{
-	virtual bool filter(const AmiMessage &message) = 0;
-	void handleEvent(const AmiMessage& message);
-};
-
-class MyChanFilter : public AmiMessageFilter
-{
-	std::string m_channel_id;
-public:
-	MyChanFilter(std::string channel);
-	bool filter(const AmiMessage &message);
-	//void virtual OnCdr(const AmiMessage &message) = 0;
-};
-
-class InternalMessageFilter : public AmiMessageFilter
-{
-public:
-	bool filter(const AmiMessage &message);
+    ~IObservable();
 };
 
 #endif

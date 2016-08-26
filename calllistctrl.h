@@ -15,6 +15,7 @@ public:
                  const wxValidator &    validator = wxDefaultValidator,
                  const wxString &       name = wxListCtrlNameStr
     ) : wxListCtrl(parent, id, pos, size, style, validator, name) {};
+    ~CallListCtrl();
     long InsertCallItem(Call *call, long index = 0);
     void UpdateItem(long index);
 private:

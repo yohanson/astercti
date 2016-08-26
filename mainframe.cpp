@@ -7,6 +7,7 @@
 #include <wx/imaglist.h>
 #include <wx/stdpaths.h>
 #include <wx/tokenzr.h>
+#include <wx/aboutdlg.h>
 
 #include "observer.h"
 #include "asterisk.h"
@@ -16,6 +17,7 @@
 #include "version.h"
 #include "call.h"
 #include "chanstatus.h"
+#include "iconmacro.h"
 
 #define CALLS_FILE "calls.txt"
 
@@ -31,9 +33,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
 
     wxImage::AddHandler(new wxPNGHandler);
     wxMenu *menuFile = new wxMenu;
-    menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
-                     "Help string shown in status bar for this menu item");
-    menuFile->AppendSeparator();
     menuFile->Append(wxID_EXIT);
     wxMenu *menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABOUT);
@@ -44,11 +43,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
 
     wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     wxImageList *imagelist = new wxImageList(24, 24, true);
-    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_answered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_unanswered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_answered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "outbound_unanswered.png")));
-    imagelist->Add(wxBitmap(wxImage(datadir + "incoming_answered_elsewhere.png")));
+    imagelist->Add(ACTI_ICON("incoming_answered"));
+    imagelist->Add(ACTI_ICON("incoming_unanswered"));
+    imagelist->Add(ACTI_ICON("outbound_answered"));
+    imagelist->Add(ACTI_ICON("outbound_unanswered"));
+    imagelist->Add(ACTI_ICON("incoming_answered_elsewhere"));
+    m_dialIcon.CopyFromIcon(ACTI_ICON_SIZED("dial", 24));
+    m_hangupIcon.CopyFromIcon(ACTI_ICON_SIZED("hangup", 24));
 
     wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
     TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
@@ -62,7 +63,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     wxFont numberFont(wxSize(0,24), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     m_DialNumber->SetFont(numberFont);
-    m_DialButton = new wxBitmapButton(RightPanel, wxID_ANY, wxBitmap(wxImage(datadir + "dial.png")), wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
+    m_DialButton = new wxBitmapButton(RightPanel, wxID_ANY, m_dialIcon, wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
@@ -78,7 +79,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     RightSizer->Add(StatusText, 1, wxEXPAND);
     TopMostVerticalSplitter->SplitVertically(m_callList, RightPanel);
 
-    Connect(ID_Hello, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnHello));
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnExit));
     Connect(wxID_ABOUT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnAbout));
     Bind(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose), this);
@@ -102,18 +102,18 @@ void MyFrame::OnExit(wxCommandEvent& event)
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-	wxString version_message;
-       version_message << "AsterCTI v"  VERSION  "\n"
-		"Git commit: " << gitcommit << " " << gitcommitdate << "\n"
-		"Built: " << builddate << "\n"
-		"https://github.com/yohanson/astercti";
-	wxLogMessage(version_message);
+    wxString buildinfo;
+    buildinfo << "Git commit: " << gitcommit << "\n"
+	    << "Built: " << builddate << "\n";
+    wxAboutDialogInfo info;
+    info.SetName("AsterCTI");
+    info.SetVersion(FULLVERSION);
+    info.SetDescription(_("Computer-Telephone Integration app for Asterisk.") + "\n\n" + buildinfo);
+    info.SetCopyright(wxT("(C) 2015-2016"));
+    info.AddDeveloper("Michael Mikhailov <yohanson@ngs.ru>");
+    info.SetWebSite("https://github.com/yohanson/astercti");
+    wxAboutBox(info);
 }
-void MyFrame::OnHello(wxCommandEvent& event)
-{
-    wxLogMessage("Hello world from wxWidgets!");
-}
-
 void MyFrame::OnClose(wxCloseEvent& event)
 {
     if (event.CanVeto())
@@ -164,9 +164,9 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
 void MyFrame::UpdateDialButtonImage()
 {
     if (m_last_channel_state == AST_STATE_DOWN)
-        m_DialButton->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "dial.png")));
+        m_DialButton->SetBitmap(m_dialIcon);
     else
-        m_DialButton->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "hangup.png")));
+        m_DialButton->SetBitmap(m_hangupIcon);
 }
 
 void MyFrame::OnListResize(wxSizeEvent &event)
@@ -210,7 +210,10 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
     {
         label << _("End: ") << call->GetTimeEnd().FormatISOCombined(' ') << '\n';
     }
-    label << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
+    if (call->GetDisposition() == Call::CALL_ANSWERED)
+    {
+        label << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
+    }
 	m_CallInfo->SetLabel(label);
 }
 
@@ -265,7 +268,7 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     std::string calleridname = m["CallerIDName"];
     m_current_channel = m["Destination"];
 	Call *call = new Call;
-    if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>")
+    if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>" && m["CallerIDName"] != m["CallerIDNum"])
     {
         call->SetName(m["CallerIDName"]);
     }
@@ -439,19 +442,27 @@ void MyFrame::OnDial(const AmiMessage &m)
 
 void MyFrame::OnInternalMessage(const AmiMessage &m)
 {
-	static std::string last;
-	if (m["InternalMessage"] == last) return;
-	last = m["InternalMessage"];
-	if (m["InternalMessage"] == "ConnectionLost")
-	{
-		SetStatusText(_("Connection Lost"));
-		Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connection Lost"));
-	}
-	else if (m["InternalMessage"] == "Connected")
-	{
-		SetStatusText(_("Connected"));
-		Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connected"));
-	}
+    static bool was_connected;
+    if (m["InternalMessage"] == "ConnectionStatus")
+    {
+        bool connected = (m["Status"] == "Connected");
+        if (connected == was_connected) return;
+        if (!connected)
+        {
+            SetStatusText(_("Connection Lost"));
+            Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connection Lost"));
+        }
+        else
+        {
+            SetStatusText(_("Connected"));
+            Log(wxDateTime::Now().FormatISOCombined() + " " + _("Connected"));
+        }
+        was_connected = connected;
+    }
+    else if (m["InternalMessage"] == "LogMsg")
+    {
+        Log(m["LogMsg"]);
+    }
 }
 
 void MyFrame::Log(const wxString &str)

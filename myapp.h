@@ -7,6 +7,8 @@
 #include "taskbaricon.h"
 #include "ipc.h"
 #include "events.h"
+#include "filter.h"
+#include "chanstatus.h"
 
 class MyApp: public wxApp
 {
@@ -25,6 +27,8 @@ private:
     IpcServer *m_ipcServer;
     MyChanFilter *m_mychanfilter;
     InternalMessageFilter *m_intmsgfilter;
+    ShortenNumberModifier *m_numbershortener;
+    ChannelStatusPool   *m_chanstatuspool;
     EventGenerator *m_events;
 };
 

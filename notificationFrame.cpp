@@ -22,6 +22,7 @@
 #include "controller.h"
 #include "version.h"
 #include "chanstatus.h"
+#include "iconmacro.h"
 
 struct MemoryStruct {
 	  char *memory;
@@ -109,7 +110,9 @@ notificationFrame::notificationFrame(wxWindow* parent, ChannelStatusPool *pool)
 	BoxSizer1->Add(HtmlWindow1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizerButtons = new wxBoxSizer(wxHORIZONTAL);
 	Button1 = new wxButton(this, ID_BUTTON1, _("No"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    Button1->SetBitmap(wxBitmap(wxImage(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "hangup.png")));
+    wxBitmap hangupIcon;
+    hangupIcon.CopyFromIcon(ACTI_ICON_SIZED("hangup", 24));
+    Button1->SetBitmap(hangupIcon);
 	BoxSizerButtons->Add(Button1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
 	BoxSizer1->Add(BoxSizerButtons, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 0);
 	SetSizer(BoxSizer1);

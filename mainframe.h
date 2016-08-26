@@ -28,7 +28,6 @@ public:
     void Log(const wxString &);
 
 private:
-    void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
@@ -46,6 +45,8 @@ private:
     wxStaticText *m_CallInfo;
     MyTaskBarIcon *m_taskbaricon;
     std::string m_current_channel;
+    wxBitmap       m_dialIcon,
+                   m_hangupIcon;
     int m_missed_calls;
 };
 
@@ -56,8 +57,7 @@ class CallListItem : public wxListItem, public Call
 
 enum
 {
-    ID_Hello = 1,
-    ID_TextCtlNumber
+    ID_TextCtlNumber = 1
 };
 
 extern const char *gitcommit;

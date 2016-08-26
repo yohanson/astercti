@@ -26,6 +26,8 @@ number_min_length=7
 # Search clients web page url. %s replaced with Caller ID.
 ;search_url=https://example.com/searchcaller?phone=%s
 
+replace_number_prefix=/810/+/,/+7/8/,/83832/2/,/83833/3/
+
 # templates can have macros like ${name}, they are taken out of JSON returned by lookup_cmd
 [templates]
 client_url=https://example.com/clients.cgi?cmd=2&CT=${clienttype}&NClient=${id}

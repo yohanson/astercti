@@ -4,6 +4,8 @@
 *.exe
 astercti
 *.log
+*.ico
+*.rc
 i18n/*.mo
 debian/astercti.substvars
 debian/files
