@@ -3,6 +3,8 @@
 *.dll
 *.exe
 astercti
+runner
+runner.cpp
 *.log
 *.ico
 *.rc

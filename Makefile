@@ -42,6 +42,7 @@ clean:
 	rm -f *.rc
 	rm -f *.ico
 	rm -rf build
+	rm -f runner src/runner.cpp
 
 $(DBGDIR)/%.o: CXXFLAGS += -DDEBUG -ggdb -O0
 $(DBGDIR)/%.o: src/%.cpp
@@ -105,6 +106,24 @@ $(WINRELDIR)/$(BINARY).exe: $(WINRELDIR) $(WINRELEASE_OBJ) i18n/ru.mo
 	mv astercti_installer.exe pkg/astercti_$(VERSION)_installer.exe
 
 
+debug: $(DBGDIR)/$(BINARY)
+
+release: $(RELDIR)/$(BINARY) i18n/ru.mo
+
+windebug: $(WINDBGDIR)/$(BINARY).exe
+
+winrelease: $(WINRELDIR)/$(BINARY).exe i18n/ru.mo
+
+src/runner.cpp: src/*_test.h
+	cxxtestgen --error-printer -o src/runner.cpp src/*_test.h
+
+runner: src/runner.cpp
+	$(CXX) $(CXXFLAGS) src/runner.cpp -o runner
+
+test: CXXFLAGS+=-DTEST
+test: runner
+	./runner
+	
 
 messages.po:
 	xgettext -C -k_ -kwxPLURAL:1,2 --omit-header src/*.cpp
