@@ -226,17 +226,12 @@ void MyFrame::handleEvent(const AmiMessage &message)
 void MyFrame::OnOriginate(const AmiMessage &m)
 {
 	Log("##### We are originating! #####\n");
-	wxListItem *item = new wxListItem;
-	item->SetId(0);
 	Call *call = new Call;
 	call->SetNumber(m["ConnectedLineName"]); // yes, it's right
-	item->SetText(m["ConnectedLineName"]);
 	call->SetUniqueID(std::stoi(m["Uniqueid"]));
 	call->SetTimeStart(wxDateTime::Now());
 	call->SetDirection(Call::CALL_OUT);
-	item->SetData(call);
-	item->SetImage(2);
-	m_callList->InsertItem(*item);
+	m_callList->InsertCallItem(call);
 	m_last_channel_state = AST_STATE_RINGING;
     m_current_channel = m["Channel"];
     UpdateDialButtonImage();
