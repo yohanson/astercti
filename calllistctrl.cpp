@@ -1,5 +1,6 @@
 #include <wx/settings.h>
 #include <wx/dcclient.h>
+#include <wx/colour.h>
 #include "calllistctrl.h"
 
 CallListCtrl::CallListCtrl(wxWindow *  parent,
@@ -16,17 +17,40 @@ CallListCtrl::CallListCtrl(wxWindow *  parent,
     InsertColumn(0, "");
     InsertColumn(1, "", wxLIST_FORMAT_RIGHT);
     Bind(wxEVT_SIZE, &CallListCtrl::OnResize, this);
+    secondcolour = wxColour(0xE0E0E0);
 };
 
 
 long CallListCtrl::InsertCallItem(Call *call, long index)
 {
     wxListItem item;
+    bool top = (index == 0);
+    int previndex;
+    if (top)
+        previndex = index + 1;
+    else
+        previndex = index - 1;
     item.SetId(index);
     item.SetData(call);
     InsertItem(item);
     wxString time = call->GetTimeStart().Format(m_timeFormat);
-    SetItem(item.GetId(), 1, time);
+    SetItem(index, 1, time);
+    if (GetItemCount() > 1)
+    {
+        Call *prevcall = reinterpret_cast<Call *>(GetItemData(previndex));
+        if (prevcall)
+        {
+            wxColor prevcolor = GetItemBackgroundColour(previndex);
+            if (prevcall->GetTimeStart().GetDayOfYear() != call->GetTimeStart().GetDayOfYear())
+            {
+                if (prevcolor != secondcolour)
+                {
+                    SetItemBackgroundColour(index, secondcolour);
+                }
+            }
+            else SetItemBackgroundColour(index, prevcolor);
+        }
+    }
     UpdateItem(index);
     wxClientDC dc(this);
     wxSize size = dc.GetTextExtent(time);
@@ -34,7 +58,6 @@ long CallListCtrl::InsertCallItem(Call *call, long index)
     if (w > max_time_width)
     {
         max_time_width = w;
-        std::cout << "Bigger: " << w << std::endl;
     }
 }
 
