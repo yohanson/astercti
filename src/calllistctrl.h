@@ -13,12 +13,18 @@ public:
                  const wxSize &         size = wxDefaultSize,
                  long                   style = wxLC_ICON,
                  const wxValidator &    validator = wxDefaultValidator,
-                 const wxString &       name = wxListCtrlNameStr
-    ) : wxListCtrl(parent, id, pos, size, style, validator, name) {};
+                 const wxString &       name = wxListCtrlNameStr,
+                 const wxString &       timeFormat = wxDefaultDateTimeFormat
+    );
     ~CallListCtrl();
     long InsertCallItem(Call *call, long index = 0);
     void UpdateItem(long index);
+    void SetTimeFormat(const wxString & timeFormat);
+    void OnResize(wxSizeEvent &event);
 private:
+    wxString m_timeFormat;
+    int max_time_width;
+    wxColour secondcolour;
 };
 
 #endif

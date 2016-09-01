@@ -2,7 +2,6 @@
 #include <wx/wx.h>
 #include <wx/app.h>
 #include <wx/listctrl.h>
-#include <wx/splitter.h>
 #include <wx/image.h>
 #include <wx/imaglist.h>
 #include <wx/stdpaths.h>
@@ -18,13 +17,16 @@
 #include "call.h"
 #include "chanstatus.h"
 #include "iconmacro.h"
+#include "utils.h"
 
 #define CALLS_FILE "calls.txt"
 
 wxDECLARE_APP(MyApp);
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool)
-        : wxFrame(NULL, wxID_ANY, title, pos, size), ChannelStatusPooler(pool)
+        : wxFrame(NULL, wxID_ANY, title, pos, size),
+          ChannelStatusPooler(pool),
+          TopMostVerticalSplitter(this)
 {
     edescr = "mainframe";
     m_taskbaricon = NULL;
@@ -51,13 +53,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     m_dialIcon.CopyFromIcon(ACTI_ICON_SIZED("dial", 24));
     m_hangupIcon.CopyFromIcon(ACTI_ICON_SIZED("hangup", 24));
 
-    wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
-    TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
-    TopMostVerticalSplitter->SetMinimumPaneSize(100);
-    TopMostVerticalSplitter->SetSashGravity(0);
+    TopMostVerticalSplitter.SetMinSize(wxSize(100,100));
+    TopMostVerticalSplitter.SetMinimumPaneSize(100);
+    TopMostVerticalSplitter.SetSashGravity(0);
+    long splitter_pos = wxGetApp().m_config->ReadLong("autosave/splitter_position", 0);
 
     wxBoxSizer *RightSizer = new wxBoxSizer(wxVERTICAL);
-    wxPanel *RightPanel = new wxPanel(TopMostVerticalSplitter);
+    wxPanel *RightPanel = new wxPanel(&TopMostVerticalSplitter);
     RightPanel->SetSizer(RightSizer);
     wxBoxSizer *DialSizer = new wxBoxSizer(wxHORIZONTAL);
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
@@ -68,16 +70,15 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n\n\n");
-    m_callList = new CallListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
+    m_callList = new CallListCtrl(&TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
+    m_callList->SetTimeFormat(wxGetApp().m_config->Read("gui/call_list_time_format", wxDefaultDateTimeFormat));
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
-    m_callList->InsertColumn(0, "");
-    m_callList->InsertColumn(1, "");
     if (!LoadCalls(CALLS_FILE))
         std::cerr << _("Loading calls failed") << std::endl;
     RightSizer->Add(DialSizer, 0, wxEXPAND);
     RightSizer->Add(m_CallInfo, 0, wxEXPAND);
     RightSizer->Add(StatusText, 1, wxEXPAND);
-    TopMostVerticalSplitter->SplitVertically(m_callList, RightPanel);
+    TopMostVerticalSplitter.SplitVertically(m_callList, RightPanel, splitter_pos);
 
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnExit));
     Connect(wxID_ABOUT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnAbout));
@@ -85,7 +86,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     Bind(wxEVT_ACTIVATE, wxActivateEventHandler(MyFrame::OnActivate), this);
     m_DialNumber->Bind(wxEVT_TEXT_ENTER, &MyFrame::OnDialPressEnter, this);
     m_DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
-    m_callList->Bind(wxEVT_SIZE, &MyFrame::OnListResize, this);
     m_callList->Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::OnListItemSelect, this);
 
     CreateStatusBar();
@@ -124,6 +124,7 @@ void MyFrame::OnClose(wxCloseEvent& event)
     }
     if (!SaveCalls(CALLS_FILE))
         std::cerr << _("Saving calls failed") << std::endl;
+    SavePosition();
     m_taskbaricon->Destroy();
 	Destroy();
 }
@@ -135,6 +136,21 @@ void MyFrame::OnActivate(wxActivateEvent &event)
         m_missed_calls = 0;
         m_taskbaricon->SetMissedCalls(0);
     }
+}
+
+void MyFrame::SavePosition()
+{
+    wxPoint p = GetPosition();
+    wxSize s = GetSize();
+    long splitter_pos = TopMostVerticalSplitter.GetSashPosition();
+    wxFileConfig *cfg = wxGetApp().m_config;
+    cfg->Write("autosave/maximized", IsMaximized());
+    if (!IsMaximized())
+    {
+        cfg->Write("autosave/position", p);
+        cfg->Write("autosave/size", s);
+    }
+    cfg->Write("autosave/splitter_position", splitter_pos);
 }
 
 void MyFrame::OnDialPressEnter(wxCommandEvent &event)
@@ -169,23 +185,6 @@ void MyFrame::UpdateDialButtonImage()
         m_DialButton->SetBitmap(m_hangupIcon);
 }
 
-void MyFrame::OnListResize(wxSizeEvent &event)
-{
-	wxSize csize = m_callList->GetClientSize();
-	wxSize vsize = m_callList->GetVirtualSize();
-	int width = csize.x;
-	if (vsize.y > csize.y)
-		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
-    int datewidth = width / 2;
-    if (width >= 300)
-        datewidth = 150;
-    else datewidth = 0;
-	m_callList->SetColumnWidth(0, width-datewidth);
-    m_callList->SetColumnWidth(1, datewidth);
-
-	event.Skip();
-}
-
 void MyFrame::OnListItemSelect(wxListEvent &event)
 {
 	Call *call = reinterpret_cast<Call *>(event.GetData());
@@ -217,6 +216,7 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 	m_CallInfo->SetLabel(label);
 }
 
+
 void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
 {
     m_taskbaricon = taskbaricon;
@@ -245,17 +245,12 @@ void MyFrame::handleEvent(const AmiMessage &message)
 void MyFrame::OnOriginate(const AmiMessage &m)
 {
 	Log("##### We are originating! #####\n");
-	wxListItem *item = new wxListItem;
-	item->SetId(0);
 	Call *call = new Call;
 	call->SetNumber(m["ConnectedLineName"]); // yes, it's right
-	item->SetText(m["ConnectedLineName"]);
 	call->SetUniqueID(std::stoi(m["Uniqueid"]));
 	call->SetTimeStart(wxDateTime::Now());
 	call->SetDirection(Call::CALL_OUT);
-	item->SetData(call);
-	item->SetImage(2);
-	m_callList->InsertItem(*item);
+	m_callList->InsertCallItem(call);
 	m_last_channel_state = AST_STATE_RINGING;
     m_current_channel = m["Channel"];
     UpdateDialButtonImage();

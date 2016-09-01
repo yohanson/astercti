@@ -2,6 +2,7 @@
 #define _MAINFRAME_H_
 
 #include <wx/listctrl.h>
+#include <wx/splitter.h>
 #include "events.h"
 #include "taskbaricon.h"
 #include "calllistctrl.h"
@@ -36,6 +37,7 @@ private:
     void OnDialPressEnter(wxCommandEvent &);
     void OnListResize(wxSizeEvent&);
     void OnListItemSelect(wxListEvent&);
+    void SavePosition();
     bool SaveCalls(const wxString &filename);
     bool LoadCalls(const wxString &filename);
     wxTextCtrl *StatusText;
@@ -44,6 +46,7 @@ private:
     wxBitmapButton *m_DialButton;
     wxStaticText *m_CallInfo;
     MyTaskBarIcon *m_taskbaricon;
+    wxSplitterWindow TopMostVerticalSplitter;
     std::string m_current_channel;
     wxBitmap       m_dialIcon,
                    m_hangupIcon;

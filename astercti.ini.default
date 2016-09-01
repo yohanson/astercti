@@ -41,4 +41,5 @@ client_postservices=</ul>
 # -1: do not hide
 pickup_notify_hide_timeout=3000
 max_calls_saved=1000
-debugreport_url=http://example.com/debugreport/
+;debugreport_url=http://example.com/debugreport/
+call_list_time_format=%a %d %b %R
