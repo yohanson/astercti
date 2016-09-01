@@ -22,6 +22,7 @@
 #include "chanstatus.h"
 #include "debugreport.h"
 #include "iconmacro.h"
+#include "utils.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -63,7 +64,11 @@ bool MyApp::OnInit()
     }
 
     m_chanstatuspool = new ChannelStatusPool(m_config->Read("dialplan/channel").ToStdString());
-    MyFrame *frame = new MyFrame( "AsterCTI", wxDefaultPosition, wxSize(600, 400), m_chanstatuspool);
+    wxPoint pos = m_config->ReadObject("autosave/position", wxDefaultPosition);
+    wxSize size = m_config->ReadObject("autosave/size", wxSize(600, 400));
+    bool maximized = m_config->ReadBool("autosave/maximized", false);
+    MyFrame *frame = new MyFrame( "AsterCTI", pos, size, m_chanstatuspool);
+    if (maximized) frame->Maximize();
     Asterisk *asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
 		5038,
 		m_config->Read("server/username").ToStdString(),

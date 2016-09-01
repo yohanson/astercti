@@ -2,7 +2,6 @@
 #include <wx/wx.h>
 #include <wx/app.h>
 #include <wx/listctrl.h>
-#include <wx/splitter.h>
 #include <wx/image.h>
 #include <wx/imaglist.h>
 #include <wx/stdpaths.h>
@@ -18,13 +17,16 @@
 #include "call.h"
 #include "chanstatus.h"
 #include "iconmacro.h"
+#include "utils.h"
 
 #define CALLS_FILE "calls.txt"
 
 wxDECLARE_APP(MyApp);
 
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool)
-        : wxFrame(NULL, wxID_ANY, title, pos, size), ChannelStatusPooler(pool)
+        : wxFrame(NULL, wxID_ANY, title, pos, size),
+          ChannelStatusPooler(pool),
+          TopMostVerticalSplitter(this)
 {
     edescr = "mainframe";
     m_taskbaricon = NULL;
@@ -51,13 +53,13 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     m_dialIcon.CopyFromIcon(ACTI_ICON_SIZED("dial", 24));
     m_hangupIcon.CopyFromIcon(ACTI_ICON_SIZED("hangup", 24));
 
-    wxSplitterWindow *TopMostVerticalSplitter = new wxSplitterWindow(this);
-    TopMostVerticalSplitter->SetMinSize(wxSize(100,100));
-    TopMostVerticalSplitter->SetMinimumPaneSize(100);
-    TopMostVerticalSplitter->SetSashGravity(0);
+    TopMostVerticalSplitter.SetMinSize(wxSize(100,100));
+    TopMostVerticalSplitter.SetMinimumPaneSize(100);
+    TopMostVerticalSplitter.SetSashGravity(0);
+    long splitter_pos = wxGetApp().m_config->ReadLong("autosave/splitter_position", 0);
 
     wxBoxSizer *RightSizer = new wxBoxSizer(wxVERTICAL);
-    wxPanel *RightPanel = new wxPanel(TopMostVerticalSplitter);
+    wxPanel *RightPanel = new wxPanel(&TopMostVerticalSplitter);
     RightPanel->SetSizer(RightSizer);
     wxBoxSizer *DialSizer = new wxBoxSizer(wxHORIZONTAL);
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
@@ -68,7 +70,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n\n\n");
-    m_callList = new CallListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
+    m_callList = new CallListCtrl(&TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->SetTimeFormat(wxGetApp().m_config->Read("gui/call_list_time_format", wxDefaultDateTimeFormat));
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     if (!LoadCalls(CALLS_FILE))
@@ -76,7 +78,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     RightSizer->Add(DialSizer, 0, wxEXPAND);
     RightSizer->Add(m_CallInfo, 0, wxEXPAND);
     RightSizer->Add(StatusText, 1, wxEXPAND);
-    TopMostVerticalSplitter->SplitVertically(m_callList, RightPanel);
+    TopMostVerticalSplitter.SplitVertically(m_callList, RightPanel, splitter_pos);
 
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnExit));
     Connect(wxID_ABOUT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnAbout));
@@ -122,6 +124,7 @@ void MyFrame::OnClose(wxCloseEvent& event)
     }
     if (!SaveCalls(CALLS_FILE))
         std::cerr << _("Saving calls failed") << std::endl;
+    SavePosition();
     m_taskbaricon->Destroy();
 	Destroy();
 }
@@ -133,6 +136,21 @@ void MyFrame::OnActivate(wxActivateEvent &event)
         m_missed_calls = 0;
         m_taskbaricon->SetMissedCalls(0);
     }
+}
+
+void MyFrame::SavePosition()
+{
+    wxPoint p = GetPosition();
+    wxSize s = GetSize();
+    long splitter_pos = TopMostVerticalSplitter.GetSashPosition();
+    wxFileConfig *cfg = wxGetApp().m_config;
+    cfg->Write("autosave/maximized", IsMaximized());
+    if (!IsMaximized())
+    {
+        cfg->Write("autosave/position", p);
+        cfg->Write("autosave/size", s);
+    }
+    cfg->Write("autosave/splitter_position", splitter_pos);
 }
 
 void MyFrame::OnDialPressEnter(wxCommandEvent &event)
@@ -197,6 +215,7 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
     }
 	m_CallInfo->SetLabel(label);
 }
+
 
 void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
 {
