@@ -69,9 +69,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n\n\n");
     m_callList = new CallListCtrl(TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
+    m_callList->SetTimeFormat(wxGetApp().m_config->Read("gui/call_list_time_format", wxDefaultDateTimeFormat));
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
-    m_callList->InsertColumn(0, "");
-    m_callList->InsertColumn(1, "");
     if (!LoadCalls(CALLS_FILE))
         std::cerr << _("Loading calls failed") << std::endl;
     RightSizer->Add(DialSizer, 0, wxEXPAND);
@@ -85,7 +84,6 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     Bind(wxEVT_ACTIVATE, wxActivateEventHandler(MyFrame::OnActivate), this);
     m_DialNumber->Bind(wxEVT_TEXT_ENTER, &MyFrame::OnDialPressEnter, this);
     m_DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
-    m_callList->Bind(wxEVT_SIZE, &MyFrame::OnListResize, this);
     m_callList->Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::OnListItemSelect, this);
 
     CreateStatusBar();
@@ -167,23 +165,6 @@ void MyFrame::UpdateDialButtonImage()
         m_DialButton->SetBitmap(m_dialIcon);
     else
         m_DialButton->SetBitmap(m_hangupIcon);
-}
-
-void MyFrame::OnListResize(wxSizeEvent &event)
-{
-	wxSize csize = m_callList->GetClientSize();
-	wxSize vsize = m_callList->GetVirtualSize();
-	int width = csize.x;
-	if (vsize.y > csize.y)
-		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
-    int datewidth = width / 2;
-    if (width >= 300)
-        datewidth = 150;
-    else datewidth = 0;
-	m_callList->SetColumnWidth(0, width-datewidth);
-    m_callList->SetColumnWidth(1, datewidth);
-
-	event.Skip();
 }
 
 void MyFrame::OnListItemSelect(wxListEvent &event)
