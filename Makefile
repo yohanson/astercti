@@ -17,6 +17,8 @@ RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))
 WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS) jsoncpp.o resource.o)
 WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS) jsoncpp.o resource.o)
 
+default:
+	echo "Please supply target: debug, release, windebug, winrelease, deb"
 
 debug: $(DBGDIR)/$(BINARY)
 
