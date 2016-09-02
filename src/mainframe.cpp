@@ -409,12 +409,17 @@ void MyFrame::OnCdr(const AmiMessage &m)
 			Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 			if (call->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
 			{
+                if (m["Disposition"] == "BUSY" || m["Disposition"] == "NOANSWER")
+                {
+                    call->SetDisposition(Call::CALL_UNANSWERED);
+                    call->SetTimeAnswer(wxInvalidDateTime);
+                }
 				call->SetDuration(stoi(m["BillableSeconds"]));
                 if (call->GetNumber().empty() && call->GetDirection() == Call::CALL_OUT)
                 {
                     call->SetNumber(m["Destination"]);
-                    m_callList->UpdateItem(lastItem);
                 }
+                m_callList->UpdateItem(lastItem);
 
                 if (!SaveCalls(CALLS_FILE))
                     std::cerr << _("Saving calls failed") << std::endl;
