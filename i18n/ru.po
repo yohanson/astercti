@@ -16,75 +16,79 @@ msgstr ""
 "Plural-Forms: nplurals=3;plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? "
 "1 : 2;\n"
 
-#: mainframe.cpp:76
+#: src/mainframe.cpp:77
 msgid "Loading calls failed"
 msgstr "Не удалось загрузить звонки"
 
-#: mainframe.cpp:112
+#: src/mainframe.cpp:112
 msgid "Computer-Telephone Integration app for Asterisk."
 msgstr "Приложение интеграции компьютера и телефона для Asterisk."
 
-#: mainframe.cpp:132 mainframe.cpp:408
+#: src/mainframe.cpp:127 src/mainframe.cpp:420
 msgid "Saving calls failed"
 msgstr "Не удалось сохранить звонки"
 
-#: mainframe.cpp:205
+#: src/mainframe.cpp:208
 msgid "Number: "
 msgstr "Номер: "
 
-#: mainframe.cpp:208
+#: src/mainframe.cpp:211
 msgid "Name: "
 msgstr "Имя: "
 
-#: mainframe.cpp:210
+#: src/mainframe.cpp:213
 msgid "Dial: "
 msgstr "Звонок: "
 
-#: mainframe.cpp:213
+#: src/mainframe.cpp:216
 msgid "Answer: "
 msgstr "Ответ: "
 
-#: mainframe.cpp:217
+#: src/mainframe.cpp:220
 msgid "End: "
 msgstr "Конец: "
 
-#: mainframe.cpp:221
+#: src/mainframe.cpp:224
 msgid "Duration: "
 msgstr "Длительность: "
 
-#: mainframe.cpp:458 mainframe.cpp:459
+#: src/mainframe.cpp:245
+msgid "Extension does not exist."
+msgstr "Неправильно набран номер."
+
+#: src/mainframe.cpp:470 src/mainframe.cpp:471
 msgid "Connection Lost"
 msgstr "Нет связи"
 
-#: mainframe.cpp:463 mainframe.cpp:464
+#: src/mainframe.cpp:475 src/mainframe.cpp:476
 msgid "Connected"
 msgstr "Подключено"
 
-#: mainframe.cpp:495 mainframe.cpp:527
+#: src/mainframe.cpp:507 src/mainframe.cpp:539
 msgid "Unable to open calls file"
 msgstr "Не удаётся открыть файл звонков"
 
-#: mainframe.cpp:509
+#: src/mainframe.cpp:521
 msgid "Unable to read calls from file"
 msgstr "Не удаётся прочитать из файла звонков"
 
-#: mainframe.cpp:514
+#: src/mainframe.cpp:526
 msgid "File is too short"
 msgstr "Файл слишком короткий"
 
-#: myapp.cpp:58
+#: src/myapp.cpp:59
 msgid "Error opening config file."
 msgstr "Ошибка открытия конфига."
 
-#: myapp.cpp:59
+#: src/myapp.cpp:60
 msgid "Sample config is at "
 msgstr "Шаблон конфига в "
 
-#: myapp.cpp:60
+#: src/myapp.cpp:61
 msgid "Rename it to astercti.ini and edit."
 msgstr "Переименуйте его в astercti.ini и поправьте."
 
-#: myapp.cpp:106 notificationFrame.cpp:358
+#: src/myapp.cpp:111 src/notificationFrame.cpp:358
 msgid ""
 "Lookup URL and Lookup command are both unconfigured.\n"
 "Lookup disabled."
@@ -92,11 +96,11 @@ msgstr ""
 "В конфиге не задан ни lookup_url, ни lookup_cmd.\n"
 "Поиск информации по номеру звонящего отключен."
 
-#: myapp.cpp:189
+#: src/myapp.cpp:194
 msgid "debugreport_url not configured!"
 msgstr "debugreport_url не настроен!"
 
-#: myapp.cpp:189
+#: src/myapp.cpp:194
 msgid ""
 "Cannot send crash report.\n"
 "Please, edit config to include [gui] section and 'debugreport_url=http://example.com/debugreport/' - your "
@@ -106,27 +110,27 @@ msgstr ""
 "Поправьте конфиг, чтобы раздел [gui] содержал 'debugreport_url=http://example.com/debugreport/' — ваш "
 "адрес, принимающий debug-файлы."
 
-#: myapp.cpp:204
+#: src/myapp.cpp:209
 msgid "Version information"
 msgstr "Информация о версии"
 
-#: notificationFrame.cpp:112
+#: src/notificationFrame.cpp:112
 msgid "No"
 msgstr "Нет"
 
-#: notificationFrame.cpp:294
+#: src/notificationFrame.cpp:294
 msgid "Pickup the handset to dial"
 msgstr "Снимите трубку для звонка на"
 
-#: notificationFrame.cpp:408
+#: src/notificationFrame.cpp:408
 msgid "See all found"
 msgstr "Все найденные"
 
-#: notificationFrame.cpp:412
+#: src/notificationFrame.cpp:412
 msgid "Unknown number."
 msgstr "Неизвестный номер."
 
-#: taskbaricon.cpp:28
+#: src/taskbaricon.cpp:28
 msgid "Missed call"
 msgid_plural "%d missed calls"
 msgstr[0] "Пропущенный звонок"

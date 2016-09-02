@@ -12,7 +12,7 @@ void Asterisk::Notify(AmiMessage &message)
 {
 	if (message.has("Response"))
 	{
-		if (message["Ping"] == "Pong")
+		if (message.has("Ping") && message["Ping"] == "Pong")
 		{
 			m_pingTimer.Stop();
 			m_ping_timer_active = false;

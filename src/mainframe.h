@@ -35,6 +35,7 @@ private:
     void OnActivate(wxActivateEvent &event);
     void UpdateDialButtonImage();
     void OnDialPressEnter(wxCommandEvent &);
+    void OnDialTextChange(wxCommandEvent &);
     void OnListResize(wxSizeEvent&);
     void OnListItemSelect(wxListEvent&);
     void SavePosition();
