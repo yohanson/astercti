@@ -12,9 +12,9 @@ Section
 SetOutPath $INSTDIR
  
 # define what to install and place it in the output path
-File release_win\astercti.exe
+File build\release_win\astercti.exe
 File astercti.ini.default
-File /usr/local/lib/libcurl.dll
+File libcurl.dll
 File *.dll
 File curl-ca-bundle.crt
 CreateDirectory $INSTDIR\ru
