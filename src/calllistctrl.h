@@ -23,7 +23,6 @@ public:
     void OnResize(wxSizeEvent &event);
 private:
     wxString m_timeFormat;
-    wxColour secondcolour;
 };
 
 #endif
