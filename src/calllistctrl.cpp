@@ -52,13 +52,6 @@ long CallListCtrl::InsertCallItem(Call *call, long index)
         }
     }
     UpdateItem(index);
-    wxClientDC dc(this);
-    wxSize size = dc.GetTextExtent(time);
-    int w = size.GetWidth();
-    if (w > max_time_width)
-    {
-        max_time_width = w;
-    }
 }
 
 void CallListCtrl::UpdateItem(long index)
@@ -123,10 +116,13 @@ void CallListCtrl::OnResize(wxSizeEvent &event)
 	int width = csize.x;
 	if (vsize.y > csize.y)
 		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
-    int timewidth = max_time_width + wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+    int timewidth = wxLIST_AUTOSIZE;
     if (width < 300) timewidth = 0;
-	SetColumnWidth(0, width-timewidth);
     SetColumnWidth(1, timewidth);
-
+    if (timewidth)
+    {
+        timewidth = GetColumnWidth(1);
+    }
+    SetColumnWidth(0, width-timewidth);
 	event.Skip();
 }
