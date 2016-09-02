@@ -1,4 +1,13 @@
-astercti (0.0.18-1) UNRELEASED; urgency=medium
+astercti (0.0.19-1) unstable; urgency=medium
+
+  * Fix absent time of originated call in call list
+  + Save window position, size, vertical splitter pos
+  + Make configurable time format in call list
+  * Move code to src/, images to img/, build in build/
+
+ -- Michael A. Mikhailov <mikhailov@sergeant.risp.ru>  Fri, 02 Sep 2016 12:03:06 +0700
+
+astercti (0.0.18-1) unstable; urgency=medium
 
   * Fix buffer overflow that was crashing the application
   * Fix IPC in Windows (click to call too)

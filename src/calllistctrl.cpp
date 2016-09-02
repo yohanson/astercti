@@ -1,4 +1,24 @@
+#include <wx/settings.h>
+#include <wx/dcclient.h>
+#include <wx/colour.h>
 #include "calllistctrl.h"
+
+CallListCtrl::CallListCtrl(wxWindow *  parent,
+    wxWindowID  id,
+    const wxPoint &        pos,
+    const wxSize &         size,
+    long                   style,
+    const wxValidator &    validator,
+    const wxString &       name,
+    const wxString &       timeFormat
+) : wxListCtrl(parent, id, pos, size, style, validator, name),
+    m_timeFormat(timeFormat)
+{
+    InsertColumn(0, "");
+    InsertColumn(1, "", wxLIST_FORMAT_RIGHT);
+    Bind(wxEVT_SIZE, &CallListCtrl::OnResize, this);
+};
+
 
 long CallListCtrl::InsertCallItem(Call *call, long index)
 {
@@ -6,7 +26,8 @@ long CallListCtrl::InsertCallItem(Call *call, long index)
     item.SetId(index);
     item.SetData(call);
     InsertItem(item);
-    SetItem(item.GetId(), 1, call->GetTimeStart().FormatISOCombined(' '));
+    wxString time = call->GetTimeStart().Format(m_timeFormat);
+    SetItem(index, 1, time);
     UpdateItem(index);
 }
 
@@ -58,4 +79,27 @@ CallListCtrl::~CallListCtrl()
         delete call;
         SetItemPtrData(i, (wxUIntPtr)NULL);
     }
+}
+
+void CallListCtrl::SetTimeFormat(const wxString &timeFormat)
+{
+    m_timeFormat = timeFormat;
+}
+
+void CallListCtrl::OnResize(wxSizeEvent &event)
+{
+	wxSize csize = GetClientSize();
+	wxSize vsize = GetVirtualSize();
+	int width = csize.x;
+	if (vsize.y > csize.y)
+		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+    int timewidth = wxLIST_AUTOSIZE;
+    if (width < 300) timewidth = 0;
+    SetColumnWidth(1, timewidth);
+    if (timewidth)
+    {
+        timewidth = GetColumnWidth(1);
+    }
+    SetColumnWidth(0, width-timewidth);
+	event.Skip();
 }
