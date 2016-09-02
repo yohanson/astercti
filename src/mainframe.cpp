@@ -71,7 +71,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
     m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n\n\n");
     m_callList = new CallListCtrl(&TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
-    m_callList->SetTimeFormat(wxGetApp().m_config->Read("gui/call_list_time_format", wxDefaultDateTimeFormat));
+    m_callList->SetTimeFormat(wxGetApp().m_config->Read("gui/call_list_time_format", "%a %d %b %H:%M"));
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
     if (!LoadCalls(CALLS_FILE))
         std::cerr << _("Loading calls failed") << std::endl;
