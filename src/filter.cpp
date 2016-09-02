@@ -18,8 +18,10 @@ MyChanFilter::MyChanFilter(std::string channel)
 
 bool MyChanFilter::filter(const AmiMessage &message)
 {
-	if (message["Event"].empty())
-	       return false;
+    if (message["Response"] == "Error")
+        return true;
+    if (message["Event"].empty())
+        return false;
 
 	if (message["Event"] == "Cdr")
 	{

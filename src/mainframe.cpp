@@ -85,6 +85,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     Bind(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose), this);
     Bind(wxEVT_ACTIVATE, wxActivateEventHandler(MyFrame::OnActivate), this);
     m_DialNumber->Bind(wxEVT_TEXT_ENTER, &MyFrame::OnDialPressEnter, this);
+    m_DialNumber->Bind(wxEVT_TEXT, &MyFrame::OnDialTextChange, this);
     m_DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
     m_callList->Bind(wxEVT_LIST_ITEM_SELECTED, &MyFrame::OnListItemSelect, this);
 
@@ -177,6 +178,15 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
     }
 }
 
+void MyFrame::OnDialTextChange(wxCommandEvent &event)
+{
+    if (m_CallInfo->GetLabel().Length())
+    {
+        m_CallInfo->SetLabel("");
+        m_CallInfo->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
+    }
+}
+
 void MyFrame::UpdateDialButtonImage()
 {
     if (m_last_channel_state == AST_STATE_DOWN)
@@ -214,6 +224,7 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
         label << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
     }
 	m_CallInfo->SetLabel(label);
+    m_CallInfo->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
 }
 
 
@@ -225,6 +236,18 @@ void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
 void MyFrame::handleEvent(const AmiMessage &message)
 {
 	if (message.has("InternalMessage")) return;
+    if (message.has("Response"))
+    {
+        if (message["Response"] == "Error")
+        {
+            if (message["Message"] == "Extension does not exist.")
+            {
+               m_CallInfo->SetLabel(_("Extension does not exist."));
+               m_CallInfo->SetForegroundColour(*wxRED);
+            }
+        }
+        return;
+    }
     if (StatusText->GetNumberOfLines() > LOG_MAX_LINES)
     {
         int chars = 0;
@@ -386,12 +409,17 @@ void MyFrame::OnCdr(const AmiMessage &m)
 			Call *call = reinterpret_cast<Call *>(m_callList->GetItemData(lastItem));
 			if (call->GetUniqueID() == std::stoi(m["UniqueID"])) // updating existing call
 			{
+                if (m["Disposition"] == "BUSY" || m["Disposition"] == "NOANSWER")
+                {
+                    call->SetDisposition(Call::CALL_UNANSWERED);
+                    call->SetTimeAnswer(wxInvalidDateTime);
+                }
 				call->SetDuration(stoi(m["BillableSeconds"]));
                 if (call->GetNumber().empty() && call->GetDirection() == Call::CALL_OUT)
                 {
                     call->SetNumber(m["Destination"]);
-                    m_callList->UpdateItem(lastItem);
                 }
+                m_callList->UpdateItem(lastItem);
 
                 if (!SaveCalls(CALLS_FILE))
                     std::cerr << _("Saving calls failed") << std::endl;

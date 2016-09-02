@@ -1,3 +1,10 @@
+astercti (0.0.20-1) unstable; urgency=medium
+
+  * Fix status of unanswered originated calls
+  + Report error when originating to non-existent ext
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Fri, 02 Sep 2016 15:38:44 +0700
+
 astercti (0.0.19-1) unstable; urgency=medium
 
   * Fix absent time of originated call in call list
