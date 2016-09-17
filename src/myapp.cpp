@@ -43,9 +43,9 @@ bool MyApp::OnInit()
     m_locale.Init();
     m_locale.AddCatalog("astercti");
 
-    if (!ParseCmdLine())
-	    return false;
-	
+    m_start_gui = ParseCmdLine();
+    if (!m_start_gui) return true;
+
     m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
                                 wxEmptyString,
@@ -124,6 +124,15 @@ bool MyApp::OnInit()
     return true;
 }
 
+int MyApp::OnRun()
+{
+    if (m_start_gui)
+    {
+        m_exit_code = wxApp::OnRun();
+    }
+    return m_exit_code;
+}
+
 MyApp::~MyApp()
 {
 }
@@ -148,8 +157,9 @@ bool MyApp::ParseCmdLine()
     {
         case -1: return false; // The parameter -h was passed, help was given, so abort the app
 	    case  0: break; // OK, so break to deal with any parameters etc
-		default: return false; // Some syntax error occurred. Abort
-	}
+        default: m_exit_code = 1;
+                 return false; // Some syntax error occurred. Abort
+    }
 
     if (parser.Found("v"))
     {

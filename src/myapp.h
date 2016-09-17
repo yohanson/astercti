@@ -16,6 +16,7 @@ public:
     ~MyApp();
     virtual bool OnInit();
     virtual int OnExit();
+    virtual int OnRun();
     virtual bool ParseCmdLine();
     virtual void OnFatalException();
     AsteriskController *m_controller;
@@ -23,6 +24,8 @@ public:
     wxLocale m_locale;
     MyTaskBarIcon *m_taskbaricon;
 private:
+    bool m_start_gui;
+    int m_exit_code;
     bool start_iconified;
     IpcServer *m_ipcServer;
     MyChanFilter *m_mychanfilter;
