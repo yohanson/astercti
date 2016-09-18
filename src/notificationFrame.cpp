@@ -19,10 +19,10 @@
 #include <wx/stdpaths.h>
 
 #include "notificationFrame.h"
-#include "controller.h"
 #include "version.h"
 #include "chanstatus.h"
 #include "iconmacro.h"
+#include "myapp.h"
 
 struct MemoryStruct {
 	  char *memory;
@@ -94,8 +94,8 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
   return realsize;
 }
 
-notificationFrame::notificationFrame(wxWindow* parent, ChannelStatusPool *pool)
-    : ChannelStatusPooler(pool)
+notificationFrame::notificationFrame(wxWindow* parent, ChannelStatusPool *pool, Asterisk *a)
+    : ChannelStatusPooler(pool), asterisk(a)
 {
 	edescr = "notify frame";
 	wxBoxSizer* BoxSizerButtons;
@@ -163,7 +163,7 @@ void notificationFrame::OnPaint(wxPaintEvent& event)
 
 void notificationFrame::OnButton1Click(wxCommandEvent& event)
 {
-	m_controller->HangupChannel(m_current_channel);
+    asterisk->HangupChannel(m_current_channel);
 }
 
 #ifdef DEBUG
@@ -205,7 +205,7 @@ void notificationFrame::UpdateSize()
 
 void notificationFrame::OnUp(const AmiMessage &message)
 {
-	long timer = m_controller->CfgInt("gui/pickup_notify_hide_timeout");
+	long timer = wxGetApp().CfgInt("gui/pickup_notify_hide_timeout");
 	if (!timer){
 	       Hide();
 	       return;
@@ -218,7 +218,7 @@ void notificationFrame::OnDialIn(const AmiMessage &message)
 {
  	std::string callerid = message["CallerIDNum"];
 	wxString html = "";
-	html << wxT("<h5><font face='pt sans,tahoma,sans'>☎ ") + message["CallerIDNum"];
+	html << wxT("<h5><font face='pt sans,sans,arial'>☎ ") + message["CallerIDNum"];
 	if (!message["CallerIDName"].empty() && message["CallerIDName"] != "<unknown>")
     {
 		html << " (" << message["CallerIDName"] << ")";
@@ -241,9 +241,9 @@ void notificationFrame::OnDialIn(const AmiMessage &message)
 
 
 	bool number_matches = false;
-	if (m_lookup_enabled && callerid != m_controller->GetMyExten())
+	if (m_lookup_enabled && callerid != wxGetApp().GetMyExten())
 	{
-		std::string regex = m_controller->Cfg("lookup/number_match_regex");
+		std::string regex = wxGetApp().Cfg("lookup/number_match_regex");
 		if (!regex.empty())
 		{
 			try {
@@ -257,7 +257,7 @@ void notificationFrame::OnDialIn(const AmiMessage &message)
 		}
 		else
 		{
-			int number_length = m_controller->CfgInt("lookup/number_min_length");
+			int number_length = wxGetApp().CfgInt("lookup/number_min_length");
 			if (number_length && callerid.length() >= number_length)
 				number_matches = true;
 		}
@@ -319,7 +319,7 @@ wxString notificationFrame::Lookup(std::string callerid)
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
             curl_easy_setopt(curl, CURLOPT_USERAGENT, "astercti/" VERSION);
-            if (m_controller->CfgBool("lookup/curl_insecure", false))
+            if (wxGetApp().CfgBool("lookup/curl_insecure", false))
             {
                 curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
                 curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
@@ -370,7 +370,7 @@ wxString notificationFrame::Lookup(std::string callerid)
 	}
 	const Json::Value clients = root["clients"];
 	wxString html;
-	std::string url_template = m_controller->Cfg("templates/client_url");
+	std::string url_template = wxGetApp().Cfg("templates/client_url");
 	for ( int i = 0; i < clients.size() && i < 3; ++i )
 	{
 		std::string url = url_template;
@@ -402,7 +402,7 @@ wxString notificationFrame::Lookup(std::string callerid)
 	}
 	if (clients.size() > 1)
 	{
-		wxString url_tpl = m_controller->Cfg("lookup/search_url");
+		wxString url_tpl = wxGetApp().Cfg("lookup/search_url");
 		wxString url;
 		url.Printf(url_tpl, callerid);
 		html << "<hr size=1 noshade /><a href='" << url << "'>" << _("See all found") << " (" << clients.size() << ")</a>";

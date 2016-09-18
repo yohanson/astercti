@@ -2,7 +2,6 @@
 #define IPC_H
 
 #include <wx/ipc.h>
-#include "controller.h"
 
 static const std::string IPC_TOPIC      ( "astercti.IPC" );
 #ifdef __WXMSW__
@@ -19,14 +18,13 @@ class IpcConnection : public wxConnection
 {
 public:
     IpcConnection();
-    IpcConnection(AsteriskController *, IpcServer *);
+    IpcConnection(IpcServer *);
     virtual bool OnExecute(const wxString& topic, const void *data, size_t size, wxIPCFormat format);
 	virtual const void *OnRequest(const wxString& topic, const wxString& item, size_t *size, wxIPCFormat format);
     virtual bool OnDisconnect();
 
 protected:
     wxCharBuffer m_requestData;
-    AsteriskController *m_controller;
     IpcServer *m_server;
 };
 
@@ -34,7 +32,7 @@ protected:
 class IpcServer : public wxServer
 {
 public:
-    IpcServer(AsteriskController *);
+    IpcServer();
     virtual ~IpcServer();
 
     void Disconnect();
@@ -45,7 +43,6 @@ public:
 
 protected:
     IpcConnection *m_connection;
-    AsteriskController *m_controller;
 };
 
 

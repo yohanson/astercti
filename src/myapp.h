@@ -3,8 +3,8 @@
 
 #include <wx/fileconf.h>
 #include <wx/cmdline.h>
-#include "controller.h"
 #include "taskbaricon.h"
+#include "mainframe.h"
 #include "ipc.h"
 #include "events.h"
 #include "filter.h"
@@ -19,7 +19,14 @@ public:
     virtual int OnRun();
     virtual bool ParseCmdLine();
     virtual void OnFatalException();
-    AsteriskController *m_controller;
+    std::string GetMyExten();
+    std::string GetMyChannel();
+    std::string Cfg(std::string);
+    long CfgInt(std::string);
+    bool CfgBool(std::string, bool);
+    void ShowMainFrame();
+    void Originate(const std::string &number);
+    void HangupChannel(const std::string &channel);
     wxFileConfig *m_config;
     wxLocale m_locale;
     MyTaskBarIcon *m_taskbaricon;
@@ -27,13 +34,16 @@ private:
     bool m_start_gui;
     int m_exit_code;
     bool start_iconified;
+    MyFrame *m_mainframe;
     IpcServer *m_ipcServer;
     MyChanFilter *m_mychanfilter;
     InternalMessageFilter *m_intmsgfilter;
     ShortenNumberModifier *m_numbershortener;
     ChannelStatusPool   *m_chanstatuspool;
     EventGenerator *m_events;
+    Asterisk *asterisk;
 };
+wxDECLARE_APP(MyApp);
 
 static const wxCmdLineEntryDesc g_cmdLineDesc [] =
 {

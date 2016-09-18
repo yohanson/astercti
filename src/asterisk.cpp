@@ -188,7 +188,7 @@ void Asterisk::Originate(std::string mychan, std::string context, std::string ex
 }
 
 
-void Asterisk::HangupChannel(std::string &channel)
+void Asterisk::HangupChannel(const std::string &channel)
 {
 	std::string action = "Action: hangup\nChannel: "+channel+"\n\n";
 	m_socket->Write(action.c_str(), action.length());

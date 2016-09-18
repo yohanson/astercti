@@ -3,7 +3,6 @@
 
 #include "asterisk.h"
 #include "observer.h"
-#include "controller.h"
 
 /*class ChannelEvent
 {
@@ -18,12 +17,14 @@
 class EventListener;
 
 // Takes AmiMessage, calls corresponding method of listeners
-class EventGenerator : public IObserver, public ControllerUser
+class EventGenerator : public IObserver
 {
 protected:
     std::list<EventListener *> _listeners;
 	void handleEvent(const AmiMessage &);
+    std::string m_myexten;
 public:
+    EventGenerator(const std::string &my_exten);
 	void broadcast(EventListener &);
 	void no_broadcast(EventListener &);
 	void NotifyOnDialIn(const AmiMessage &);

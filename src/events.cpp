@@ -1,5 +1,9 @@
 #include "events.h"
 
+EventGenerator::EventGenerator(const std::string &myexten)
+    : m_myexten(myexten)
+{}
+
 void EventGenerator::broadcast(EventListener &listener)
 {
 	_listeners.push_back(&listener);
@@ -79,7 +83,7 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 		switch (std::stoi(m["ChannelState"]))
 		{
 		case AST_STATE_RINGING:
-			if (m["ConnectedLineNum"] == m_controller->Cfg("dialplan/exten"))
+			if (m["ConnectedLineNum"] == m_myexten)
 				NotifyOnOriginate(m);
 			else
 				NotifyOnRing(m);

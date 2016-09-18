@@ -21,12 +21,12 @@
 
 #define CALLS_FILE "calls.txt"
 
-wxDECLARE_APP(MyApp);
 
-MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool)
+MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool, Asterisk *a)
         : wxFrame(NULL, wxID_ANY, title, pos, size),
           ChannelStatusPooler(pool),
-          TopMostVerticalSplitter(this)
+          TopMostVerticalSplitter(this),
+          asterisk(a)
 {
     edescr = "mainframe";
     m_taskbaricon = NULL;
@@ -169,12 +169,12 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
                     digits += *it;
                 }
             }
-            m_controller->Originate(digits);
+            wxGetApp().Originate(digits);
         }
     }
     else
     {
-        m_controller->HangupChannel(m_current_channel);
+        asterisk->HangupChannel(m_current_channel);
     }
 }
 

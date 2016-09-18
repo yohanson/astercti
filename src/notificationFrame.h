@@ -10,15 +10,14 @@
 
 #include "observer.h"
 #include "events.h"
-#include "controller.h"
 #include "call.h"
 #include "chanstatus.h"
 
-class notificationFrame: public wxFrame, public ControllerUser, public EventListener, public ChannelStatusPooler
+class notificationFrame: public wxFrame, public EventListener, public ChannelStatusPooler
 {
 	public:
 
-		notificationFrame(wxWindow* parent, ChannelStatusPool *pool);
+		notificationFrame(wxWindow* parent, ChannelStatusPool *pool, Asterisk *a);
 		virtual ~notificationFrame();
 		bool AcceptsFocus() { return false; }
 		bool AcceptsFocusFromKeyboard() { return false; }
@@ -64,6 +63,7 @@ class notificationFrame: public wxFrame, public ControllerUser, public EventList
 		std::string m_lookup_cmd;
         bool m_lookup_enabled;
 		std::string m_lookup_url;
+        Asterisk *asterisk;
 
         Call m_call;
 };

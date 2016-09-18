@@ -1,13 +1,12 @@
 #include "ipc.h"
-#include "mainframe.h"
+#include "myapp.h"
 
 IpcConnection::IpcConnection()
-    : m_controller(NULL)
 {
 }
 
-IpcConnection::IpcConnection(AsteriskController *controller, IpcServer *server)
-    : m_controller(controller), m_server(server)
+IpcConnection::IpcConnection(IpcServer *server)
+    : m_server(server)
 {
 }
 
@@ -49,18 +48,12 @@ bool IpcConnection::OnExecute(const wxString& topic,
 			std::cerr << msg << "\n";
 			return false;
 		}
-        if (m_controller)
-        {
-            m_controller->Originate(number.ToStdString());
-        }
+        wxGetApp().Originate(number.ToStdString());
 		return true;
 	}
     else if (uri == IPC_CMD_RISE)
     {
-       if (m_controller)
-       {
-            m_controller->ShowMainFrame();
-       }
+        wxGetApp().ShowMainFrame();
     }
     return false;
 }
@@ -94,8 +87,8 @@ bool IpcConnection::OnDisconnect()
 
 //--------------------
 
-IpcServer::IpcServer(AsteriskController *controller)
-    : m_connection(NULL), m_controller(controller)
+IpcServer::IpcServer()
+    : m_connection(NULL)
 {
 }
 
@@ -108,7 +101,7 @@ wxConnectionBase *IpcServer::OnAcceptConnection(const wxString& topic)
 {
     if ( topic == IPC_TOPIC )
     {
-        m_connection = new IpcConnection(m_controller, this);
+        m_connection = new IpcConnection(this);
         return m_connection;
     }
     else

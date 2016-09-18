@@ -5,8 +5,8 @@ RELDIR=build/release
 WINDBGDIR=build/debug_win
 WINRELDIR=build/release_win
 WINPATH=/usr/local/libwxmsw3.0/bin
-OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o controller.o \
-	asterisk.o observer.o events.o ipc.o chanstatus.o call.o debugreport.o \
+OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o asterisk.o \
+	observer.o events.o ipc.o chanstatus.o call.o debugreport.o \
 	calllistctrl.o filter.o utils.o gitversion.o
 BIGICONS=astercti astercti-missed
 SMALLICONS=dial hangup incoming_answered_elsewhere incoming_answered \

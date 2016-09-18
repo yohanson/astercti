@@ -12,10 +12,10 @@
 #define LOG_MAX_LINES 1000
 #define LOG_DELETE_LINES 50
 
-class MyFrame: public wxFrame, public IObserver, public ControllerUser, public EventListener, public ChannelStatusPooler
+class MyFrame: public wxFrame, public IObserver, public EventListener, public ChannelStatusPooler
 {
 public:
-    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool);
+    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool, Asterisk *a);
     ~MyFrame();
     void SetTaskBarIcon(MyTaskBarIcon *);
     void handleEvent(const AmiMessage &);
@@ -52,6 +52,7 @@ private:
     wxBitmap       m_dialIcon,
                    m_hangupIcon;
     int m_missed_calls;
+    Asterisk *asterisk;
 };
 
 class CallListItem : public wxListItem, public Call

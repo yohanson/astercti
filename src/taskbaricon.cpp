@@ -1,6 +1,5 @@
 #include <wx/wx.h>
 #include <wx/taskbar.h>
-#include "controller.h"
 #include "taskbaricon.h"
 
 MyTaskBarIcon::MyTaskBarIcon(wxString defaultIconFile, wxString missedIconFile, wxString tooltip = wxEmptyString)
@@ -36,7 +35,6 @@ void MyTaskBarIcon::SetMissedCalls(int missed = 0)
 void MyTaskBarIcon::Init()
 {
 	m_mainFrame = NULL;
-	descr = "taskbar icon";
 	Bind(wxEVT_TASKBAR_LEFT_DOWN, &MyTaskBarIcon::OnClick, this);
 }
 
