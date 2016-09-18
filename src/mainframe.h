@@ -23,6 +23,7 @@ public:
     void OnDialIn(const AmiMessage &);
     void OnHangup(const AmiMessage &);
     void OnCdr(const AmiMessage &);
+    void OnResponse(const AmiMessage &);
     void OnDial(const AmiMessage &);
     void OnUp(const AmiMessage &);
     void OnInternalMessage(const AmiMessage &);

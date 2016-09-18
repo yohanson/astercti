@@ -236,18 +236,7 @@ void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
 void MyFrame::handleEvent(const AmiMessage &message)
 {
 	if (message.has("InternalMessage")) return;
-    if (message.has("Response"))
-    {
-        if (message["Response"] == "Error")
-        {
-            if (message["Message"] == "Extension does not exist.")
-            {
-               m_CallInfo->SetLabel(_("Extension does not exist."));
-               m_CallInfo->SetForegroundColour(*wxRED);
-            }
-        }
-        return;
-    }
+    if (message.has("Response")) return;
     if (StatusText->GetNumberOfLines() > LOG_MAX_LINES)
     {
         int chars = 0;
@@ -442,6 +431,18 @@ void MyFrame::OnCdr(const AmiMessage &m)
 
 	}
 
+}
+
+void MyFrame::OnResponse(const AmiMessage &m)
+{
+    if (m["Response"] == "Error")
+    {
+        if (m["Message"] == "Extension does not exist.")
+        {
+           m_CallInfo->SetLabel(_("Extension does not exist."));
+           m_CallInfo->SetForegroundColour(*wxRED);
+        }
+    }
 }
 
 void MyFrame::OnDial(const AmiMessage &m)

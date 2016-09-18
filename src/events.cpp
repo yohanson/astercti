@@ -58,6 +58,11 @@ void EventGenerator::NotifyOnCdr(const AmiMessage &message) {
 	}
 }
 
+void EventGenerator::NotifyOnResponse(const AmiMessage &message) {
+	for (auto iter : _listeners) {
+		iter->OnResponse(message);
+	}
+}
 void EventGenerator::NotifyOnLookupStart(const AmiMessage &message) {
 	for (auto iter : _listeners) {
 		iter->OnLookupStart(message);
@@ -140,6 +145,7 @@ void EventListener::OnDial(const AmiMessage &){};
 void EventListener::OnUp(const AmiMessage &){};
 void EventListener::OnHangup(const AmiMessage &){};
 void EventListener::OnCdr(const AmiMessage &){};
+void EventListener::OnResponse(const AmiMessage &){};
 void EventListener::OnLookupStart(const AmiMessage &){};
 void EventListener::OnLookupFinish(const AmiMessage &){};
 void EventListener::OnInternalMessage(const AmiMessage &){};
