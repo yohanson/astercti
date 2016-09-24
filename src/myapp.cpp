@@ -82,7 +82,7 @@ bool MyApp::OnInit()
 		m_config->Read("server/username").ToStdString(),
 		m_config->Read("server/password").ToStdString());
     bool maximized = m_config->ReadBool("autosave/maximized", false);
-    m_mainframe = new MyFrame( "AsterCTI", pos, size, m_chanstatuspool, asterisk);
+    m_mainframe = new MyFrame( "AsterCTI", pos, size, m_chanstatuspool, asterisk, m_lookuper);
     if (maximized) m_mainframe->Maximize();
     m_mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     m_intmsgfilter = new InternalMessageFilter();

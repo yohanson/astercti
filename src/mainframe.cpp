@@ -22,11 +22,12 @@
 #define CALLS_FILE "calls.txt"
 
 
-MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool, Asterisk *a)
+MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool, Asterisk *a, CallerInfoLookuper *lookuper)
         : wxFrame(NULL, wxID_ANY, title, pos, size),
           ChannelStatusPooler(pool),
           TopMostVerticalSplitter(this),
-          asterisk(a)
+          asterisk(a),
+          m_lookuper(lookuper)
 {
     edescr = "mainframe";
     m_taskbaricon = NULL;
@@ -301,6 +302,11 @@ void MyFrame::OnDialIn(const AmiMessage &m)
 	call->SetDirection(Call::CALL_IN);
 	m_callList->InsertCallItem(call);
     UpdateDialButtonImage();
+    if (m_lookuper && m_lookuper->ShouldLookup(m["CallerIDNum"]))
+    {
+        Log("Looking up!");
+        Log(m_lookuper->Lookup(m["CallerIDNum"]));
+    }
 }
 
 void MyFrame::OnUp(const AmiMessage &m)

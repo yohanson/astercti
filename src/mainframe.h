@@ -8,6 +8,7 @@
 #include "calllistctrl.h"
 #include "call.h"
 #include "chanstatus.h"
+#include "lookup.h"
 
 #define LOG_MAX_LINES 1000
 #define LOG_DELETE_LINES 50
@@ -15,7 +16,12 @@
 class MyFrame: public wxFrame, public IObserver, public EventListener, public ChannelStatusPooler
 {
 public:
-    MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool, Asterisk *a);
+    MyFrame(const wxString& title,
+            const wxPoint& pos,
+            const wxSize& size,
+            ChannelStatusPool *pool,
+            Asterisk *a,
+            CallerInfoLookuper *lookuper = NULL);
     ~MyFrame();
     void SetTaskBarIcon(MyTaskBarIcon *);
     void handleEvent(const AmiMessage &);
@@ -54,6 +60,7 @@ private:
                    m_hangupIcon;
     int m_missed_calls;
     Asterisk *asterisk;
+    CallerInfoLookuper *m_lookuper;
 };
 
 class CallListItem : public wxListItem, public Call
