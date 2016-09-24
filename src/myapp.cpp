@@ -63,6 +63,18 @@ bool MyApp::OnInit()
     }
 
     m_chanstatuspool = new ChannelStatusPool(m_config->Read("dialplan/channel").ToStdString());
+    if (m_config->HasEntry("lookup/lookup_url"))
+    {
+        m_lookuper = new CallerInfoLookuperURL(Cfg("lookup/lookup_url"));
+    }
+    else if (m_config->HasEntry("lookup/lookup_cmd"))
+    {
+        m_lookuper = new CallerInfoLookuperCmd(Cfg("lookup/lookup_cmd"));
+    }
+    else
+    {
+        m_lookuper = NULL;
+    }
     wxPoint pos = m_config->ReadObject("autosave/position", wxDefaultPosition);
     wxSize size = m_config->ReadObject("autosave/size", wxSize(600, 400));
     asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
@@ -84,7 +96,7 @@ bool MyApp::OnInit()
     m_mychanfilter->broadcast(*m_numbershortener);
     m_numbershortener->broadcast(*m_mainframe);
     m_intmsgfilter->broadcast(*m_mainframe);
-    notificationFrame *notifyframe = new notificationFrame(m_mainframe, m_chanstatuspool, asterisk);
+    notificationFrame *notifyframe = new notificationFrame(m_mainframe, m_chanstatuspool, asterisk, m_lookuper);
     m_events = new EventGenerator(m_config->Read("dialplan/exten").ToStdString());
     m_events->broadcast(*m_mainframe);
     m_events->broadcast(*notifyframe);
@@ -99,14 +111,9 @@ bool MyApp::OnInit()
     m_mainframe->Show(!start_iconified);
     SetTopWindow(m_mainframe);
     SetExitOnFrameDelete(true);
-    if (!m_config->Read("lookup/lookup_cmd") && !m_config->Read("lookup/lookup_url"))
+    if (!m_lookuper)
     {
         m_mainframe->Log(_("Lookup URL and Lookup command are both unconfigured.\nLookup disabled."));
-    }
-    else
-    {
-        notifyframe->SetLookupCmd(m_config->Read("lookup/lookup_cmd").ToStdString());
-        notifyframe->SetLookupUrl(m_config->Read("lookup/lookup_url").ToStdString());
     }
     m_ipcServer = new IpcServer();
     if (!m_ipcServer->Create(IPC_SERVICENAME))

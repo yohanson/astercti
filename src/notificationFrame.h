@@ -12,12 +12,13 @@
 #include "events.h"
 #include "call.h"
 #include "chanstatus.h"
+#include "lookup.h"
 
 class notificationFrame: public wxFrame, public EventListener, public ChannelStatusPooler
 {
 	public:
 
-		notificationFrame(wxWindow* parent, ChannelStatusPool *pool, Asterisk *a);
+		notificationFrame(wxWindow* parent, ChannelStatusPool *pool, Asterisk *a, CallerInfoLookuper *lookuper = NULL);
 		virtual ~notificationFrame();
 		bool AcceptsFocus() { return false; }
 		bool AcceptsFocusFromKeyboard() { return false; }
@@ -60,9 +61,7 @@ class notificationFrame: public wxFrame, public EventListener, public ChannelSta
 		void OnHideTimer(wxTimerEvent& event);
 		wxTimer *m_hidetimer;
 		std::string m_current_channel;
-		std::string m_lookup_cmd;
-        bool m_lookup_enabled;
-		std::string m_lookup_url;
+        CallerInfoLookuper *m_lookuper;
         Asterisk *asterisk;
 
         Call m_call;

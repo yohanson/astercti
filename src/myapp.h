@@ -9,6 +9,7 @@
 #include "events.h"
 #include "filter.h"
 #include "chanstatus.h"
+#include "lookup.h"
 
 class MyApp: public wxApp
 {
@@ -40,6 +41,7 @@ private:
     InternalMessageFilter *m_intmsgfilter;
     ShortenNumberModifier *m_numbershortener;
     ChannelStatusPool   *m_chanstatuspool;
+    CallerInfoLookuper *m_lookuper;
     EventGenerator *m_events;
     Asterisk *asterisk;
 };
