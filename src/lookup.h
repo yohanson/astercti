@@ -7,10 +7,15 @@ public:
     CallerInfoLookuper(const std::string &src);
     bool ShouldLookup(const std::string &callerid);
     virtual wxString Lookup(const std::string &) = 0;
-        
 protected:
-    wxString ParseJson(const wxString &, const wxString &);
+    bool IsCached(const std::string &callerid);
+    void Cache(const std::string &callerid, const wxString &html);
+    wxString GetCache();
+    wxString ParseJson(const wxString &json, const wxString &callerid);
     wxString m_src;
+    wxString m_lastCallerid;
+    wxString m_lastHtml;
+    wxDateTime m_cachedAt;
 };
 
 // =================================
@@ -23,6 +28,8 @@ public:
 protected:
     void ExecCommand(wxString &cmd, wxArrayString &output);
 };
+
+// ----------------------------------
 
 class CallerInfoLookuperURL : public CallerInfoLookuper
 {
