@@ -1,7 +1,7 @@
 #ifdef WX_PRECOMP
-	#include <wx/wxprec.h>
+    #include <wx/wxprec.h>
 #else
-	#include <wx/wx.h>
+    #include <wx/wx.h>
 #endif
 
 #include <wx/string.h>
@@ -35,9 +35,9 @@ bool MyApp::OnInit()
     wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     if (!setlocale(LC_CTYPE, ""))
     {
-    	fprintf(stderr, "Can't set the specified locale! "
-	                "Check LANG, LC_CTYPE, LC_ALL.\n");
-	return 1;
+        fprintf(stderr, "Can't set the specified locale! "
+                    "Check LANG, LC_CTYPE, LC_ALL.\n");
+    return 1;
     }
     m_locale.Init();
     m_locale.AddCatalog("astercti");
@@ -78,9 +78,9 @@ bool MyApp::OnInit()
     wxPoint pos = m_config->ReadObject("autosave/position", wxDefaultPosition);
     wxSize size = m_config->ReadObject("autosave/size", wxSize(600, 400));
     asterisk = new Asterisk(m_config->Read("server/address").ToStdString(),
-		5038,
-		m_config->Read("server/username").ToStdString(),
-		m_config->Read("server/password").ToStdString());
+        5038,
+        m_config->Read("server/username").ToStdString(),
+        m_config->Read("server/password").ToStdString());
     bool maximized = m_config->ReadBool("autosave/maximized", false);
     m_mainframe = new MyFrame( "AsterCTI", pos, size, m_chanstatuspool, asterisk, m_lookuper);
     if (maximized) m_mainframe->Maximize();
@@ -151,11 +151,11 @@ int MyApp::OnExit()
 
 bool MyApp::ParseCmdLine()
 {
-	wxCmdLineParser parser(g_cmdLineDesc, argc, argv);
-	switch ( parser.Parse() )
+    wxCmdLineParser parser(g_cmdLineDesc, argc, argv);
+    switch ( parser.Parse() )
     {
         case -1: return false; // The parameter -h was passed, help was given, so abort the app
-	    case  0: break; // OK, so break to deal with any parameters etc
+        case  0: break; // OK, so break to deal with any parameters etc
         default: m_exit_code = 1;
                  return false; // Some syntax error occurred. Abort
     }

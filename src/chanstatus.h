@@ -44,9 +44,9 @@ class Channel
 public:
     Channel(const std::string& chan);
     enum ast_channel_state m_state;
-	ChannelName m_channel;
-	std::string m_callerIDNum;
-	std::string m_callerIDName;
+    ChannelName m_channel;
+    std::string m_callerIDNum;
+    std::string m_callerIDName;
     Channel *m_bridgedTo;
     const std::string getID() const;
 };

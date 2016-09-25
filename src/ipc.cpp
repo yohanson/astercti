@@ -11,46 +11,46 @@ IpcConnection::IpcConnection(IpcServer *server)
 }
 
 bool IpcConnection::OnExecute(const wxString& topic,
-                        const void *data,
-                        size_t size,
-                        wxIPCFormat format)
-{
+                              const void *data,
+                              size_t size,
+                              wxIPCFormat format)
+    {
     const char *str = (const char *) data;
     wxString uri = wxString(str);
     wxString number;
     if (uri.StartsWith("tel:", &number))
-	{
-		number.Trim();
-		bool badNumber = false;
-		size_t pos;
-		if (number.StartsWith("+"))
-		{ // global number
-			while ((pos = number.find_first_not_of("0123456789+-.()")) != wxString::npos)
-			{
-				badNumber = true;
-				break;
-			}
-		}
-		else // local number
-		{
-			while ((pos = number.find_first_not_of("0123456789-.()abcdefABCDEF*#")) != wxString::npos)
-			{
-				badNumber = true;
-				break;
-			}
-		}
+    {
+        number.Trim();
+        bool badNumber = false;
+        size_t pos;
+        if (number.StartsWith("+"))
+        { // global number
+            while ((pos = number.find_first_not_of("0123456789+-.()")) != wxString::npos)
+            {
+                badNumber = true;
+                break;
+            }
+        }
+        else // local number
+        {
+            while ((pos = number.find_first_not_of("0123456789-.()abcdefABCDEF*#")) != wxString::npos)
+            {
+                badNumber = true;
+                break;
+            }
+        }
 
-		if (badNumber)
-		{
-			wxString msg;
-			msg << "Wrong telephone number format: '" << number << "' (char[" << pos << "] == '" << number[pos] << "')";
-			wxLogMessage(msg);
-			std::cerr << msg << "\n";
-			return false;
-		}
+        if (badNumber)
+        {
+            wxString msg;
+            msg << "Wrong telephone number format: '" << number << "' (char[" << pos << "] == '" << number[pos] << "')";
+            wxLogMessage(msg);
+            std::cerr << msg << "\n";
+            return false;
+        }
         wxGetApp().Originate(number.ToStdString());
-		return true;
-	}
+        return true;
+    }
     else if (uri == IPC_CMD_RISE)
     {
         wxGetApp().ShowMainFrame();

@@ -31,7 +31,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
         std::string channel = m["Channel"];
         size_t zombie = channel.find("<ZOMBIE>");
         if (zombie != std::string::npos)
-		channel = channel.substr(0, zombie);
+        channel = channel.substr(0, zombie);
         auto mchan_it = findMetaChannel_iter(channel);
         if (mchan_it == m_channels.end())
             return;
@@ -84,7 +84,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
                         if (caller_chan->m_bridgedTo && caller_chan->m_bridgedTo != dst_chan)
                         {
                             Channel *call_on_hold = caller_chan->m_bridgedTo;
-                            std::cout << "Incoming transfer! " << (std::string)call_on_hold->m_channel << ": " 
+                            std::cout << "Incoming transfer! " << (std::string)call_on_hold->m_channel << ": "
                                 << call_on_hold->m_callerIDNum << "(" << call_on_hold->m_callerIDName << ")" << std::endl;
                         }
                     }

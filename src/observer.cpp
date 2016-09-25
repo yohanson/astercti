@@ -29,23 +29,23 @@ void IObserver::unsubscribe(IObservable &o)
 
 void IObservable::broadcast(IObserver &observer)
 {
-	_observers.push_back(&observer);
+    _observers.push_back(&observer);
     observer.subscribe(*this);
 }
 
 void IObservable::no_broadcast(IObserver &observer, bool both_ends)
 {
-	_observers.remove(&observer);
+    _observers.remove(&observer);
     if (both_ends)
         observer.unsubscribe(*this);
 }
 
 void IObservable::Notify(const AmiMessage &message)
 {
-	for (auto iter : _observers)
-	{
-		iter->handleEvent(message);
-	}
+    for (auto iter : _observers)
+    {
+        iter->handleEvent(message);
+    }
 }
 
 IObservable::~IObservable()

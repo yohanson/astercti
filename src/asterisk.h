@@ -91,28 +91,28 @@ enum ast_channel_state {
 class Asterisk : public wxEvtHandler, public IObservable
 {
 private:
-	wxSocketClient *m_socket;
-	std::string m_ami_username;
-	std::string m_ami_secret;
-	std::string m_ami_host;
-	int	    m_ami_port;
-	char m_recv_buff[RECV_BUFF];
-	wxTimer m_pingTimer;
-	bool m_ping_timer_active;
-	void OnPingTimeout(wxTimerEvent& event);
+    wxSocketClient *m_socket;
+    std::string m_ami_username;
+    std::string m_ami_secret;
+    std::string m_ami_host;
+    int     m_ami_port;
+    char m_recv_buff[RECV_BUFF];
+    wxTimer m_pingTimer;
+    bool m_ping_timer_active;
+    void OnPingTimeout(wxTimerEvent& event);
 
-	void Notify(AmiMessage &message);
-	void OnSocketEvent(wxSocketEvent &event);
-	void OnInputAvailable();
-	void AmiConnect();
-	void AmiPing();
+    void Notify(AmiMessage &message);
+    void OnSocketEvent(wxSocketEvent &event);
+    void OnInputAvailable();
+    void AmiConnect();
+    void AmiPing();
     void AmiRequestStatus();
-	
+
 public:
-	Asterisk(std::string host, int port, std::string username, std::string secret);
-	~Asterisk();
-	void Originate(std::string mychan, std::string context, std::string exten, std::string myexten = "", int priority = 1);
-	void HangupChannel(const std::string &channel);
+    Asterisk(std::string host, int port, std::string username, std::string secret);
+    ~Asterisk();
+    void Originate(std::string mychan, std::string context, std::string exten, std::string myexten = "", int priority = 1);
+    void HangupChannel(const std::string &channel);
 };
 
 #endif

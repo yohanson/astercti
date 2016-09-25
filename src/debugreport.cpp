@@ -2,12 +2,8 @@
 #include "debugreport.h"
 #include "myapp.h"
 
-MyDebugReport::MyDebugReport(const wxString& url) : wxDebugReportUpload
-                       (
-                        url,
-                        wxT("reportfile"),
-                        wxT("")
-                       )
+MyDebugReport::MyDebugReport(const wxString& url)
+    : wxDebugReportUpload(url, wxT("reportfile"), wxT(""))
 {
 }
 
