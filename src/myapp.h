@@ -22,7 +22,7 @@ public:
     virtual void OnFatalException();
     std::string GetMyExten();
     std::string GetMyChannel();
-    std::string Cfg(std::string);
+    std::string Cfg(std::string, std::string def = "");
     long CfgInt(std::string);
     bool CfgBool(std::string, bool);
     void ShowMainFrame();

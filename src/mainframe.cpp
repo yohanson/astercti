@@ -22,12 +22,13 @@
 #define CALLS_FILE "calls.txt"
 
 
-MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool, Asterisk *a, CallerInfoLookuper *lookuper)
+MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, ChannelStatusPool *pool, Asterisk *a, CallerInfoLookuper *lookuper, const std::string& lookup_field)
         : wxFrame(NULL, wxID_ANY, title, pos, size),
           ChannelStatusPooler(pool),
           TopMostVerticalSplitter(this),
           asterisk(a),
-          m_lookuper(lookuper)
+          m_lookuper(lookuper),
+          m_lookup_field(lookup_field)
 {
     edescr = "mainframe";
     m_taskbaricon = NULL;
@@ -311,11 +312,14 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     call->SetDirection(Call::CALL_IN);
     if (m_lookuper && m_lookuper->ShouldLookup(m["CallerIDNum"]))
     {
-        Log("Looking up!");
-        wxString name = m_lookuper->GetField(m["CallerIDNum"], "clients/0/name");
+        DEBUG_MSG("lookup field: " << m_lookup_field << std::endl);
+        if (!m_lookup_field.empty())
+        {
+            wxString name = m_lookuper->GetField(m["CallerIDNum"], m_lookup_field);
+            if (!name.empty())
+                call->SetName(name);
+        }
         call->SetDescription(m_lookuper->GetHtml(m["CallerIDNum"]));
-        if (!name.empty())
-            call->SetName(name);
     }
     m_callList->InsertCallItem(call);
     UpdateDialButtonImage();

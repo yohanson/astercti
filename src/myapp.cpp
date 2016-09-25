@@ -82,7 +82,7 @@ bool MyApp::OnInit()
         m_config->Read("server/username").ToStdString(),
         m_config->Read("server/password").ToStdString());
     bool maximized = m_config->ReadBool("autosave/maximized", false);
-    m_mainframe = new MyFrame( "AsterCTI", pos, size, m_chanstatuspool, asterisk, m_lookuper);
+    m_mainframe = new MyFrame( "AsterCTI", pos, size, m_chanstatuspool, asterisk, m_lookuper, Cfg("lookup/caller_name_field"));
     if (maximized) m_mainframe->Maximize();
     m_mychanfilter = new MyChanFilter(m_config->Read("dialplan/channel").ToStdString());
     m_intmsgfilter = new InternalMessageFilter();
@@ -238,11 +238,11 @@ void MyApp::OnFatalException()
     delete report;
 }
 
-std::string MyApp::Cfg(std::string s)
+std::string MyApp::Cfg(std::string s, std::string def)
 {
     if (!m_config)
         return "";
-    return m_config->Read(s).ToStdString();
+    return m_config->Read(s, def).ToStdString();
 }
 
 long MyApp::CfgInt(std::string s)

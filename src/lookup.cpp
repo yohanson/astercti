@@ -108,7 +108,11 @@ wxString CallerInfoLookuper::GetField(const std::string &callerid, const std::st
             int index = atoi(token.c_str());
             current = current[index];
         }
-        if (current.isNull()) return wxEmptyString;
+        if (current.isNull())
+        {
+            std::cerr << "Cannot find field '" << token << "' in JSON.\n";
+            return wxEmptyString;
+        }
     }
     if (current.isConvertibleTo(Json::ValueType::stringValue))
     {
@@ -118,7 +122,6 @@ wxString CallerInfoLookuper::GetField(const std::string &callerid, const std::st
     {
         return wxEmptyString;
     }
-
 }
 
 wxString CallerInfoLookuper::GetHtml(const std::string &callerid)

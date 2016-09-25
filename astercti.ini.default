@@ -14,6 +14,9 @@ password=<ami password>
 ;lookup_cmd=~/scripts/lookup %s
 ;lookup_url=http://example.com/lookup?callerid=%s
 
+# Path to field to extract from JSON looked up, used as caller name:
+;caller_name_field=clients/0/name
+
 # set to 1 to disable SSL host checking:
 ;curl_insecure=0
 

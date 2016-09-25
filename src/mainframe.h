@@ -22,7 +22,8 @@ public:
             const wxSize& size,
             ChannelStatusPool *pool,
             Asterisk *a,
-            CallerInfoLookuper *lookuper = NULL);
+            CallerInfoLookuper *lookuper = NULL,
+            const std::string &lookup_field = "clients/0/name");
     ~MyFrame();
     void SetTaskBarIcon(MyTaskBarIcon *);
     void handleEvent(const AmiMessage &);
@@ -63,6 +64,7 @@ private:
     int m_missed_calls;
     Asterisk *asterisk;
     CallerInfoLookuper *m_lookuper;
+    std::string m_lookup_field;
 };
 
 class CallListItem : public wxListItem, public Call
