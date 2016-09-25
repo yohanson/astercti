@@ -1,6 +1,7 @@
 #ifndef _MAINFRAME_H_
 #define _MAINFRAME_H_
 
+#include <wx/html/htmlwin.h>
 #include <wx/listctrl.h>
 #include <wx/splitter.h>
 #include "events.h"
@@ -40,6 +41,7 @@ private:
     void OnAbout(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void OnActivate(wxActivateEvent &event);
+    void OnLinkClicked(wxHtmlLinkEvent& event);
     void UpdateDialButtonImage();
     void OnDialPressEnter(wxCommandEvent &);
     void OnDialTextChange(wxCommandEvent &);
@@ -52,7 +54,7 @@ private:
     CallListCtrl *m_callList;
     wxTextCtrl *m_DialNumber;
     wxBitmapButton *m_DialButton;
-    wxStaticText *m_CallInfo;
+    wxHtmlWindow *m_CallInfo;
     MyTaskBarIcon *m_taskbaricon;
     wxSplitterWindow TopMostVerticalSplitter;
     std::string m_current_channel;

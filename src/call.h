@@ -14,43 +14,45 @@ enum CALLSTATUS {
 class Call
 {
 public:
-	enum Direction {CALL_IN, CALL_OUT};
-	enum Disposition {CALL_UNANSWERED, CALL_ANSWERED, CALL_ANSWERED_ELSEWHERE};
-	Call();
+    enum Direction {CALL_IN, CALL_OUT};
+    enum Disposition {CALL_UNANSWERED, CALL_ANSWERED, CALL_ANSWERED_ELSEWHERE};
+    Call();
     Call(wxString serialized);
-	void		SetNumber(wxString s){m_number = s;};
-	wxString	GetNumber(){return m_number;};
-	void		SetName(wxString s){m_name = s;};
-	wxString	GetName(){return m_name;};
-	long		GetUniqueID(){return m_unique_id;};
-	void		SetUniqueID(long id){m_unique_id = id;};
-	void		SetSecondChannelID(wxString s){m_secondchannelid = s;};
-	wxString	GetSecondChannelID(){return m_secondchannelid;};
-	void		SetTimeStart(wxDateTime t){m_time_start = t;};
-	wxDateTime	GetTimeStart(){return m_time_start;};
-	void		SetTimeAnswer(wxDateTime t){m_time_answer = t;};
-	wxDateTime	GetTimeAnswer(){return m_time_answer;};
-	void		SetTimeEnd(wxDateTime t){m_time_end = t;};
-	wxDateTime	GetTimeEnd(){return m_time_end;};
-	void		SetDuration(int d){m_duration = d;};
-	int	        GetDuration(){return m_duration;};
-	void		SetDirection(Direction d){m_direction = d;};
-	Direction	GetDirection(){return m_direction;};
-   	void		SetDisposition(Disposition d){m_disposition = d;};
-	Disposition	GetDisposition(){return m_disposition;};
+    void        SetNumber(wxString s);
+    wxString    GetNumber();
+    void        SetName(wxString s);
+    wxString    GetName();
+    long        GetUniqueID();
+    void        SetUniqueID(long id);
+    void        SetSecondChannelID(wxString s);
+    wxString    GetSecondChannelID();
+    void        SetTimeStart(wxDateTime t);
+    wxDateTime  GetTimeStart();
+    void        SetTimeAnswer(wxDateTime t);
+    wxDateTime  GetTimeAnswer();
+    void        SetTimeEnd(wxDateTime t);
+    wxDateTime  GetTimeEnd();
+    void        SetDuration(int d);
+    int         GetDuration();
+    void        SetDirection(Direction d);
+    Direction   GetDirection();
+    void        SetDisposition(Disposition d);
+    Disposition GetDisposition();
+    void        SetDescription(wxString s);
+    wxString    GetDescription();
     wxString    Serialize();
 private:
     wxString m_number;
-	wxString m_name;
-	wxString m_description;
+    wxString m_name;
+    wxString m_description;
     wxString m_secondchannelid;
-	long m_unique_id;
-	wxDateTime m_time_start;
-	wxDateTime m_time_answer;
-	wxDateTime m_time_end;
-	long m_duration;
-	Direction m_direction;
-	Disposition m_disposition;
+    long m_unique_id;
+    wxDateTime m_time_start;
+    wxDateTime m_time_answer;
+    wxDateTime m_time_end;
+    long m_duration;
+    Direction m_direction;
+    Disposition m_disposition;
 };
 
 #endif

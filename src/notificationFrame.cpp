@@ -103,7 +103,8 @@ void notificationFrame::OnLinkClicked(wxHtmlLinkEvent& event)
 void notificationFrame::SetHtml(const wxString &s)
 {
 	wxString bgcolor = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOBK).GetAsString();
-	HtmlWindow1->SetPage("<body bgcolor='"+bgcolor+"'>"+s+"</body>");
+	wxString fgcolor = wxSystemSettings::GetColour(wxSYS_COLOUR_INFOTEXT).GetAsString();
+	HtmlWindow1->SetPage("<body bgcolor='"+bgcolor+"' text='"+fgcolor+"'>"+s+"</body>");
 	int height = HtmlWindow1->GetInternalRepresentation()->GetHeight();
 	int width = HtmlWindow1->GetInternalRepresentation()->GetWidth();
 	BoxSizer1->SetItemMinSize(HtmlWindow1, width, height);
@@ -160,7 +161,7 @@ void notificationFrame::OnDialIn(const AmiMessage &message)
 	{
 		SetHtml(html + "<br><img src='/usr/share/astercti/wait.gif'>");
 		ShowWithoutActivating();
-		wxString out = m_lookuper->Lookup(callerid);
+		wxString out = m_lookuper->GetHtml(callerid);
 		SetHtml(html+"<br />" + out);
 		//std::cout << out << std::endl;
 	}

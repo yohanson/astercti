@@ -70,7 +70,8 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    m_CallInfo = new wxStaticText(RightPanel, wxID_ANY, "\n\n\n\n\n\n");
+    m_CallInfo = new wxHtmlWindow(RightPanel, wxID_ANY, wxDefaultPosition, wxSize(400,300), wxHW_NO_SELECTION);
+	m_CallInfo->SetBackgroundColour(wxNullColour);
     m_callList = new CallListCtrl(&TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->SetTimeFormat(wxGetApp().m_config->Read("gui/call_list_time_format", "%a %d %b %H:%M"));
     m_callList->AssignImageList(imagelist, wxIMAGE_LIST_SMALL);
@@ -85,6 +86,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     Connect(wxID_ABOUT, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MyFrame::OnAbout));
     Bind(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose), this);
     Bind(wxEVT_ACTIVATE, wxActivateEventHandler(MyFrame::OnActivate), this);
+	Bind(wxEVT_HTML_LINK_CLICKED, &MyFrame::OnLinkClicked, this);
     m_DialNumber->Bind(wxEVT_TEXT_ENTER, &MyFrame::OnDialPressEnter, this);
     m_DialNumber->Bind(wxEVT_TEXT, &MyFrame::OnDialTextChange, this);
     m_DialButton->Bind(wxEVT_BUTTON, &MyFrame::OnDialPressEnter, this);
@@ -140,6 +142,11 @@ void MyFrame::OnActivate(wxActivateEvent &event)
     }
 }
 
+void MyFrame::OnLinkClicked(wxHtmlLinkEvent& event)
+{
+	wxLaunchDefaultBrowser(event.GetLinkInfo().GetHref());
+}
+
 void MyFrame::SavePosition()
 {
     wxPoint p = GetPosition();
@@ -181,10 +188,10 @@ void MyFrame::OnDialPressEnter(wxCommandEvent &event)
 
 void MyFrame::OnDialTextChange(wxCommandEvent &event)
 {
-    if (m_CallInfo->GetLabel().Length())
+    if (m_CallInfo->ToText().Length())
     {
-        m_CallInfo->SetLabel("");
-        m_CallInfo->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
+        m_CallInfo->SetPage("");
+        m_CallInfo->SetBackgroundColour(wxNullColour);
     }
 }
 
@@ -206,26 +213,28 @@ void MyFrame::OnListItemSelect(wxListEvent &event)
 	if (call->GetDuration() >= 3600)
 		timeformat = "%H:%M:%S";
 	else timeformat = "%M:%S";
-	label << _("Number: ") << call->GetNumber() << '\n';
+	label << _("Number: ") << call->GetNumber() << "<br>\n";
     if (!call->GetName().empty())
     {
-        label << _("Name: ") << call->GetName() << '\n';
+        label << _("Name: ") << call->GetName() << "<br>\n";
     }
-    label << _("Dial: ") << call->GetTimeStart().FormatISOCombined(' ') << '\n';
+    label << _("Dial: ") << call->GetTimeStart().FormatISOCombined(' ') << "<br>\n";
     if (call->GetTimeAnswer().IsValid())
     {
-        label << _("Answer: ") << call->GetTimeAnswer().FormatISOCombined(' ') << '\n';
+        label << _("Answer: ") << call->GetTimeAnswer().FormatISOCombined(' ') << "<br>\n";
     }
     if (call->GetTimeEnd().IsValid())
     {
-        label << _("End: ") << call->GetTimeEnd().FormatISOCombined(' ') << '\n';
+        label << _("End: ") << call->GetTimeEnd().FormatISOCombined(' ') << "<br>\n";
     }
     if (call->GetDisposition() == Call::CALL_ANSWERED)
     {
-        label << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC);
+        label << _("Duration: ") << duration.Format(timeformat, wxDateTime::UTC) << "<br>\n";
     }
-	m_CallInfo->SetLabel(label);
-    m_CallInfo->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
+    label << call->GetDescription();
+	wxString fgcolor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT).GetAsString();
+	m_CallInfo->SetPage("<body text='"+fgcolor+"'>"+label+"</body>");
+    m_CallInfo->SetBackgroundColour(wxNullColour);
 }
 
 
@@ -300,13 +309,16 @@ void MyFrame::OnDialIn(const AmiMessage &m)
     call->SetSecondChannelID(m["ChannelID"]);
 	call->SetTimeStart(wxDateTime::Now());
 	call->SetDirection(Call::CALL_IN);
-	m_callList->InsertCallItem(call);
-    UpdateDialButtonImage();
     if (m_lookuper && m_lookuper->ShouldLookup(m["CallerIDNum"]))
     {
         Log("Looking up!");
-        Log(m_lookuper->Lookup(m["CallerIDNum"]));
+        wxString name = m_lookuper->GetField(m["CallerIDNum"], "clients/0/name");
+        call->SetDescription(m_lookuper->GetHtml(m["CallerIDNum"]));
+        if (!name.empty())
+            call->SetName(name);
     }
+	m_callList->InsertCallItem(call);
+    UpdateDialButtonImage();
 }
 
 void MyFrame::OnUp(const AmiMessage &m)
@@ -445,8 +457,8 @@ void MyFrame::OnResponse(const AmiMessage &m)
     {
         if (m["Message"] == "Extension does not exist.")
         {
-           m_CallInfo->SetLabel(_("Extension does not exist."));
-           m_CallInfo->SetForegroundColour(*wxRED);
+            m_CallInfo->SetPage("<body text='red'>" + _("Extension does not exist.") + "</body>");
+            m_CallInfo->SetBackgroundColour(wxNullColour);
         }
     }
 }

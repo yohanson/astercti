@@ -37,6 +37,27 @@ CallerInfoLookuperURL::CallerInfoLookuperURL(const std::string &src)
 {
 }
 
+Json::Value CallerInfoLookuper::GetJson(const std::string &callerid)
+{
+    if (IsCached(callerid))
+    {
+        return GetCache();
+    }
+    wxString json = Lookup(callerid);
+    Json::Value root;
+    Json::Reader reader;
+    std::string outstring = std::string(json.mb_str());
+    if (!reader.parse(outstring, root, false))
+    {
+        std::cerr << "Failed to parse JSON: " << std::endl
+               << reader.getFormattedErrorMessages() <<std::endl
+               << "----" << std::endl
+               << json << std::endl;
+    }
+    Cache(callerid, root);
+    return root;
+}
+
 bool CallerInfoLookuper::ShouldLookup(const std::string &callerid)
 {
     bool should = false;
@@ -64,23 +85,45 @@ bool CallerInfoLookuper::ShouldLookup(const std::string &callerid)
                 should = true;
         }
     }
-    DEBUG_MSG("Should I lookup '" << callerid << "'? " << (should?"Yes.":"No.") << std::endl);
     return should;
 }
 
-
-wxString CallerInfoLookuper::ParseJson(const wxString &json, const wxString &callerid)
+/*
+ * path example: "clients/0/name"
+ */
+wxString CallerInfoLookuper::GetField(const std::string &callerid, const std::string &path)
 {
-    Json::Value root;
-    Json::Reader reader;
-    std::string outstring = std::string(json.mb_str());
-    if (!reader.parse(outstring, root, false))
+    Json::Value current = GetJson(callerid);
+    const static char delimiter = '/';
+    std::stringstream s(path);
+    std::string token;
+    while (std::getline(s, token, delimiter))
     {
-        std::cerr << "Failed to parse JSON: " << std::endl
-               << reader.getFormattedErrorMessages() <<std::endl
-               << "----" << std::endl
-               << json << std::endl;
+        if (current.isObject())
+        {
+            current = current[token];
+        }
+        else if (current.isArray())
+        {
+            int index = atoi(token.c_str());
+            current = current[index];
+        }
+        if (current.isNull()) return wxEmptyString;
     }
+    if (current.isConvertibleTo(Json::ValueType::stringValue))
+    {
+        return current.asString();
+    }
+    else
+    {
+        return wxEmptyString;
+    }
+
+}
+
+wxString CallerInfoLookuper::GetHtml(const std::string &callerid)
+{
+    Json::Value root = GetJson(callerid);
     const Json::Value clients = root["clients"];
     wxString html;
     std::string url_template = wxGetApp().Cfg("templates/client_url");
@@ -138,16 +181,16 @@ bool CallerInfoLookuper::IsCached(const std::string &callerid)
     return false;
 }
 
-void CallerInfoLookuper::Cache(const std::string &callerid, const wxString &html)
+void CallerInfoLookuper::Cache(const std::string &callerid, const Json::Value &json)
 {
     m_cachedAt = wxDateTime::Now();
     m_lastCallerid = callerid;
-    m_lastHtml = html;
+    m_lastJson = json;
 }
 
-wxString CallerInfoLookuper::GetCache()
+Json::Value CallerInfoLookuper::GetCache()
 {
-    return m_lastHtml;
+    return m_lastJson;
 }
 
 // CallerInfoLookuperURL: ====================================
@@ -178,14 +221,8 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 }
 //------------------------------------------------
 
-
-
 wxString CallerInfoLookuperURL::Lookup(const std::string &callerid)
 {
-    if (IsCached(callerid))
-    {
-        return GetCache();
-    }
     wxString out;
     wxArrayString output;
 
@@ -229,9 +266,7 @@ wxString CallerInfoLookuperURL::Lookup(const std::string &callerid)
             curl_easy_cleanup(curl);
             free(chunk.memory);
             delete[] url;
-            wxString html = ParseJson(out, callerid);
-            Cache(callerid, html);
-            return html;
+            return out;
         }
         return "Curl Error";
     }
@@ -240,10 +275,6 @@ wxString CallerInfoLookuperURL::Lookup(const std::string &callerid)
 //================================================
 wxString CallerInfoLookuperCmd::Lookup(const std::string &callerid)
 {
-    if (IsCached(callerid))
-    {
-        return GetCache();
-    }
     wxString cmd;
     wxArrayString output;
     wxString out;
@@ -255,11 +286,8 @@ wxString CallerInfoLookuperCmd::Lookup(const std::string &callerid)
         {
             out += iter;
         }
-        wxString html = ParseJson(out, callerid);
-        Cache(callerid, html);
-        return html;
+        return out;
     }
-    DEBUG_MSG("m_src is empty, returning wxEmptyString");
     return wxEmptyString;
 }
 void CallerInfoLookuperCmd::ExecCommand(wxString &cmd, wxArrayString &output)

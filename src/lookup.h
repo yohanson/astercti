@@ -1,20 +1,24 @@
 #ifndef _LOOKUP_H_
 #define _LOOKUP_H_
 
+#include <json/value.h>
+
 class CallerInfoLookuper
 {
 public:
     CallerInfoLookuper(const std::string &src);
     bool ShouldLookup(const std::string &callerid);
-    virtual wxString Lookup(const std::string &) = 0;
+    wxString GetHtml(const std::string &callerid);
+    wxString GetField(const std::string &callerid, const std::string &path);
 protected:
+    Json::Value GetJson(const std::string &callerid);
     bool IsCached(const std::string &callerid);
-    void Cache(const std::string &callerid, const wxString &html);
-    wxString GetCache();
-    wxString ParseJson(const wxString &json, const wxString &callerid);
+    void Cache(const std::string &callerid, const Json::Value &json);
+    virtual wxString Lookup(const std::string &) = 0;
+    Json::Value GetCache();
     wxString m_src;
     wxString m_lastCallerid;
-    wxString m_lastHtml;
+    Json::Value m_lastJson;
     wxDateTime m_cachedAt;
 };
 
