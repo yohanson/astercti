@@ -1,3 +1,11 @@
+astercti (0.0.21-1) unstable; urgency=medium
+
+  * Exit with code 0 when exiting early
+  + Add Lookup to mainframe
+  + Add 'caller_name_field' setting
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Mon, 26 Sep 2016 16:48:48 +0700
+
 astercti (0.0.20-1) unstable; urgency=medium
 
   * Fix status of unanswered originated calls
