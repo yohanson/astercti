@@ -1,66 +1,59 @@
 #include "ipc.h"
-#include "mainframe.h"
+#include "myapp.h"
 
 IpcConnection::IpcConnection()
-    : m_controller(NULL)
 {
 }
 
-IpcConnection::IpcConnection(AsteriskController *controller, IpcServer *server)
-    : m_controller(controller), m_server(server)
+IpcConnection::IpcConnection(IpcServer *server)
+    : m_server(server)
 {
 }
 
 bool IpcConnection::OnExecute(const wxString& topic,
-                        const void *data,
-                        size_t size,
-                        wxIPCFormat format)
-{
+                              const void *data,
+                              size_t size,
+                              wxIPCFormat format)
+    {
     const char *str = (const char *) data;
     wxString uri = wxString(str);
     wxString number;
     if (uri.StartsWith("tel:", &number))
-	{
-		number.Trim();
-		bool badNumber = false;
-		size_t pos;
-		if (number.StartsWith("+"))
-		{ // global number
-			while ((pos = number.find_first_not_of("0123456789+-.()")) != wxString::npos)
-			{
-				badNumber = true;
-				break;
-			}
-		}
-		else // local number
-		{
-			while ((pos = number.find_first_not_of("0123456789-.()abcdefABCDEF*#")) != wxString::npos)
-			{
-				badNumber = true;
-				break;
-			}
-		}
-
-		if (badNumber)
-		{
-			wxString msg;
-			msg << "Wrong telephone number format: '" << number << "' (char[" << pos << "] == '" << number[pos] << "')";
-			wxLogMessage(msg);
-			std::cerr << msg << "\n";
-			return false;
-		}
-        if (m_controller)
-        {
-            m_controller->Originate(number.ToStdString());
+    {
+        number.Trim();
+        bool badNumber = false;
+        size_t pos;
+        if (number.StartsWith("+"))
+        { // global number
+            while ((pos = number.find_first_not_of("0123456789+-.()")) != wxString::npos)
+            {
+                badNumber = true;
+                break;
+            }
         }
-		return true;
-	}
+        else // local number
+        {
+            while ((pos = number.find_first_not_of("0123456789-.()abcdefABCDEF*#")) != wxString::npos)
+            {
+                badNumber = true;
+                break;
+            }
+        }
+
+        if (badNumber)
+        {
+            wxString msg;
+            msg << "Wrong telephone number format: '" << number << "' (char[" << pos << "] == '" << number[pos] << "')";
+            wxLogMessage(msg);
+            std::cerr << msg << "\n";
+            return false;
+        }
+        wxGetApp().Originate(number.ToStdString());
+        return true;
+    }
     else if (uri == IPC_CMD_RISE)
     {
-       if (m_controller)
-       {
-            m_controller->ShowMainFrame();
-       }
+        wxGetApp().ShowMainFrame();
     }
     return false;
 }
@@ -94,8 +87,8 @@ bool IpcConnection::OnDisconnect()
 
 //--------------------
 
-IpcServer::IpcServer(AsteriskController *controller)
-    : m_connection(NULL), m_controller(controller)
+IpcServer::IpcServer()
+    : m_connection(NULL)
 {
 }
 
@@ -108,7 +101,7 @@ wxConnectionBase *IpcServer::OnAcceptConnection(const wxString& topic)
 {
     if ( topic == IPC_TOPIC )
     {
-        m_connection = new IpcConnection(m_controller, this);
+        m_connection = new IpcConnection(this);
         return m_connection;
     }
     else

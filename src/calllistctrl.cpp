@@ -88,11 +88,11 @@ void CallListCtrl::SetTimeFormat(const wxString &timeFormat)
 
 void CallListCtrl::OnResize(wxSizeEvent &event)
 {
-	wxSize csize = GetClientSize();
-	wxSize vsize = GetVirtualSize();
-	int width = csize.x;
-	if (vsize.y > csize.y)
-		width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+    wxSize csize = GetClientSize();
+    wxSize vsize = GetVirtualSize();
+    int width = csize.x;
+    if (vsize.y > csize.y)
+        width = csize.x - wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
     int timewidth = wxLIST_AUTOSIZE;
     if (width < 300) timewidth = 0;
     SetColumnWidth(1, timewidth);
@@ -101,5 +101,5 @@ void CallListCtrl::OnResize(wxSizeEvent &event)
         timewidth = GetColumnWidth(1);
     }
     SetColumnWidth(0, width-timewidth);
-	event.Skip();
+    event.Skip();
 }

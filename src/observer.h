@@ -21,12 +21,12 @@ public:
 
 class IObservable
 {
-	std::list<IObserver *> _observers;
+    std::list<IObserver *> _observers;
 public:
     std::string observable_descr;
-	void broadcast(IObserver &observer);
-	void no_broadcast(IObserver &observer, bool both_ends = true);
-	void Notify(const AmiMessage &message);
+    void broadcast(IObserver &observer);
+    void no_broadcast(IObserver &observer, bool both_ends = true);
+    void Notify(const AmiMessage &message);
     ~IObservable();
 };
 

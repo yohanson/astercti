@@ -1,9 +1,10 @@
 #ifndef _TASKBARICON_H_
 #define _TASKBARICON_H_
 
+#include <wx/wx.h>
 #include <wx/taskbar.h>
 
-class MyTaskBarIcon : public wxTaskBarIcon, public ControllerUser
+class MyTaskBarIcon : public wxTaskBarIcon
 {
 private:
     wxFrame *m_mainFrame;
