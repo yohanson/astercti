@@ -71,7 +71,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-    m_CallInfo = new wxHtmlWindow(RightPanel, wxID_ANY, wxDefaultPosition, wxSize(400,300), wxHW_NO_SELECTION);
+    m_CallInfo = new wxHtmlWindow(RightPanel, wxID_ANY, wxDefaultPosition, wxSize(400,300));
     m_CallInfo->SetBackgroundColour(wxNullColour);
     m_callList = new CallListCtrl(&TopMostVerticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT|wxLC_NO_HEADER|wxLC_SINGLE_SEL);
     m_callList->SetTimeFormat(wxGetApp().m_config->Read("gui/call_list_time_format", "%a %d %b %H:%M"));
