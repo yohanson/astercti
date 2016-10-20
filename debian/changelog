@@ -1,3 +1,9 @@
+astercti (0.0.22-1) UNRELEASED; urgency=medium
+
+  * Execute commands on call.
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Thu, 20 Oct 2016 17:25:20 +0700
+
 astercti (0.0.21-1) unstable; urgency=medium
 
   * Exit with code 0 when exiting early
