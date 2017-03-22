@@ -1,4 +1,11 @@
-astercti (0.0.22-1) UNRELEASED; urgency=medium
+astercti (0.0.23-1) unstable; urgency=medium
+
+  * Fix clearing message when it's still being processed.
+  * Do not execute cmd on call, if cmd is not set.
+
+ -- Michael A. Mikhailov <yohanson@ngs.ru>  Wed, 22 Mar 2017 13:58:25 +0700
+
+astercti (0.0.22-1) unstable; urgency=medium
 
   * Execute commands on call.
 
