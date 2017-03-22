@@ -31,6 +31,10 @@ number_min_length=7
 
 replace_number_prefix=/810/+/,/+7/8/,/83832/2/,/83833/3/
 
+[hooks]
+;exec_ondialin=process_call.sh --email="%s"
+
+
 # templates can have macros like ${name}, they are taken out of JSON returned by lookup_cmd
 [templates]
 client_url=https://example.com/clients.cgi?cmd=2&CT=${clienttype}&NClient=${id}

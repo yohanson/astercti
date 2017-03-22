@@ -22,6 +22,7 @@
 #include "debugreport.h"
 #include "iconmacro.h"
 #include "utils.h"
+#include "executer.h"
 
 wxIMPLEMENT_APP(MyApp);
 bool MyApp::OnInit()
@@ -97,9 +98,11 @@ bool MyApp::OnInit()
     m_numbershortener->broadcast(*m_mainframe);
     m_intmsgfilter->broadcast(*m_mainframe);
     notificationFrame *notifyframe = new notificationFrame(m_mainframe, m_chanstatuspool, asterisk, m_lookuper);
+    Executer *executer = new Executer(m_lookuper);
     m_events = new EventGenerator(m_config->Read("dialplan/exten").ToStdString());
     m_events->broadcast(*m_mainframe);
     m_events->broadcast(*notifyframe);
+    m_events->broadcast(*executer);
     m_numbershortener->broadcast(*m_events);
     m_intmsgfilter->broadcast(*m_events);
     wxIcon defaultIcon(ACTI_ICON("astercti"));
