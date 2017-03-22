@@ -1,5 +1,5 @@
 #ifndef VERSION
-#define VERSION "0.0.22"
+#define VERSION "0.0.23"
 #ifdef DEBUG
  #define FULLVERSION VERSION " (debug)"
 #else
