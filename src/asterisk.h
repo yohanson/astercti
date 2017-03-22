@@ -101,7 +101,7 @@ private:
     bool m_ping_timer_active;
     void OnPingTimeout(wxTimerEvent& event);
 
-    void Notify(AmiMessage &message);
+    void Notify(AmiMessage message);
     void OnSocketEvent(wxSocketEvent &event);
     void OnInputAvailable();
     void AmiConnect();

@@ -40,7 +40,7 @@ clean:
 	rm -f *.ico
 	rm -rf build
 
-$(DBGDIR)/%.o: CXXFLAGS += -DDEBUG -g1 -O0
+$(DBGDIR)/%.o: CXXFLAGS += -DDEBUG -ggdb -O0
 $(DBGDIR)/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 
@@ -147,7 +147,7 @@ src/gitversion.cpp:
 bump: debianbump versionhbump
 
 debianbump:
-	dch -i -m -U
+	dch -i -m -U -D unstable
 
 versionhbump: VERSION=$(shell cat debian/changelog | head -n1 | grep -o '[0-9\.]*-' | grep -o '[0-9\.]*')
 versionhbump:

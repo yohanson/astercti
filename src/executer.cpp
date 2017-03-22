@@ -13,6 +13,7 @@ Executer::Executer(CallerInfoLookuper *lookuper)
 
 void Executer::OnDialIn(const AmiMessage &m)
 {
+    if (m_cmd.empty()) return;
     std::cerr << "Executer OnDialIn!" << std::endl;
     wxString email = m_lookuper->GetField(m["CallerIDNum"], "clients/0/emails/0");
     wxString name = m_lookuper->GetField(m["CallerIDNum"], "clients/0/name");
