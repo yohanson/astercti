@@ -12,3 +12,12 @@ Incoming call notification:
 
 Originating a call:  
 ![Originate screenshot](/screenshot-originate.png?raw=true)
+
+Installation
+------------
+
+There are packages for Debian Stable (64 bit):
+
+```
+deb [arch=amd64] http://yohanson.github.io/debian jessie main
+```
