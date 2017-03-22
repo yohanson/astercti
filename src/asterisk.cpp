@@ -8,7 +8,7 @@
 #include "asterisk.h"
 
 
-void Asterisk::Notify(AmiMessage &message)
+void Asterisk::Notify(AmiMessage message)
 {
     if (message.has("Response"))
     {
