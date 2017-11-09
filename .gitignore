@@ -11,3 +11,4 @@ debian/astercti.substvars
 debian/files
 gitversion.cpp
 curl-ca-bundle.crt
+pkg/*

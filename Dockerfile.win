@@ -1,0 +1,43 @@
+ARG DEBIAN_RELEASE
+FROM astercti-build-debian-$DEBIAN_RELEASE
+
+# Obtaining wxMSW
+
+ARG WXVER=3.0.3
+RUN wget -q -O /build/wxWidgets-$WXVER.tar.bz2 https://github.com/wxWidgets/wxWidgets/releases/download/v$WXVER/wxWidgets-$WXVER.tar.bz2
+RUN tar xf /build/wxWidgets-$WXVER.tar.bz2 -C /build/
+RUN cd /build/wxWidgets-$WXVER \
+    && ./configure --prefix=/usr/local/i686-mingw32-g++ --host=i686-w64-mingw32 --build=x86_64-linux CFLAGS='-I/usr/i686-w64-mingw32/include' \
+    && make \
+    && make install \
+    && make clean \
+    && cd /build \
+    && rm -rf /build/wxWidgets-$WXVER*
+RUN ln -s /usr/local/i686-mingw32-g++ /usr/local/libwxmsw3.0
+
+# Obtaining jsoncpp for Windows
+
+ARG JSONCPPVER=1.8.3
+RUN wget -q -O /build/jsoncpp.tar.gz https://github.com/open-source-parsers/jsoncpp/archive/$JSONCPPVER.tar.gz \
+    && tar xf /build/jsoncpp.tar.gz -C /build \
+    && mv /build/jsoncpp-$JSONCPPVER /build/jsoncpp \
+    && cd /build/jsoncpp \
+    && python3 amalgamate.py \
+    && rm -rf /build/jsoncpp.tar.gz
+
+# Obtaining libcurl for Windows
+ARG CURL_URL=https://bintray.com/artifact/download/vszakats/generic
+ARG CURL_VER=curl-7.56.1-win32-mingw
+RUN wget -q -O /build/curl.7z $CURL_URL/$CURL_VER.7z \
+    && 7zr x -o/build /build/curl.7z \
+    && mv /build/$CURL_VER /build/curl \
+    && cp -r /build/curl/include/curl /usr/local/i686-mingw32-g++/include/ \
+    && ln -s /build/curl/bin/curl-ca-bundle.crt /build/astercti/ \
+    && ln -s /build/curl/bin/libcurl.dll /build/astercti/ \
+    && rm /build/curl.7z
+
+# A hack because mingw doesn' try *.dll.a lib extensions:
+RUN for lib in $(ls /usr/local/i686-mingw32-g++/lib/*.dll.a | sed 's/\.dll\.a$//'); do ln -s $lib.dll.a $lib.a ; done
+
+
+# vi: ft=dockerfile:
