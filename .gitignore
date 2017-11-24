@@ -12,3 +12,4 @@ debian/files
 gitversion.cpp
 curl-ca-bundle.crt
 pkg/*
+tags

@@ -147,8 +147,8 @@ bool IpcClient::Connect(const wxString& sHost, const wxString& sService, const w
 {
     wxLogNull nolog;
 
-    m_connection = (IpcConnection *)MakeConnection(sHost, sService, sTopic);
-    return m_connection    != NULL;
+    m_connection = reinterpret_cast<IpcConnection *>(MakeConnection(sHost, sService, sTopic));
+    return m_connection != NULL;
 }
 
 wxConnectionBase *IpcClient::OnMakeConnection()

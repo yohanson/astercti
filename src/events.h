@@ -14,7 +14,7 @@ protected:
     void handleEvent(const AmiMessage &);
     std::string m_myexten;
 public:
-    EventGenerator(const std::string &my_exten);
+    explicit EventGenerator(const std::string &my_exten);
     void broadcast(EventListener &);
     void no_broadcast(EventListener &);
     void NotifyOnDialIn(const AmiMessage &);

@@ -109,9 +109,9 @@ private:
     void AmiRequestStatus();
 
 public:
-    Asterisk(std::string host, int port, std::string username, std::string secret);
+    Asterisk(const std::string &host, int port, const std::string &username, const std::string &secret);
     ~Asterisk();
-    void Originate(std::string mychan, std::string context, std::string exten, std::string myexten = "", int priority = 1);
+    void Originate(const std::string &mychan, const std::string &context, const std::string &exten, const std::string &myexten = "", int priority = 1);
     void HangupChannel(const std::string &channel);
 };
 

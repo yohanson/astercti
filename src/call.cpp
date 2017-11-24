@@ -4,11 +4,11 @@
 #include "call.h"
 
 Call::Call()
+  : m_duration(0),
+    m_unique_id(0),
+    m_direction(CALL_IN),
+    m_disposition(CALL_ANSWERED)
 {
-    m_duration = 0;
-    m_unique_id = 0;
-    m_direction = CALL_IN;
-    m_disposition = CALL_ANSWERED;
 }
 
 void Call::SetNumber(wxString s)
@@ -144,7 +144,6 @@ Call::Call(wxString serialized)
 {
     serialized.Replace("\\n", "\n");
     std::stringstream s(serialized.ToStdString());
-    size_t pos = 0;
     std::string token;
     std::vector<std::string> els;
     while (std::getline(s, token, SERIAL_DELIM))

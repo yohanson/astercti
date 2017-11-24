@@ -6,7 +6,7 @@
 class CallerInfoLookuper
 {
 public:
-    CallerInfoLookuper(const std::string &src);
+    explicit CallerInfoLookuper(const std::string &src);
     bool ShouldLookup(const std::string &callerid);
     wxString GetHtml(const std::string &callerid);
     wxString GetField(const std::string &callerid, const std::string &path);
@@ -27,7 +27,7 @@ protected:
 class CallerInfoLookuperCmd : public CallerInfoLookuper
 {
 public:
-    CallerInfoLookuperCmd(const std::string &src);
+    explicit CallerInfoLookuperCmd(const std::string &src);
     virtual wxString Lookup(const std::string &);
 protected:
     void ExecCommand(wxString &cmd, wxArrayString &output);
@@ -38,7 +38,7 @@ protected:
 class CallerInfoLookuperURL : public CallerInfoLookuper
 {
 public:
-    CallerInfoLookuperURL(const std::string &src);
+    explicit CallerInfoLookuperURL(const std::string &src);
     virtual wxString Lookup(const std::string &);
 };
 

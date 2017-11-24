@@ -11,9 +11,9 @@ void AmiMessageFilter::handleEvent(const AmiMessage& message)
 }
 
 //== MyChanFilter ===========
-MyChanFilter::MyChanFilter(std::string channel)
+MyChanFilter::MyChanFilter(const std::string& channel)
+    : m_channel_id(channel)
 {
-    m_channel_id = channel;
 }
 
 bool MyChanFilter::filter(const AmiMessage &message)
@@ -67,10 +67,11 @@ ShortenNumberModifier::ShortenNumberModifier(const std::string &ShorteningRules)
 bool ShortenNumberModifier::CreateShorteningRules(const std::string &rules)
 {
     const static char RuleBoundary = '/';
-    size_t start, middle, end, pos = 0;
+    size_t start, pos = 0;
     std::string long_prefix, short_prefix;
     while (std::string::npos != (start = rules.find(RuleBoundary, pos)))
     {
+        size_t middle, end;
         middle = rules.find(RuleBoundary, start+1);
         if (middle == std::string::npos) return false;
         end = rules.find(RuleBoundary, middle+1);
@@ -88,7 +89,7 @@ void ShortenNumberModifier::shorten(std::string &number)
 {
     for (int i=0; i<long_prefixes.size(); i++)
     {
-        if (0 == number.find(long_prefixes[i])) // if at the beginning
+        if (0 == number.compare(0, long_prefixes[i].length(), long_prefixes[i])) // if at the beginning
         {
             number.replace(0, long_prefixes[i].length(), short_prefixes[i]);
         }

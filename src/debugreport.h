@@ -4,7 +4,7 @@
 class MyDebugReport : public wxDebugReportUpload
 {
 public:
-    MyDebugReport(const wxString& url);
+    explicit MyDebugReport(const wxString& url);
 protected:
     virtual bool OnServerReply(const wxArrayString& reply);
 };

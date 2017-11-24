@@ -17,7 +17,7 @@ public:
     enum Direction {CALL_IN, CALL_OUT};
     enum Disposition {CALL_UNANSWERED, CALL_ANSWERED, CALL_ANSWERED_ELSEWHERE};
     Call();
-    Call(wxString serialized);
+    explicit Call(wxString serialized);
     void        SetNumber(wxString s);
     wxString    GetNumber();
     void        SetName(wxString s);

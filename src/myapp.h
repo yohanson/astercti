@@ -14,6 +14,7 @@
 class MyApp: public wxApp
 {
 public:
+    MyApp();
     ~MyApp();
     virtual bool OnInit();
     virtual int OnExit();

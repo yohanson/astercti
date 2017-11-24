@@ -2,10 +2,8 @@
 
 void ChannelStatusPool::handleEvent(const AmiMessage &m)
 {
-    bool changed = false;
     if (m["Event"] == "Newchannel")
     {
-        changed = true;
         if (m["Channel"] == "")
         {
             std::cerr << "Empty channel" << std::endl;
@@ -26,7 +24,6 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     }
     else if (m["Event"] == "Hangup")
     {
-        changed = true;
         std::string channel = m["Channel"];
         size_t zombie = channel.find("<ZOMBIE>");
         if (zombie != std::string::npos)
@@ -47,7 +44,6 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
     }
     else if (m["Event"] == "Dial")
     {
-        changed = true;
         if (m["SubEvent"] == "Begin")
         {
             auto src_mchan_it = findMetaChannel_iter(m["Channel"]);
@@ -63,6 +59,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
             Channel *dst_chan = dst_mchan_it->second->findChannel(m["Destination"]);
             if (!dst_chan)
                 return;
+#ifdef DEBUG
             if (dst_chan->getID() == m_mychannel)
             {
                 MetaChannel *mc = findMetaChannel(src_chan->m_channel.getID());
@@ -79,11 +76,11 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
                     }
                 }
             }
+#endif //DEBUG
         }
     }
     else if (m["Event"] == "Bridge")
     {
-        changed = true;
         Channel *channel1 = findChannel(m["Channel1"]);
         Channel *channel2 = findChannel(m["Channel2"]);
         if ( !(channel1 && channel2) )
@@ -116,7 +113,7 @@ const std::string Channel::getID() const
     return m_channel.getID();
 }
 
-Channel* MetaChannel::findChannel(ChannelName name)
+Channel* MetaChannel::findChannel(const ChannelName &name)
 {
     for (auto it = m_ownChannels.begin(); it != m_ownChannels.end(); ++it)
     {
@@ -126,7 +123,7 @@ Channel* MetaChannel::findChannel(ChannelName name)
     return NULL;
 }
 
-Channel* ChannelStatusPool::findChannel(ChannelName chan)
+Channel* ChannelStatusPool::findChannel(const ChannelName &chan)
 {
     MetaChannel *mc = findMetaChannel(chan.getID());
     if (mc)
@@ -136,7 +133,7 @@ Channel* ChannelStatusPool::findChannel(ChannelName chan)
     return NULL;
 }
 
-std::map<std::string, MetaChannel *>::iterator ChannelStatusPool::findMetaChannel_iter(ChannelName chan)
+std::map<std::string, MetaChannel *>::iterator ChannelStatusPool::findMetaChannel_iter(const ChannelName &chan)
 {
     return m_channels.find(chan.getID());
 }
@@ -152,8 +149,8 @@ MetaChannel *ChannelStatusPool::findMetaChannel(const std::string &chan)
 }
 
 ChannelStatusPool::ChannelStatusPool(const std::string &mychannel)
+    : m_mychannel(mychannel)
 {
-    m_mychannel = mychannel;
 }
 
 std::list<Channel *> ChannelStatusPool::getBridgedChannelsOf(const ChannelName &channelname)
@@ -178,6 +175,7 @@ ChannelStatusPooler::ChannelStatusPooler(ChannelStatusPool *pool)
 }
 
 Channel::Channel(const std::string& chan)
+    : m_state(AST_STATE_DOWN)
 {
     if (chan == "")
     {

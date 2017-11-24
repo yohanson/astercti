@@ -72,10 +72,9 @@ void CallListCtrl::UpdateItem(long index)
 
 CallListCtrl::~CallListCtrl()
 {
-    Call *call;
     for (long i=0; i<GetItemCount(); i++)
     {
-        call = reinterpret_cast<Call *>(GetItemData(i));
+        Call *call = reinterpret_cast<Call *>(GetItemData(i));
         delete call;
         SetItemPtrData(i, (wxUIntPtr)NULL);
     }

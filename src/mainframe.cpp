@@ -282,8 +282,6 @@ void MyFrame::OnOriginate(const AmiMessage &m)
 void MyFrame::OnDialIn(const AmiMessage &m)
 {
     Log("##### Somebody's going to dial us #####\n");
-    std::string calleridnum = m["CallerIDNum"];
-    std::string calleridname = m["CallerIDName"];
     m_current_channel = m["Destination"];
     Call *call = new Call;
     if (!m["CallerIDName"].empty() && m["CallerIDName"] != "<unknown>" && m["CallerIDName"] != m["CallerIDNum"])
@@ -328,7 +326,6 @@ void MyFrame::OnDialIn(const AmiMessage &m)
 void MyFrame::OnUp(const AmiMessage &m)
 {
     Log("\n#####\nAlready talking\n#####\n");
-    wxListItem *item = NULL;
     long lastItem = 0;
     if (m_callList->GetItemCount())
     {
@@ -488,9 +485,9 @@ void MyFrame::OnDial(const AmiMessage &m)
 
 void MyFrame::OnInternalMessage(const AmiMessage &m)
 {
-    static bool was_connected;
     if (m["InternalMessage"] == "ConnectionStatus")
     {
+        static bool was_connected;
         bool connected = (m["Status"] == "Connected");
         if (connected == was_connected) return;
         if (!connected)
