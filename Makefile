@@ -8,9 +8,25 @@ WINPATH=/usr/local/libwxmsw3.0/bin
 JSONPATH=../jsoncpp
 CURLPATH=../curl
 DEFAULT_DEBIAN_RELEASE=stretch
-OBJECTS=myapp.o mainframe.o notificationFrame.o taskbaricon.o asterisk.o \
-	observer.o events.o ipc.o chanstatus.o call.o debugreport.o \
-	calllistctrl.o filter.o utils.o lookup.o executer.o gitversion.o
+OBJECTS= \
+	asterisk.o \
+	calllistctrl.o \
+	call.o \
+	chanstatus.o \
+	debugreport.o \
+	events.o \
+	executer.o \
+	filter.o \
+	gitversion.o \
+	ipc.o \
+	lookup.o \
+	mainframe.o \
+	myapp.o \
+	notificationFrame.o \
+	numbershortener.o \
+	observer.o \
+	taskbaricon.o \
+	utils.o
 BIGICONS=astercti astercti-missed
 SMALLICONS=dial hangup incoming_answered_elsewhere incoming_answered \
 	incoming_unanswered outbound_answered outbound_unanswered
@@ -21,7 +37,7 @@ WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS) jsoncpp.o resource.o)
 WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS) jsoncpp.o resource.o)
 
 default:
-	echo "Please supply target: debug, release, windebug, winrelease, deb"
+	@echo "Please supply target: debug, release, windebug, winrelease, deb"
 
 debug: $(DBGDIR)/$(BINARY)
 
@@ -187,10 +203,18 @@ docker-debian-stretch: docker-debian
 docker-debian-jessie: DEBIAN_RELEASE=jessie
 docker-debian-jessie: docker-debian
 
+docker-debian-image: DOCKER_IMAGE=astercti-build-debian-$(DEBIAN_RELEASE)
+docker-debian-image: image_timestamp=$(shell docker image inspect -f '{{json .Metadata.LastTagTime }}' $(DOCKER_IMAGE) | xargs date +%s -d)
+docker-debian-image: dockerfile_timestamp=$(shell stat -c%Y Dockerfile)
 docker-debian-image:
 	@test -n "$(DEBIAN_RELEASE)" || ( echo "DEBIAN_RELEASE variable must be defined"; false )
-	docker inspect astercti-build-debian-$(DEBIAN_RELEASE) >/dev/null 2>&1 || \
-	docker build --build-arg DEBIAN_RELEASE=$(DEBIAN_RELEASE) -t astercti-build-debian-$(DEBIAN_RELEASE) .
+
+	if [ "$(image_timestamp)" -lt "$(dockerfile_timestamp)" ]; then \
+		docker rm -f $(DOCKER_IMAGE) || true ; \
+		docker build --tag=webex . ; \
+		docker build --build-arg DEBIAN_RELEASE=$(DEBIAN_RELEASE) -t $(DOCKER_IMAGE) . ; \
+	fi
+
 
 docker-debian: docker-debian-image
 	docker run -it --rm -v $(shell pwd):/build/astercti astercti-build-debian-$(DEBIAN_RELEASE) make deb

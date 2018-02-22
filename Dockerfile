@@ -6,6 +6,7 @@ RUN apt-get update -yq \
         binutils-mingw-w64-i686 \
         build-essential \
         ca-certificates \
+        cxxtest \
         debhelper \
         devscripts \
         fakeroot \
@@ -25,6 +26,5 @@ RUN apt-get update -yq \
         /var/lib/apt/lists/* \
         /var/tmp/* \
         /tmp/*
-
 RUN mkdir -p /build/astercti
 WORKDIR /build/astercti
