@@ -1,5 +1,6 @@
 ARG DEBIAN_RELEASE
 FROM astercti-build-debian-$DEBIAN_RELEASE
+USER 0
 
 # Obtaining wxMSW
 
@@ -31,13 +32,15 @@ ARG CURL_VER=curl-7.56.1-win32-mingw
 RUN wget -q -O /build/curl.7z $CURL_URL/$CURL_VER.7z \
     && 7zr x -o/build /build/curl.7z \
     && mv /build/$CURL_VER /build/curl \
+    && chmod -R 755 /build/curl \
     && cp -r /build/curl/include/curl /usr/local/i686-mingw32-g++/include/ \
-    && ln -s /build/curl/bin/curl-ca-bundle.crt /build/astercti/ \
     && ln -s /build/curl/bin/libcurl.dll /build/astercti/ \
     && rm /build/curl.7z
 
 # A hack because mingw doesn' try *.dll.a lib extensions:
 RUN for lib in $(ls /usr/local/i686-mingw32-g++/lib/*.dll.a | sed 's/\.dll\.a$//'); do ln -s $lib.dll.a $lib.a ; done
 
+ARG UID=1000
+USER $UID
 
 # vi: ft=dockerfile:

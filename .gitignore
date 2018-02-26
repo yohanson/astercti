@@ -11,6 +11,7 @@ runner.cpp
 i18n/*.mo
 debian/astercti.substvars
 debian/files
+debian/debhelper-build-stamp
 gitversion.cpp
 curl-ca-bundle.crt
 pkg/*

@@ -6,6 +6,7 @@ RUN apt-get update -yq \
         binutils-mingw-w64-i686 \
         build-essential \
         ca-certificates \
+        curl \
         cxxtest \
         debhelper \
         devscripts \
@@ -26,5 +27,8 @@ RUN apt-get update -yq \
         /var/lib/apt/lists/* \
         /var/tmp/* \
         /tmp/*
+ARG UID=1000
 RUN mkdir -p /build/astercti
+RUN chown -R $UID /build
+USER $UID
 WORKDIR /build/astercti

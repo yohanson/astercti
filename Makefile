@@ -7,6 +7,7 @@ WINRELDIR=build/release_win
 WINPATH=/usr/local/libwxmsw3.0/bin
 JSONPATH=../jsoncpp
 CURLPATH=../curl
+UID=$(shell id -u)
 DEFAULT_DEBIAN_RELEASE=stretch
 OBJECTS= \
 	asterisk.o \
@@ -89,7 +90,12 @@ asterct%.ico: img/asterct%.png
 %.ico: img/%.png
 	convert $< -define icon $@
 
+# linking amalgamated jsoncpp for windows build:
+src/jsoncpp.cpp:
+	ln -s ../../jsoncpp/dist/jsoncpp.cpp $@
+
 #$(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I$(JSONPATH)/include -I$(JSONPATH)/dist -I$(CURLPATH)/include
+
 $(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I$(JSONPATH)/dist -I$(CURLPATH)/include
 $(WINRELDIR)/%.o: src/%.cpp
@@ -115,11 +121,17 @@ $(WINDBGDIR)/$(BINARY).exe: $(WINDBGDIR) $(WINDEBUG_OBJ) i18n/ru.mo
 $(WINRELDIR)/$(BINARY).exe: VERSION=$(shell cat src/version.h | grep VERSION | grep -o '"[0-9a-z\.-]*"' | grep -o '[0-9a-z\.-]*')
 $(WINRELDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs`
-$(WINRELDIR)/$(BINARY).exe: $(WINRELDIR) $(WINRELEASE_OBJ) i18n/ru.mo
-	$(CXX) $(WINRELEASE_OBJ) libcurl.dll $(LDFLAGS) -o $@
+$(WINRELDIR)/$(BINARY).exe: $(WINRELDIR) $(WINRELEASE_OBJ) i18n/ru.mo libcurl.dll curl-ca-bundle.crt
+	$(CXX) $(WINRELEASE_OBJ) $(LDFLAGS) libcurl.dll -o $@
 	strip --strip-all $@
 	makensis windows_install_script.nsis
 	mv astercti_installer.exe pkg/astercti_$(VERSION)_installer.exe
+
+libcurl.dll:
+	ln -s ../curl/bin/libcurl.dll
+
+curl-ca-bundle.crt:
+	$(CURLPATH)/mk-ca-bundle.pl $@
 
 
 debug: $(DBGDIR)/$(BINARY)
@@ -203,27 +215,30 @@ docker-debian-stretch: docker-debian
 docker-debian-jessie: DEBIAN_RELEASE=jessie
 docker-debian-jessie: docker-debian
 
-docker-debian-image: DOCKER_IMAGE=astercti-build-debian-$(DEBIAN_RELEASE)
-docker-debian-image: image_timestamp=$(shell docker image inspect -f '{{json .Metadata.LastTagTime }}' $(DOCKER_IMAGE) | xargs date +%s -d)
-docker-debian-image: dockerfile_timestamp=$(shell stat -c%Y Dockerfile)
-docker-debian-image:
+
+docker-image: image_timestamp=$(shell docker image inspect -f '{{json .Metadata.LastTagTime }}' $(DOCKER_IMAGE) | xargs date +%s -d || echo 0)
+docker-image: dockerfile_timestamp=$(shell stat -c%Y $(DOCKERFILE))
+docker-image:
+	@test -n "$(DOCKER_IMAGE)" || ( echo "DOCKER_IMAGE variable must be defined"; false )
+	@test -n "$(DOCKERFILE)" || ( echo "DOCKERFILE variable must be defined"; false )
 	@test -n "$(DEBIAN_RELEASE)" || ( echo "DEBIAN_RELEASE variable must be defined"; false )
 
 	if [ "$(image_timestamp)" -lt "$(dockerfile_timestamp)" ]; then \
 		docker rm -f $(DOCKER_IMAGE) || true ; \
-		docker build --tag=webex . ; \
-		docker build --build-arg DEBIAN_RELEASE=$(DEBIAN_RELEASE) -t $(DOCKER_IMAGE) . ; \
+		docker build -f $(DOCKERFILE) \
+			--build-arg DEBIAN_RELEASE=$(DEBIAN_RELEASE) \
+			--build-arg UID=$(UID) \
+			-t $(DOCKER_IMAGE) . ; \
 	fi
 
+docker-debian: DOCKER_IMAGE=astercti-build-debian-$(DEBIAN_RELEASE)
+docker-debian: DOCKERFILE=Dockerfile
+docker-debian: docker-image
+	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make deb
 
-docker-debian: docker-debian-image
-	docker run -it --rm -v $(shell pwd):/build/astercti astercti-build-debian-$(DEBIAN_RELEASE) make deb
-
-docker-windows-image: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
-docker-windows-image: docker-debian-image
-	docker inspect astercti-build-windows >/dev/null 2>&1 || \
-	docker build --build-arg DEBIAN_RELEASE=$(DEBIAN_RELEASE) -f Dockerfile.win -t astercti-build-windows .
-
-docker-windows: docker-windows-image
-	docker run -it --rm -v $(shell pwd):/build/astercti astercti-build-windows make winrelease
+docker-windows: DOCKER_IMAGE=astercti-build-windows
+docker-windows: DOCKERFILE=Dockerfile.win
+docker-windows: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
+docker-windows: docker-image
+	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make winrelease
 
