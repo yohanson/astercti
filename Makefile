@@ -236,9 +236,14 @@ docker-debian: DOCKERFILE=Dockerfile
 docker-debian: docker-image
 	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make deb
 
+docker-debian-default-image: DOCKER_IMAGE=astercti-build-debian-$(DEBIAN_RELEASE)
+docker-debian-default-image: DOCKERFILE=Dockerfile
+docker-debian-default-image: docker-image
+
 docker-windows: DOCKER_IMAGE=astercti-build-windows
 docker-windows: DOCKERFILE=Dockerfile.win
 docker-windows: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
+docker-windows: docker-debian-default-image
 docker-windows: docker-image
 	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make winrelease
 

@@ -1,0 +1,8 @@
+language: c++
+
+services:
+  - docker
+
+before_install:
+  - make docker-debian-stretch
+
