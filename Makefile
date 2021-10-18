@@ -1,10 +1,11 @@
 CXXFLAGS=-std=c++11 `wx-config --cflags` `pkg-config --cflags jsoncpp`
+LINUX_LDFLAGS=`wx-config --libs core base net html adv qa` `pkg-config --libs jsoncpp libcurl`
 BINARY=astercti
 DBGDIR=build/debug
 RELDIR=build/release
 WINDBGDIR=build/debug_win
 WINRELDIR=build/release_win
-WINPATH=/usr/local/libwxmsw3.0/bin
+WINPATH=/usr/local/i686-mingw32-g++/bin
 JSONPATH=../jsoncpp
 CURLPATH=../curl
 UID=$(shell id -u)
@@ -71,7 +72,6 @@ $(RELDIR)/%.o: CXXFLAGS += -s -DNDEBUG -O2
 $(RELDIR)/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-#$(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I$(JSONPATH)/include -I$(JSONPATH)/dist -I$(CURLPATH)/include
 $(WINDBGDIR)/%.o: CXX=i686-w64-mingw32-g++
 $(WINDBGDIR)/%.o: CXXFLAGS=-DDEBUG -g -std=c++11 `$(WINPATH)/wx-config --cflags` -I$(JSONPATH)/dist -I$(CURLPATH)/include
 $(WINDBGDIR)/%.o: src/%.cpp
@@ -82,7 +82,7 @@ resource.rc: Makefile $(addsuffix .ico, $(BIGICONS) $(SMALLICONS))
 	$(foreach icon,$(BIGICONS) $(SMALLICONS), echo $(icon) ICON \"$(addsuffix .ico,$(icon))\" >> resource.rc;)
 
 %/resource.o: resource.rc
-	`$(WINPATH)/wx-config --rescomp` -o $@ $<
+	i686-w64-mingw32-windres -i $< -o $@
 
 #Big icons:
 asterct%.ico: img/asterct%.png
@@ -96,27 +96,25 @@ asterct%.ico: img/asterct%.png
 src/jsoncpp.cpp:
 	ln -s ../../jsoncpp/dist/jsoncpp.cpp $@
 
-#$(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I$(JSONPATH)/include -I$(JSONPATH)/dist -I$(CURLPATH)/include
-
 $(WINRELDIR)/%.o: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/%.o: CXXFLAGS=-s -DNDEBUG -O2 -std=c++11 `$(WINPATH)/wx-config --cflags` -I$(JSONPATH)/dist -I$(CURLPATH)/include
 $(WINRELDIR)/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(DBGDIR)/$(BINARY): $(DBGDIR) $(DEBUG_OBJ)
-	$(CXX) -o $@ $(DEBUG_OBJ) $(LDFLAGS) -g1 `wx-config --libs` `pkg-config --libs jsoncpp libcurl`
+	$(CXX) -o $@ $(DEBUG_OBJ) -g1 $(LDFLAGS) $(LINUX_LDFLAGS)
 	ln -sf $@ $(BINARY)
 
 $(RELDIR)/$(BINARY): $(RELDIR) $(RELEASE_OBJ)
-	$(CXX) -o $@ $(RELEASE_OBJ) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl`
+	$(CXX) -o $@ $(RELEASE_OBJ) $(LDFLAGS) $(LINUX_LDFLAGS)
 	strip --strip-all $@
 	ln -sf $@ $(BINARY)
 
 $(WINDBGDIR)/$(BINARY).exe: VERSION=$(shell cat src/version.h | grep VERSION | grep -o '"[0-9a-z\.-]*"' | grep -o '[0-9a-z\.-]*')
 $(WINDBGDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
-$(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs` -llibcurl -L.
-$(WINDBGDIR)/$(BINARY).exe: $(WINDBGDIR) $(WINDEBUG_OBJ) i18n/ru.mo
-	$(CXX) $(WINDEBUG_OBJ) $(LDFLAGS) -o $@
+$(WINDBGDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs`
+$(WINDBGDIR)/$(BINARY).exe: $(WINDBGDIR) $(WINDEBUG_OBJ) i18n/ru.mo libcurl.dll curl-ca-bundle.crt
+	$(CXX) $(WINDEBUG_OBJ) $(LDFLAGS) libcurl.dll -o $@
 	makensis windows_install_debug.nsis
 	mv astercti_debug_installer.exe pkg/astercti_$(VERSION)_debug_installer.exe
 
@@ -124,7 +122,7 @@ $(WINRELDIR)/$(BINARY).exe: VERSION=$(shell cat src/version.h | grep VERSION | g
 $(WINRELDIR)/$(BINARY).exe: CXX=i686-w64-mingw32-g++
 $(WINRELDIR)/$(BINARY).exe: LDFLAGS+=-static -L/usr/lib -L/usr/local/lib `$(WINPATH)/wx-config --libs`
 $(WINRELDIR)/$(BINARY).exe: $(WINRELDIR) $(WINRELEASE_OBJ) i18n/ru.mo libcurl.dll curl-ca-bundle.crt
-	$(CXX) $(WINRELEASE_OBJ) $(LDFLAGS) libcurl.dll -o $@
+	$(CXX) -static $(WINRELEASE_OBJ) $(LDFLAGS) libcurl.dll -o $@
 	strip --strip-all $@
 	makensis windows_install_script.nsis
 	mv astercti_installer.exe pkg/astercti_$(VERSION)_installer.exe
@@ -221,6 +219,15 @@ docker-debian-bookworm: DEBIAN_RELEASE=bookworm
 docker-debian-bookworm: WXGTK_PACKAGE=libwxgtk3.2-dev
 docker-debian-bookworm: docker-debian
 
+#docker-image-debian-default: DOCKER_IMAGE=astercti-build-debian-$(DEFAULT_DEBIAN_RELEASE)
+#docker-image-debian-default: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
+#docker-image-debian-default: DOCKERFILE=Dockerfile
+#docker-image-debian-default: docker-image
+#
+#docker-debian-%: DEBIAN_RELEASE=$(subst docker-debian-,,$@)
+#docker-debian-%:
+#	make docker-debian DEBIAN_RELEASE=$(DEBIAN_RELEASE)
+
 docker-image: image_timestamp=$(shell docker image inspect -f '{{json .Metadata.LastTagTime }}' $(DOCKER_IMAGE) | xargs date +%s -d || echo 0)
 docker-image: dockerfile_timestamp=$(shell stat -c%Y $(DOCKERFILE))
 docker-image:
@@ -241,11 +248,18 @@ docker-debian: DOCKER_IMAGE=astercti-build-debian-$(DEBIAN_RELEASE)
 docker-debian: docker-image
 	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make deb
 
+docker-image-windows: DOCKER_IMAGE=astercti-build-windows
+docker-image-windows: DOCKERFILE=Dockerfile.win
+docker-image-windows: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
+docker-image-windows: docker-image
+
 docker-windows: DOCKER_IMAGE=astercti-build-windows
-docker-windows: DOCKERFILE=Dockerfile.win
-docker-windows: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
-docker-windows: docker-image
+docker-windows: docker-image-windows
 	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make winrelease
+
+docker-windows-debug: DOCKER_IMAGE=astercti-build-windows
+docker-windows-debug: docker-image-windows
+	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make windebug
 
 debian-repo: DOCKER_IMAGE=astercti-build-debian-$(DEFAULT_DEBIAN_RELEASE)-debrepo
 debian-repo: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
@@ -258,3 +272,4 @@ freight:
 		freight add ./pkg/$$dist/*.deb apt/$$dist; \
 	done
 	freight cache
+

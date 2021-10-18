@@ -4,7 +4,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG WXGTK_PACKAGE=libwxgtk3.2-dev
 RUN apt-get update -yq \
     && apt-get install -yq --no-install-recommends \
-        binutils-mingw-w64-i686 \
         build-essential \
         ca-certificates \
         curl \
@@ -13,14 +12,11 @@ RUN apt-get update -yq \
         devscripts \
         fakeroot \
         git \
-        g++-mingw-w64-i686 \
         imagemagick \
         libcurl4-openssl-dev \
         libjsoncpp-dev \
         ${WXGTK_PACKAGE} \
         lsb-release \
-        nsis \
-        p7zip \
         pkg-config \
         nvi \
         wget \
