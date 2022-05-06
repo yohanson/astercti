@@ -1,32 +1,51 @@
-# define the name of the installer
+Unicode True
 Outfile "astercti_installer.exe"
- 
-# define the directory to install to, the desktop in this case as specified  
-# by the predefined $DESKTOP variable
 InstallDir $PROGRAMFILES\astercti
 
-# default section
+Page directory
+Page instfiles
+
 Section
- 
-# define the output path for this file
-SetOutPath $INSTDIR
- 
-# define what to install and place it in the output path
-File build\release_win\astercti.exe
-File astercti.ini.default
-File libcurl.dll
-File *.dll
-File curl-ca-bundle.crt
-CreateDirectory $INSTDIR\ru
-File /oname=ru\astercti.mo i18n/ru.mo
+  SetOutPath $INSTDIR
+  File build\release_win\astercti.exe
+  File astercti.ini.default
+  File libcurl.dll
+  File *.dll
+  File curl-ca-bundle.crt
+  CreateDirectory $INSTDIR\ru
+  File /oname=ru\astercti.mo i18n/ru.mo
 
-SetOutPath $APPDATA\astercti
-File astercti.ini.default
+  SetOutPath $APPDATA\astercti
+  File astercti.ini.default
 
-WriteRegStr HKCR "tel" 'URL Protocol' ''
-WriteRegStr HKCR "tel\shell\open\command" '' '"$PROGRAMFILES\astercti\astercti.exe" "%1"'
-WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe" '' '$PROGRAMFILES\astercti\astercti.exe'
-WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe" 'UseUrl' 0x1
-WriteRegStr   HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe\SupportedProtocols" 'tel' ''
+  WriteRegStr HKCR "tel" 'URL Protocol' ''
+  WriteRegStr HKCR "tel\shell\open\command" '' '"$PROGRAMFILES\astercti\astercti.exe" "%1"'
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe" '' '$PROGRAMFILES\astercti\astercti.exe'
+  WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe" 'UseUrl' 0x1
+  WriteRegStr   HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe\SupportedProtocols" 'tel' ''
+
+  WriteUninstaller $INSTDIR\uninst.exe
+
+  Var /GLOBAL UninstallRegKey
+  StrCpy $UninstallRegKey "Software\Microsoft\Windows\CurrentVersion\Uninstall\astercti"
+
+  WriteRegStr   HKLM $UninstallRegKey "DisplayName"          "AsterCTI. Computer-telephone integration app for Asterisk"
+  WriteRegStr   HKLM $UninstallRegKey "UninstallString"      "$\"$INSTDIR\uninst.exe$\""
+  WriteRegStr   HKLM $UninstallRegKey "QuietUninstallString" "$\"$INSTDIR\uninst.exe$\" /S"
+  WriteRegDWORD HKLM $UninstallRegKey "NoModify"             1
+  WriteRegDWORD HKLM $UninstallRegKey "NoRepair"             1
+SectionEnd
+
+UninstPage uninstConfirm
+UninstPage instfiles
+
+Section "Uninstall"
+  Delete $INSTDIR\*
+  Delete $INSTDIR\ru\*
+  RMDir $INSTDIR\ru
+  RMDir $INSTDIR
+  DeleteRegKey HKCR "tel"
+  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\astercti"
 SectionEnd
 

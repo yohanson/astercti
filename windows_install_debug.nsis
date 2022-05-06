@@ -1,3 +1,4 @@
+Unicode True
 # define the name of the installer
 Outfile "astercti_debug_installer.exe"
  
