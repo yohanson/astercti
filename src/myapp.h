@@ -10,10 +10,12 @@
 #include "filter.h"
 #include "chanstatus.h"
 #include "lookup.h"
+#include "numbershortener.h"
 
 class MyApp: public wxApp
 {
 public:
+    MyApp();
     ~MyApp();
     virtual bool OnInit();
     virtual int OnExit();

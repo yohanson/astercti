@@ -1,3 +1,9 @@
+astercti (0.0.24-1) unstable; urgency=medium
+
+  * Fix build for newer Debian
+
+ -- Michael A. Mikhailov <yohanson511@gmail.com>  Fri, 23 May 2025 02:13:00 +0700
+
 astercti (0.0.23-1) unstable; urgency=medium
 
   * Fix clearing message when it's still being processed.

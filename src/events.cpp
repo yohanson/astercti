@@ -122,6 +122,7 @@ void EventGenerator::handleEvent(const AmiMessage &m)
 }
 
 EventListener::EventListener()
+    : m_last_channel_state(AST_STATE_DOWN)
 {
 }
 

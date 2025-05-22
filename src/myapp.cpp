@@ -46,7 +46,6 @@ bool MyApp::OnInit()
     m_start_gui = ParseCmdLine();
     if (!m_start_gui) return true;
 
-    m_config = NULL;
     m_config = new wxFileConfig(wxT("astercti"),
                                 wxEmptyString,
                                 wxT("astercti.ini"),
@@ -134,6 +133,10 @@ int MyApp::OnRun()
         m_exit_code = wxApp::OnRun();
     }
     return m_exit_code;
+}
+
+MyApp::MyApp()
+{
 }
 
 MyApp::~MyApp()

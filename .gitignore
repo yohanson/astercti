@@ -3,11 +3,16 @@
 *.dll
 *.exe
 astercti
+runner
+runner.cpp
 *.log
 *.ico
 *.rc
 i18n/*.mo
 debian/astercti.substvars
 debian/files
+debian/debhelper-build-stamp
 gitversion.cpp
 curl-ca-bundle.crt
+pkg/*
+tags

@@ -25,5 +25,8 @@ File astercti.ini.default
 
 WriteRegStr HKCR "tel" 'URL Protocol' ''
 WriteRegStr HKCR "tel\shell\open\command" '' '"$PROGRAMFILES\astercti\astercti.exe" "%1"'
+WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe" '' '$PROGRAMFILES\astercti\astercti.exe'
+WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe" 'UseUrl' 0x1
+WriteRegStr   HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\astercti.exe\SupportedProtocols" 'tel' ''
 SectionEnd
 

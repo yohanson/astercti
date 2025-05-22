@@ -145,12 +145,9 @@ void Asterisk::AmiConnect()
     m_socket->Connect(addr, false);
 }
 
-Asterisk::Asterisk(std::string host, int port, std::string username, std::string secret)
+Asterisk::Asterisk(const std::string &host, int port, const std::string &username, const std::string &secret)
+    : m_ami_host(host), m_ami_port(port), m_ami_username(username), m_ami_secret(secret)
 {
-    m_ami_host = host;
-    m_ami_port = port;
-    m_ami_username = username;
-    m_ami_secret = secret;
     Bind(wxEVT_SOCKET, &Asterisk::OnSocketEvent, this);
     m_socket = new wxSocketClient;
     m_socket->SetEventHandler(*this);
@@ -167,7 +164,7 @@ Asterisk::~Asterisk()
     delete m_socket;
 }
 
-void Asterisk::Originate(std::string mychan, std::string context, std::string exten, std::string myexten, int priority)
+void Asterisk::Originate(const std::string &mychan, const std::string &context, const std::string &exten, const std::string &myexten, int priority)
 {
     std::ostringstream actionstream;
     char id[32];

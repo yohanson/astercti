@@ -1,8 +1,7 @@
 #include <wx/string.h>
 #include <wx/process.h>
 #include <wx/txtstrm.h>
-#include <json/value.h>
-#include <json/reader.h>
+#include <json/json.h>
 #include <curl/curl.h>
 #include <regex>
 #include "lookup.h"

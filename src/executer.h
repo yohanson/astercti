@@ -14,7 +14,7 @@
 class Executer : public EventListener
 {
 public:
-    Executer(CallerInfoLookuper *lookuper);
+    explicit Executer(CallerInfoLookuper *lookuper);
     void OnDialIn(const AmiMessage &);
 private:
     void ExecCommand(wxString &cmd, wxArrayString &output);

@@ -33,16 +33,16 @@ public:
     operator std::string() const {return s;};
     const std::string getID() const;
     ChannelName(){};
-    ChannelName(const std::string& str) {s = str;};
-    ChannelName(std::string& str) {s = str;};
-    ChannelName(const ChannelName& cn) {s = cn;};
+    ChannelName(const std::string& str) : s(str) {};
+    ChannelName(std::string& str) : s(str) {};
+    ChannelName(const ChannelName& cn) : s(cn) {};
     bool operator== (const ChannelName &cn) {return s == (std::string)cn;};
 };
 
 class Channel
 {
 public:
-    Channel(const std::string& chan);
+    explicit Channel(const std::string& chan);
     enum ast_channel_state m_state;
     ChannelName m_channel;
     std::string m_callerIDNum;
@@ -54,8 +54,8 @@ public:
 class MetaChannel
 {
 public:
-    MetaChannel(const std::string id){m_channelID = id;};
-    Channel * findChannel(ChannelName);
+    explicit MetaChannel(const std::string &id) : m_channelID(id) {};
+    Channel * findChannel(const ChannelName &);
     std::string m_channelID;
     std::list<Channel *> m_ownChannels;
 };
@@ -66,9 +66,9 @@ private:
     std::string m_mychannel;
     std::map<std::string, MetaChannel *> m_channels;
 public:
-    ChannelStatusPool(const std::string &);
-    Channel *                                       findChannel(ChannelName);
-    std::map<std::string, MetaChannel *>::iterator  findMetaChannel_iter(ChannelName);
+    explicit ChannelStatusPool(const std::string &);
+    Channel *                                       findChannel(const ChannelName&);
+    std::map<std::string, MetaChannel *>::iterator  findMetaChannel_iter(const ChannelName &);
     MetaChannel *                                   findMetaChannel(const std::string &);
     void handleEvent(const AmiMessage&);
     std::list<Channel *> getBridgedChannelsOf(const ChannelName &channelname);
@@ -79,7 +79,7 @@ class ChannelStatusPooler
 protected:
     ChannelStatusPool *m_channelstatuspool;
 public:
-    ChannelStatusPooler(ChannelStatusPool *);
+    explicit ChannelStatusPooler(ChannelStatusPool *);
 };
 
 #endif

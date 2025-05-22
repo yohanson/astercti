@@ -3,8 +3,8 @@
 #include "observer.h"
 
 IObserver::IObserver()
+    : observer_descr("")
 {
-    observer_descr="";
 }
 
 IObserver::~IObserver()

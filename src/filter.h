@@ -19,7 +19,7 @@ class MyChanFilter : public AmiMessageFilter
 {
     std::string m_channel_id;
 public:
-    MyChanFilter(std::string channel);
+    explicit MyChanFilter(const std::string& channel);
     bool filter(const AmiMessage &message);
     bool CreateShorteningRules(const std::string &rules);
     void shorten(std::string &number);
@@ -29,18 +29,6 @@ class InternalMessageFilter : public AmiMessageFilter
 {
 public:
     bool filter(const AmiMessage &message);
-};
-
-class ShortenNumberModifier : public AmiMessageModifier
-{
-private:
-    std::vector<std::string> long_prefixes;
-    std::vector<std::string> short_prefixes;
-public:
-    ShortenNumberModifier(const std::string &ShorteningRules);
-    bool CreateShorteningRules(const std::string &);
-    void handleEvent(const AmiMessage &);
-    void shorten(std::string &);
 };
 
 #endif
