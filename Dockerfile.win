@@ -4,7 +4,7 @@ USER 0
 
 # Obtaining wxMSW
 
-ARG WXVER=3.0.3
+ARG WXVER=3.2.8
 RUN wget -q -O /build/wxWidgets-$WXVER.tar.bz2 https://github.com/wxWidgets/wxWidgets/releases/download/v$WXVER/wxWidgets-$WXVER.tar.bz2
 RUN tar xf /build/wxWidgets-$WXVER.tar.bz2 -C /build/
 RUN cd /build/wxWidgets-$WXVER \
@@ -14,7 +14,7 @@ RUN cd /build/wxWidgets-$WXVER \
     && make clean \
     && cd /build \
     && rm -rf /build/wxWidgets-$WXVER*
-RUN ln -s /usr/local/i686-mingw32-g++ /usr/local/libwxmsw3.0
+RUN ln -s /usr/local/i686-mingw32-g++ /usr/local/libwxmsw3.2
 
 # Obtaining jsoncpp for Windows
 

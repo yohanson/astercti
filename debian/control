@@ -2,7 +2,7 @@ Source: astercti
 Section: net
 Priority: optional
 Maintainer: Mikhailov M.A. <yohanson@ngs.ru>
-Build-Depends: debhelper (>= 9), pkg-config, libjsoncpp-dev
+Build-Depends: debhelper (>= 11), pkg-config, libjsoncpp-dev
 Standards-Version: 3.9.5
 Vcs-Git: git://github.com/yohanson/astercti.git
 Vcs-Browser: http://github.com/yohanson/astercti.git

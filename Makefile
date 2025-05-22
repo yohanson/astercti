@@ -8,7 +8,7 @@ WINPATH=/usr/local/libwxmsw3.0/bin
 JSONPATH=../jsoncpp
 CURLPATH=../curl
 UID=$(shell id -u)
-DEFAULT_DEBIAN_RELEASE=stretch
+DEFAULT_DEBIAN_RELEASE=bookworm
 OBJECTS= \
 	asterisk.o \
 	calllistctrl.o \
@@ -36,6 +36,8 @@ DEBUG_OBJ=$(addprefix $(DBGDIR)/, $(OBJECTS))
 RELEASE_OBJ=$(addprefix $(RELDIR)/, $(OBJECTS))
 WINRELEASE_OBJ=$(addprefix $(WINRELDIR)/, $(OBJECTS) jsoncpp.o resource.o)
 WINDEBUG_OBJ=$(addprefix $(WINDBGDIR)/, $(OBJECTS) jsoncpp.o resource.o)
+
+DOCKERFILE=Dockerfile
 
 default:
 	@echo "Please supply target: debug, release, windebug, winrelease, deb"
@@ -102,11 +104,11 @@ $(WINRELDIR)/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(DBGDIR)/$(BINARY): $(DBGDIR) $(DEBUG_OBJ)
-	$(CXX) $(LDFLAGS) -g1 `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(DEBUG_OBJ) -o $@
+	$(CXX) -o $@ $(DEBUG_OBJ) $(LDFLAGS) -g1 `wx-config --libs` `pkg-config --libs jsoncpp libcurl`
 	ln -sf $@ $(BINARY)
 
 $(RELDIR)/$(BINARY): $(RELDIR) $(RELEASE_OBJ)
-	$(CXX) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl` $(RELEASE_OBJ) -o $@
+	$(CXX) -o $@ $(RELEASE_OBJ) $(LDFLAGS) `wx-config --libs` `pkg-config --libs jsoncpp libcurl`
 	strip --strip-all $@
 	ln -sf $@ $(BINARY)
 
@@ -207,14 +209,15 @@ versionhbump: VERSION=$(shell cat debian/changelog | head -n1 | grep -o '[0-9\.]
 versionhbump:
 	sed -i 's/^#define VERSION .*$$/#define VERSION "$(VERSION)"/' src/version.h
 
-docker-build: docker-debian-stretch docker-debian-jessie docker-windows
+docker-build: docker-debian-bullseye docker-debian-bookworm docker-windows
 
-docker-debian-stretch: DEBIAN_RELEASE=stretch
-docker-debian-stretch: docker-debian
+docker-debian-bullseye: DEBIAN_RELEASE=bullseye
+docker-debian-bullseye: WXGTK_PACKAGE=libwxgtk3.0-gtk3-dev
+docker-debian-bullseye: docker-debian
 
-docker-debian-jessie: DEBIAN_RELEASE=jessie
-docker-debian-jessie: docker-debian
-
+docker-debian-bookworm: DEBIAN_RELEASE=bookworm
+docker-debian-bookworm: WXGTK_PACKAGE=libwxgtk3.2-dev
+docker-debian-bookworm: docker-debian
 
 docker-image: image_timestamp=$(shell docker image inspect -f '{{json .Metadata.LastTagTime }}' $(DOCKER_IMAGE) | xargs date +%s -d || echo 0)
 docker-image: dockerfile_timestamp=$(shell stat -c%Y $(DOCKERFILE))
@@ -227,12 +230,12 @@ docker-image:
 		docker rm -f $(DOCKER_IMAGE) || true ; \
 		docker build -f $(DOCKERFILE) \
 			--build-arg DEBIAN_RELEASE=$(DEBIAN_RELEASE) \
+			--build-arg WXGTK_PACKAGE=$(WXGTK_PACKAGE) \
 			--build-arg UID=$(UID) \
 			-t $(DOCKER_IMAGE) . ; \
 	fi
 
 docker-debian: DOCKER_IMAGE=astercti-build-debian-$(DEBIAN_RELEASE)
-docker-debian: DOCKERFILE=Dockerfile
 docker-debian: docker-image
 	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make deb
 

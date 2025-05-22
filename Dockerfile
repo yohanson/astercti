@@ -1,6 +1,7 @@
-ARG DEBIAN_RELEASE
+ARG DEBIAN_RELEASE=bookworm
 FROM debian:$DEBIAN_RELEASE
 ENV DEBIAN_FRONTEND=noninteractive
+ARG WXGTK_PACKAGE=libwxgtk3.2-dev
 RUN apt-get update -yq \
     && apt-get install -yq --no-install-recommends \
         binutils-mingw-w64-i686 \
@@ -16,7 +17,7 @@ RUN apt-get update -yq \
         imagemagick \
         libcurl4-openssl-dev \
         libjsoncpp-dev \
-        libwxgtk3.0-dev \
+        ${WXGTK_PACKAGE} \
         lsb-release \
         nsis \
         p7zip \
