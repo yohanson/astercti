@@ -252,7 +252,7 @@ debian-repo: DOCKER_IMAGE=astercti-build-debian-$(DEFAULT_DEBIAN_RELEASE)-debrep
 debian-repo: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
 debian-repo: DOCKERFILE=Dockerfile.debrepo
 debian-repo: docker-image
-	docker run -it -u0 --rm -v $(shell pwd):/build/astercti -v $(shell pwd)/deb-repo:/var/cache/freight -v $(HOME)/.gnupg:/root/.gnupg -v $(shell pwd)/phrase:/phrase $(DOCKER_IMAGE) make freight
+	docker run -it -u0 --rm -v $(shell pwd):/build/astercti -v $(shell pwd)/debrepo:/var/cache/freight -v $(HOME)/.gnupg:/root/.gnupg -v $(shell pwd)/phrase:/phrase $(DOCKER_IMAGE) make freight
 
 freight:
 	for dist in $(shell ls ./pkg/); do \
