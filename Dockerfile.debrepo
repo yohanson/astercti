@@ -1,0 +1,17 @@
+ARG DEBIAN_RELEASE
+FROM astercti-build-debian-$DEBIAN_RELEASE
+USER 0
+
+RUN git clone https://github.com/freight-team/freight.git \
+    && cd freight \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf freight \
+    &&  rm -rf \
+        /var/tmp/* \
+        /tmp/* \
+        /usr/local/etc/freight*
+RUN echo 'GPG=yohanson511@gmail.com' > /etc/freight.conf \
+    && echo GPG_PASSPHRASE_FILE=/phrase >> /etc/freight.conf \
+    && echo SYMLINKS=off >> /etc/freight.conf

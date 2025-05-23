@@ -203,7 +203,10 @@ src/gitversion.cpp:
 bump: debianbump versionhbump
 
 debianbump:
-	dch -i -m -U -D unstable
+debianbump: DOCKER_IMAGE=astercti-build-debian-$(DEFAULT_DEBIAN_RELEASE)
+debianbump: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
+debianbump: docker-image
+	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) dch -i -m -U -D unstable
 
 versionhbump: VERSION=$(shell cat debian/changelog | head -n1 | grep -o '[0-9\.]*-' | grep -o '[0-9\.]*')
 versionhbump:
@@ -245,3 +248,14 @@ docker-windows: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
 docker-windows: docker-image
 	docker run -it --rm -v $(shell pwd):/build/astercti $(DOCKER_IMAGE) make winrelease
 
+debian-repo: DOCKER_IMAGE=astercti-build-debian-$(DEFAULT_DEBIAN_RELEASE)-debrepo
+debian-repo: DEBIAN_RELEASE=$(DEFAULT_DEBIAN_RELEASE)
+debian-repo: DOCKERFILE=Dockerfile.debrepo
+debian-repo: docker-image
+	docker run -it -u0 --rm -v $(shell pwd):/build/astercti -v $(shell pwd)/deb-repo:/var/cache/freight -v $(HOME)/.gnupg:/root/.gnupg -v $(shell pwd)/phrase:/phrase $(DOCKER_IMAGE) make freight
+
+freight:
+	for dist in $(shell ls ./pkg/); do \
+		freight add ./pkg/$$dist/*.deb apt/$$dist; \
+	done
+	freight cache

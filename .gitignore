@@ -16,3 +16,5 @@ gitversion.cpp
 curl-ca-bundle.crt
 pkg/*
 tags
+phrase
+debrepo/*

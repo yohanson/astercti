@@ -22,12 +22,14 @@ RUN apt-get update -yq \
         nsis \
         p7zip \
         pkg-config \
+        nvi \
         wget \
     && apt-get clean \
     &&  rm -rf \
         /var/lib/apt/lists/* \
         /var/tmp/* \
         /tmp/*
+
 ARG UID=1000
 RUN mkdir -p /build/astercti
 RUN chown -R $UID /build
