@@ -16,8 +16,27 @@ Originating a call:
 Installation
 ------------
 
-There are packages for Debian Stable (64 bit):
+There are packages for Debian:
 
 ```
-deb [arch=amd64] http://yohanson.github.io/debian jessie main
+deb [arch=amd64] https://yohanson.github.io/debian bullseye main
+deb [arch=amd64] https://yohanson.github.io/debian bookworm main
+```
+
+Installing the prebuilt package in Debian:
+
+```
+wget -O- https://yohanson.github.io/debian/pubkey.gpg | sudo tee /etc/apt/trusted.gpg.d/astercti.asc
+echo "deb [arch=amd64] https://yohanson.github.io/debian $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/astercti.list
+sudo apt update
+sudo apt install astercti
+```
+
+Same without sudo:
+
+```
+wget -O- https://yohanson.github.io/debian/pubkey.gpg > /etc/apt/trusted.gpg.d/astercti.asc
+echo "deb [arch=amd64] https://yohanson.github.io/debian $(lsb_release -sc) main" > /etc/apt/sources.list.d/astercti.list
+apt update
+apt install astercti
 ```

@@ -1,4 +1,4 @@
-astercti (0.0.24-1) unstable; urgency=medium
+astercti (0.0.24-2) unstable; urgency=medium
 
   * Fix build for newer Debian
 
