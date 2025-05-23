@@ -168,23 +168,23 @@ i18n/ru.mo:
 	msgfmt i18n/ru.po -o i18n/ru.mo
 
 install: release
-	cp -r $(RELDIR)/$(BINARY)					$(DESTDIR)/usr/bin/astercti
-	cp -r img/dial.png							$(DESTDIR)/usr/share/astercti/dial.png
-	cp -r img/hangup.png						$(DESTDIR)/usr/share/astercti/hangup.png
-	cp -r img/incoming_answered.png				$(DESTDIR)/usr/share/astercti/incoming_answered.png
-	cp -r img/incoming_unanswered.png			$(DESTDIR)/usr/share/astercti/incoming_unanswered.png
-	cp -r img/incoming_answered_elsewhere.png	$(DESTDIR)/usr/share/astercti/incoming_answered_elsewhere.png
-	cp -r img/outbound_answered.png				$(DESTDIR)/usr/share/astercti/outbound_answered.png
-	cp -r img/outbound_unanswered.png			$(DESTDIR)/usr/share/astercti/outbound_unanswered.png
-	cp -r img/wait.gif							$(DESTDIR)/usr/share/astercti/wait.gif
-	cp -r img/astercti.png						$(DESTDIR)/usr/share/pixmaps/astercti.png
-	cp -r img/astercti.png						$(DESTDIR)/usr/share/astercti/astercti.png
-	cp -r img/astercti-missed.png				$(DESTDIR)/usr/share/astercti/astercti-missed.png
-	cp -r astercti.ini.default					$(DESTDIR)/usr/share/astercti/astercti.ini.default
-	cp -r i18n/ru.mo							$(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/astercti.mo
-	cp -r astercti.desktop						$(DESTDIR)/usr/share/applications/astercti.desktop
-	cp -r astercti.1							$(DESTDIR)/usr/share/man/man1/astercti.1
-	gzip										$(DESTDIR)/usr/share/man/man1/astercti.1
+	install -D $(RELDIR)/$(BINARY)                  $(DESTDIR)/usr/bin/astercti
+	install -D img/dial.png                         $(DESTDIR)/usr/share/astercti/dial.png
+	install -D img/hangup.png                       $(DESTDIR)/usr/share/astercti/hangup.png
+	install -D img/incoming_answered.png            $(DESTDIR)/usr/share/astercti/incoming_answered.png
+	install -D img/incoming_unanswered.png          $(DESTDIR)/usr/share/astercti/incoming_unanswered.png
+	install -D img/incoming_answered_elsewhere.png  $(DESTDIR)/usr/share/astercti/incoming_answered_elsewhere.png
+	install -D img/outbound_answered.png            $(DESTDIR)/usr/share/astercti/outbound_answered.png
+	install -D img/outbound_unanswered.png          $(DESTDIR)/usr/share/astercti/outbound_unanswered.png
+	install -D img/wait.gif                         $(DESTDIR)/usr/share/astercti/wait.gif
+	install -D img/astercti.png                     $(DESTDIR)/usr/share/pixmaps/astercti.png
+	install -D img/astercti.png                     $(DESTDIR)/usr/share/astercti/astercti.png
+	install -D img/astercti-missed.png              $(DESTDIR)/usr/share/astercti/astercti-missed.png
+	install -D astercti.ini.default                 $(DESTDIR)/usr/share/astercti/astercti.ini.default
+	install -D i18n/ru.mo                           $(DESTDIR)/usr/share/locale/ru/LC_MESSAGES/astercti.mo
+	install -D astercti.desktop                     $(DESTDIR)/usr/share/applications/astercti.desktop
+	install -D astercti.1                           $(DESTDIR)/usr/share/man/man1/astercti.1
+	gzip                                            $(DESTDIR)/usr/share/man/man1/astercti.1
 
 
 
