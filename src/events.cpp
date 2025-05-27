@@ -119,6 +119,10 @@ void EventGenerator::handleEvent(const AmiMessage &m)
     {
         NotifyOnInternalMessage(m);
     }
+    else if (m.has("Response"))
+    {
+        NotifyOnResponse(m);
+    }
 }
 
 EventListener::EventListener()

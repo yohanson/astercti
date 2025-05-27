@@ -40,10 +40,11 @@ void Asterisk::OnSocketEvent(wxSocketEvent &event)
             break;
 
         case wxSOCKET_LOST:
+            std::cout << "connection lost" << std::endl;
             m["InternalMessage"] = "ConnectionStatus";
             m["Status"] = "Lost";
             Notify(m);
-            AmiConnect();
+            m_reconnectTimer.StartOnce(5000);
             break;
 
         case wxSOCKET_CONNECTION:
@@ -120,7 +121,17 @@ void Asterisk::AmiRequestStatus()
     std::string cmd = "Action: status\n\n";
     m_socket->Write(cmd.c_str(), cmd.length());
 }
-
+void Asterisk::OnTimeout(wxTimerEvent &event)
+{
+    switch (event.GetId()) {
+        case TIMER_PING:
+            OnPingTimeout(event);
+            break;
+        case TIMER_RECONNECT:
+            OnReconnectTimeout(event);
+            break;
+    }
+}
 void Asterisk::OnPingTimeout(wxTimerEvent& event)
 {
     if (m_ping_timer_active)
@@ -136,9 +147,20 @@ void Asterisk::OnPingTimeout(wxTimerEvent& event)
     else
         AmiPing();
 }
+void Asterisk::OnReconnectTimeout(wxTimerEvent& event)
+{
+    if (!m_socket->IsConnected())
+    {
+        AmiConnect();
+    }
+}
 
 void Asterisk::AmiConnect()
 {
+    AmiMessage m;
+    m["InternalMessage"] = "ConnectionStatus";
+    m["Status"] = std::string("Connecting to ") + m_ami_host;
+    Notify(m);
     wxIPV4address addr;
     addr.Hostname(m_ami_host);
     addr.Service(m_ami_port);
@@ -153,8 +175,9 @@ Asterisk::Asterisk(const std::string &host, int port, const std::string &usernam
     m_socket->SetEventHandler(*this);
     m_socket->SetNotify(wxSOCKET_INPUT_FLAG | wxSOCKET_OUTPUT_FLAG | wxSOCKET_CONNECTION_FLAG | wxSOCKET_LOST_FLAG);
     m_socket->Notify(true);
-    m_pingTimer.SetOwner(this);
-    Bind(wxEVT_TIMER, &Asterisk::OnPingTimeout, this);
+    m_pingTimer.SetOwner(this, TIMER_PING);
+    m_reconnectTimer.SetOwner(this, TIMER_RECONNECT);
+    Bind(wxEVT_TIMER, &Asterisk::OnTimeout, this);
     AmiConnect();
 }
 
@@ -190,4 +213,3 @@ void Asterisk::HangupChannel(const std::string &channel)
     std::string action = "Action: hangup\nChannel: "+channel+"\n\n";
     m_socket->Write(action.c_str(), action.length());
 }
-

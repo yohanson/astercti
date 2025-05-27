@@ -27,7 +27,7 @@ void ChannelStatusPool::handleEvent(const AmiMessage &m)
         std::string channel = m["Channel"];
         size_t zombie = channel.find("<ZOMBIE>");
         if (zombie != std::string::npos)
-        channel = channel.substr(0, zombie);
+            channel = channel.substr(0, zombie);
         auto mchan_it = findMetaChannel_iter(channel);
         if (mchan_it == m_channels.end())
             return;

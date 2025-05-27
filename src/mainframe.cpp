@@ -246,7 +246,7 @@ void MyFrame::SetTaskBarIcon(MyTaskBarIcon *taskbaricon)
 void MyFrame::handleEvent(const AmiMessage &message)
 {
     if (message.has("InternalMessage")) return;
-    if (message.has("Response")) return;
+    //if (message.has("Response")) return;
     if (StatusText->GetNumberOfLines() > LOG_MAX_LINES)
     {
         int chars = 0;
@@ -460,6 +460,9 @@ void MyFrame::OnResponse(const AmiMessage &m)
             m_CallInfo->SetPage("<body text='red'>" + _("Extension does not exist.") + "</body>");
             m_CallInfo->SetBackgroundColour(wxNullColour);
         }
+    } else if (m["Response"] == "Failure" && m["Reason"] == "0") {
+        m_CallInfo->SetPage("<body text='red'>" + _("No such number, extension or trunk") + "</body>");
+        m_CallInfo->SetBackgroundColour(wxNullColour);
     }
 }
 
@@ -488,6 +491,7 @@ void MyFrame::OnInternalMessage(const AmiMessage &m)
     {
         static bool was_connected;
         bool connected = (m["Status"] == "Connected");
+        SetStatusText(m["Status"]);
         if (connected == was_connected) return;
         if (!connected)
         {

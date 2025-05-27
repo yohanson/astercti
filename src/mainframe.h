@@ -57,6 +57,7 @@ private:
     wxBitmapButton *m_DialButton;
     wxHtmlWindow *m_CallInfo;
     MyTaskBarIcon *m_taskbaricon;
+    wxStatusBar *m_statusBar;
     wxSplitterWindow TopMostVerticalSplitter;
     std::string m_current_channel;
     wxBitmap       m_dialIcon,

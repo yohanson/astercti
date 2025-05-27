@@ -98,8 +98,11 @@ private:
     int     m_ami_port;
     char m_recv_buff[RECV_BUFF];
     wxTimer m_pingTimer;
+    wxTimer m_reconnectTimer;
     bool m_ping_timer_active;
+    void OnTimeout(wxTimerEvent& event);
     void OnPingTimeout(wxTimerEvent& event);
+    void OnReconnectTimeout(wxTimerEvent& event);
 
     void Notify(AmiMessage message);
     void OnSocketEvent(wxSocketEvent &event);
@@ -107,6 +110,7 @@ private:
     void AmiConnect();
     void AmiPing();
     void AmiRequestStatus();
+    enum {TIMER_PING = 0, TIMER_RECONNECT};
 
 public:
     Asterisk(const std::string &host, int port, const std::string &username, const std::string &secret);
