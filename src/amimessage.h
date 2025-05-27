@@ -3,15 +3,14 @@
 
 #include <map>
 #include <stdexcept>
+#include <functional>
 
 /************************************************************************/
 /* Comparator for case-insensitive comparison in STL assos. containers  */
 /************************************************************************/
-struct ci_less : std::binary_function<std::string, std::string, bool>
-{
+struct ci_less {
   // case-independent (ci) compare_less binary function
-  struct nocase_compare : public std::binary_function<unsigned char,unsigned char,bool>
-  {
+  struct nocase_compare {
     bool operator() (const unsigned char& c1, const unsigned char& c2) const {
         return tolower (c1) < tolower (c2);
     }
