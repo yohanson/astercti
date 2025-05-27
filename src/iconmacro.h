@@ -6,7 +6,11 @@
     #define ACTI_ICON(icon) (wxIcon(icon))
 #else
     #define ACTI_ICON_SIZED(icon, size) (ACTI_ICON(icon))
-    #define ACTI_ICON(icon) (wxIcon(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + icon ".png", wxBITMAP_TYPE_PNG))
+    #ifdef DEBUG
+        #define ACTI_ICON(icon) (wxIcon("img/" icon ".png", wxBITMAP_TYPE_PNG))
+    #else
+        #define ACTI_ICON(icon) (wxIcon(wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + icon ".png", wxBITMAP_TYPE_PNG))
+    #endif
 #endif
 
 
