@@ -60,6 +60,5 @@ static const wxCmdLineEntryDesc g_cmdLineDesc [] =
 
 extern const char *gitcommit;
 extern const char *gitcommitdate;
-extern const char *builddate;
 
 #endif

@@ -196,9 +196,8 @@ deb:
 .PHONY: src/gitversion.cpp i18n/*.mo
 
 src/gitversion.cpp:
-	echo "const char *gitcommit = \"$(shell git rev-parse --short HEAD)\";" > $@
+	echo "const char *gitcommit = \"$(shell git describe --always --match="" --dirty)\";" > $@
 	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso)\";" >> $@
-	echo "const char *builddate = \"$(shell date -Iseconds)\";" >> $@
 
 bump: debianbump versionhbump
 

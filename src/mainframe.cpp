@@ -108,14 +108,13 @@ void MyFrame::OnExit(wxCommandEvent& event)
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
     wxString buildinfo;
-    buildinfo << "Git commit: " << gitcommit << "\n"
-        << "Built: " << builddate << "\n";
+    buildinfo << "Git commit: " << gitcommit << " " << gitcommitdate << "\n";
     wxAboutDialogInfo info;
     info.SetName("AsterCTI");
     info.SetVersion(FULLVERSION);
     info.SetDescription(_("Computer-Telephone Integration app for Asterisk.") + "\n\n" + buildinfo);
-    info.SetCopyright(wxT("(C) 2015-2016"));
-    info.AddDeveloper("Michael Mikhailov <yohanson@ngs.ru>");
+    info.SetCopyright(wxT("(C) 2015-2025"));
+    info.AddDeveloper("Michael Mikhailov <yohanson511@gmail.com>");
     info.SetWebSite("https://github.com/yohanson/astercti");
     wxAboutBox(info);
 }

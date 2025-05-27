@@ -170,7 +170,6 @@ bool MyApp::ParseCmdLine()
     {
         std::cout << "AsterCTI v" << VERSION << std::endl;
         std::cout << "Commit " << gitcommit << " " << gitcommitdate << std::endl;
-        std::cout << "Built " << builddate << std::endl;
         std::cout << "https://github.com/yohanson/astercti" << std::endl;
         return false;
     }
@@ -219,8 +218,7 @@ void MyApp::OnFatalException()
     report->AddFile(m_config->GetLocalFileName("astercti.ini", wxCONFIG_USE_SUBDIR), "AsterCTI Settings");
     wxString versiontext;
     versiontext << "AsterCTI v" VERSION "\n"
-        << "Commit " << gitcommit << " " << gitcommitdate << "\n"
-        << "Built " << builddate << "\n";
+        << "Commit " << gitcommit << " " << gitcommitdate << "\n";
     report->AddText(wxString("version.txt"), versiontext, _("Version information"));
 
     wxString result;
