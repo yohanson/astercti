@@ -20,7 +20,7 @@ CallListCtrl::CallListCtrl(wxWindow *  parent,
 };
 
 
-long CallListCtrl::InsertCallItem(Call *call, long index)
+void CallListCtrl::InsertCallItem(Call *call, long index)
 {
     wxListItem item;
     item.SetId(index);

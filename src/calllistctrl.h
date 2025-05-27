@@ -17,7 +17,7 @@ public:
                  const wxString &       timeFormat = wxDefaultDateTimeFormat
     );
     ~CallListCtrl();
-    long InsertCallItem(Call *call, long index = 0);
+    void InsertCallItem(Call *call, long index = 0);
     void UpdateItem(long index);
     void SetTimeFormat(const wxString & timeFormat);
     void OnResize(wxSizeEvent &event);
