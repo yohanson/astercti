@@ -67,7 +67,7 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size, 
     m_DialNumber = new wxTextCtrl(RightPanel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     wxFont numberFont(wxSize(0,24), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     m_DialNumber->SetFont(numberFont);
-    m_DialButton = new wxBitmapButton(RightPanel, wxID_ANY, m_dialIcon, wxDefaultPosition, wxSize(36,36), wxBU_AUTODRAW);
+    m_DialButton = new wxBitmapButton(RightPanel, wxID_ANY, m_dialIcon, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW);
     DialSizer->Add(m_DialNumber, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     DialSizer->Add(m_DialButton, 0, wxALL|         wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 1);
     StatusText = new wxTextCtrl(RightPanel, ID_TextCtlNumber, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
