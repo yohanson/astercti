@@ -14,8 +14,10 @@ debian/files
 debian/debhelper-build-stamp
 gitversion.cpp
 curl-ca-bundle.crt
+certdata.txt
 pkg/*
 tags
 phrase
 debrepo/*
 .vscode/*
+src/jsoncpp.cpp
