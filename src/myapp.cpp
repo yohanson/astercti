@@ -1,3 +1,10 @@
+#include "wx/confbase.h"
+#include "wx/filefn.h"
+#include "wx/log.h"
+#include "wx/msgdlg.h"
+#include "wx/utils.h"
+#include <iostream>
+#include <ostream>
 #ifdef WX_PRECOMP
     #include <wx/wxprec.h>
 #else
@@ -5,7 +12,6 @@
 #endif
 
 #include <wx/string.h>
-#include <locale>
 #include <wx/intl.h>
 #include <wx/stdpaths.h>
 #include <wx/debugrpt.h>
@@ -21,7 +27,6 @@
 #include "chanstatus.h"
 #include "debugreport.h"
 #include "iconmacro.h"
-#include "utils.h"
 #include "executer.h"
 
 wxIMPLEMENT_APP(MyApp);
@@ -33,7 +38,6 @@ bool MyApp::OnInit()
         wxStandardPaths::Get().SetInstallPrefix("/usr");
     }
 #endif
-    wxString datadir = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator();
     if (!setlocale(LC_CTYPE, ""))
     {
         fprintf(stderr, "Can't set the specified locale! "
@@ -46,19 +50,7 @@ bool MyApp::OnInit()
     m_start_gui = ParseCmdLine();
     if (!m_start_gui) return true;
 
-    m_config = new wxFileConfig(wxT("astercti"),
-                                wxEmptyString,
-                                wxT("astercti.ini"),
-                                wxEmptyString,
-                                wxCONFIG_USE_SUBDIR);
-    wxFileName configfile = m_config->GetLocalFile("astercti.ini", wxCONFIG_USE_SUBDIR);
-    if (!configfile.IsFileReadable())
-    {
-        std::ostringstream msg;
-        msg << _("Error opening config file.") << std::endl
-            << _("Sample config is at ") << configfile.GetFullPath() << ".default" << std::endl
-            << _("Rename it to astercti.ini and edit.");
-        wxLogError("%s", msg.str());
+    if (!InitializeConfig()) {
         return false;
     }
 
@@ -240,6 +232,48 @@ void MyApp::OnFatalException()
     }
     wxSafeShowMessage("AsterCTI Crash Report", result);
     delete report;
+}
+
+bool MyApp::InitializeConfig()
+{
+    m_config = new wxFileConfig(wxT("astercti"),
+                                wxEmptyString,
+                                wxT("astercti.ini"),
+                                wxEmptyString,
+                                wxCONFIG_USE_SUBDIR | wxCONFIG_USE_LOCAL_FILE);
+    wxString path = m_config->GetLocalFile("astercti.ini", wxCONFIG_USE_SUBDIR | wxCONFIG_USE_LOCAL_FILE)
+        .GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+    wxFileName configfile(path + "/astercti.ini");
+
+    if (!configfile.IsFileReadable())
+    {
+        wxString examplePath = wxStandardPaths::Get().GetDataDir() + wxFileName::GetPathSeparator() + "astercti.ini.default";
+
+        if (!wxMkdir(configfile.GetPath())) {
+            wxLogError("Unable to create config directory " + configfile.GetPath());
+            return false;
+        }
+        if (!wxCopyFile(examplePath, configfile.GetFullPath())) {
+            wxLogError("Unable to create config file " + configfile.GetFullPath());
+            return false;
+        }
+    }
+
+    auto serverAddress = m_config->Read("server/address");
+    if (serverAddress == "<asterisk server>") {
+        std::ostringstream msg;
+        msg
+            << _("The configuration file contains example values that need to be edited.") << std::endl
+            << _("File location:") << " \"" << configfile.GetFullPath() << '\"' << std::endl << std::endl
+            << _("Would you like to open the configuration file in a text editor?");
+
+        int response = wxMessageBox(msg.str(), _("Edit Configuration File"), wxYES_NO | wxICON_QUESTION);
+        if (response == wxYES) {
+            wxLaunchDefaultApplication(configfile.GetFullPath());
+        }
+        return false;
+    }
+    return true;
 }
 
 std::string MyApp::Cfg(std::string s, std::string def)

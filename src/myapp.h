@@ -34,6 +34,7 @@ public:
     wxLocale m_locale;
     MyTaskBarIcon *m_taskbaricon;
 private:
+    bool InitializeConfig();
     bool m_start_gui;
     int m_exit_code;
     bool start_iconified;
