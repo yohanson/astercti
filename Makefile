@@ -57,7 +57,8 @@ $(DBGDIR) $(RELDIR) $(WINDBGDIR) $(WINRELDIR):
 
 clean:
 	rm -f $(BINARY)
-	rm -f gitversion.cpp
+	rm -f src/gitversion.cpp
+	rm -f git-commit
 	rm -f *.exe
 	rm -f *.rc
 	rm -f *.ico
@@ -191,11 +192,15 @@ deb:
 	mkdir -p pkg/$(shell lsb_release -sc)
 	mv ../astercti_* pkg/$(shell lsb_release -sc)/
 
-.PHONY: src/gitversion.cpp i18n/*.mo
+.PHONY: i18n/*.mo
 
-src/gitversion.cpp:
-	echo "const char *gitcommit = \"$(shell git describe --always --match="" --dirty)\";" > $@
-	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso)\";" >> $@
+# A hack. Run script every time make is invoked.
+# Simulates a phony dependency which doesn't make its dependants phony.
+GIT_COMMIT_UPDATE = $(shell scripts/update-git-commit.sh)
+
+src/gitversion.cpp: git-commit
+	echo "const char *gitcommit = \"$(shell cat git-commit)\";" > $@
+	echo "const char *gitcommitdate = \"$(shell git show -s --format=%ai --date=iso 2>/dev/null || echo 'unknown')\";" >> $@
 
 bump: debianbump versionhbump
 

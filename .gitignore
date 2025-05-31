@@ -12,7 +12,7 @@ i18n/*.mo
 debian/astercti.substvars
 debian/files
 debian/debhelper-build-stamp
-gitversion.cpp
+src/gitversion.cpp
 curl-ca-bundle.crt
 certdata.txt
 pkg/*
@@ -21,3 +21,4 @@ phrase
 debrepo/*
 .vscode/*
 src/jsoncpp.cpp
+git-commit
